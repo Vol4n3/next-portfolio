@@ -1,5 +1,5 @@
-import {PropsWithChildren} from 'react';
+import { PropsWithChildren } from "react";
 
-export function MainTemplate({children}: PropsWithChildren){
-  return <>{children}</>
+export function MainTemplate({ children }: PropsWithChildren) {
+  return <>{children}</>;
 }

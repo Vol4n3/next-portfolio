@@ -1,7 +1,7 @@
-import type {NextPage} from 'next'
+import type { NextPage } from "next";
 
 const HomePage: NextPage = () => {
-  return null
-}
+  return null;
+};
 
-export default HomePage
+export default HomePage;

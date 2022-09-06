@@ -23,7 +23,7 @@ const themes: { [key in ThemeName]: Theme } = {
   light: {},
 };
 const keyLocalStorageTheme = "theme";
-
+let isInit = false;
 export function ThemeProvider({ children }: PropsWithChildren) {
   const [themeName, setThemeName] = useState<ThemeName>("light");
   const changeTheme = useCallback(
@@ -37,11 +37,15 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     [themeName]
   );
   useEffect(() => {
+    if (isInit) {
+      return;
+    }
+
+    isInit = true;
     const name = localStorage.getItem(keyLocalStorageTheme) as ThemeName | null;
     if (!name && !window.matchMedia("(prefers-color-scheme: dark)").matches) {
       return;
     }
-    console.log("dat");
     changeTheme(name || "dark");
   }, [changeTheme]);
 

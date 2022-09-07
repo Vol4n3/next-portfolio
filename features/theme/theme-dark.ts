@@ -17,6 +17,7 @@ const colors: ThemeColors = {
   grey70: "#000",
   grey80: "#000",
   grey90: "#000",
+  grey95: "#000",
   light: "#F7ECDE",
   primary,
   secondary,

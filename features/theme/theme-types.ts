@@ -22,6 +22,7 @@ export interface ThemeColors {
   grey70: string;
   grey80: string;
   grey90: string;
+  grey95: string;
   light: string;
 }
 

@@ -1,7 +1,12 @@
 import type { NextPage } from "next";
+import { BaseButton } from "../commons/components/base-button";
 
-const HomePage: NextPage = () => {
-  return null;
+const IndexPage: NextPage = () => {
+  return (
+    <div>
+      <BaseButton>Hello world</BaseButton>
+    </div>
+  );
 };
 
-export default HomePage;
+export default IndexPage;

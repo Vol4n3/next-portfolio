@@ -4,11 +4,14 @@ export interface ColorShades {
   light: string;
   dark: string;
   base: string;
+  contrast: string;
 }
 
 export interface ThemeColors {
   primary: ColorShades;
   secondary: ColorShades;
+  text: ColorShades;
+  background: ColorShades;
   danger: ColorShades;
   warning: ColorShades;
   success: ColorShades;

@@ -16,7 +16,6 @@ const orange = "#E17A47";
 const red = "#EF3D59";
 const yellow = "#EFC958";
 const green = "#4aB19D";
-const darkBlue = "#344E5C";
 
 const danger: ColorShades = {
   contrast: "",

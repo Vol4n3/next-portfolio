@@ -8,8 +8,8 @@ const StyleButton = styled.button`
   padding: 0;
   margin: 0;
   outline: none;
-  font-family: inherit;
-  font-size: inherit;
+  font: inherit;
+
   &:not(:disabled) {
     cursor: pointer;
   }

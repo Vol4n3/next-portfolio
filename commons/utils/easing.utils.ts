@@ -1,7 +1,7 @@
 import { PI } from "./number.utils";
 
 export type EasingCallback = (
-  onValue: (value: number) => void,
+  onValue: (value: number, easeIndex: number) => void,
   onFinish: () => void
 ) => void;
 export type EasingFunction = (n: number) => number;
@@ -26,7 +26,7 @@ export const createEasing = (options: EasingOption[]): EasingCallback => {
       current = 0;
       return cb(onValue, onFinish);
     }
-    return onValue(startValue + easing(ratio) * (endValue - startValue));
+    return onValue(startValue + easing(ratio) * (endValue - startValue), index);
   };
   return cb;
 };

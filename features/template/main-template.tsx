@@ -31,7 +31,7 @@ export function MainTemplate({ children }: PropsWithChildren) {
   }, []);
   return (
     <>
-      <Container ref={refContainer}></Container>
+      <Container color={'red'} ref={refContainer}></Container>
       {children}
     </>
   );

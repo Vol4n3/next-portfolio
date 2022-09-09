@@ -9,6 +9,7 @@ import {
   Easing,
   EasingCallback,
 } from "../../../commons/utils/easing.utils";
+import { Segment2 } from "../segment2";
 
 export class BlobBall extends Circle2 implements Item2Scene {
   isUpdated: boolean = false;
@@ -17,21 +18,28 @@ export class BlobBall extends Circle2 implements Item2Scene {
   definition: number = 20;
   perlinDepth: number = 8;
   perlinStrength: number = 1;
-  perlinX: number = 0;
-  perlinY: number = 0;
   perlinRotation: number = 0;
+  perlinMovement: Segment2 = new Segment2();
   easing: EasingCallback | null = null;
   easingOut: EasingCallback | null = null;
   private perlin = new Perlin();
 
   bounce = () => {
     if (this.easingOut || this.easing) return;
-    this.easing = createEasing(
-      Easing.easeInQuad,
-      this.perlinStrength,
-      this.perlinStrength + 2,
-      25
-    );
+    this.easing = createEasing([
+      {
+        easing: Easing.easeInQuad,
+        startValue: this.perlinStrength,
+        endValue: this.perlinStrength + 2,
+        time: 25,
+      },
+      {
+        easing: Easing.easeOutQuad,
+        startValue: this.perlinStrength + 2,
+        endValue: this.perlinStrength,
+        time: 25,
+      },
+    ]);
   };
 
   onResize(canvasWidth: number, canvasHeight: number): void {}
@@ -42,13 +50,13 @@ export class BlobBall extends Circle2 implements Item2Scene {
     ctx.beginPath();
 
     for (let i = 0; i < PI2 * this.definition; i++) {
-      const cerclePerlin = Vector2.createFromAngle(
+      const circlePerlin = Vector2.createFromAngle(
         this.perlinRotation + i / this.definition,
         this.perlinStrength
       );
       const bruit = this.perlin.noise(
-        cerclePerlin.x + this.perlinX,
-        cerclePerlin.y + this.perlinY
+        circlePerlin.x + this.perlinMovement.p2.x,
+        circlePerlin.y + this.perlinMovement.p2.y
       );
       const vec = Vector2.createFromAngle(
         i / this.definition,
@@ -66,30 +74,16 @@ export class BlobBall extends Circle2 implements Item2Scene {
 
   update(scene: Scene2d, time: number): void {
     this.isUpdated = true;
-    this.perlinY += 0.005;
-    this.perlinX += 0.005;
-    this.perlinRotation += 0.0005;
+    this.perlinMovement.operation("add", { x: 0.01, y: 0.01 });
+    this.perlinMovement.p2.rotateFrom(
+      this.perlinMovement.p1,
+      (this.perlinRotation -= 0.001)
+    );
     if (this.easing) {
-      const val = this.easing();
-      if (val === null) {
-        this.easing = null;
-        this.easingOut = createEasing(
-          Easing.easeOutQuad,
-          this.perlinStrength,
-          this.perlinStrength - 2,
-          25
-        );
-      } else {
-        this.perlinStrength = val;
-      }
-    }
-    if (this.easingOut) {
-      const val = this.easingOut();
-      if (val === null) {
-        this.easingOut = null;
-      } else {
-        this.perlinStrength = val;
-      }
+      this.easing(
+        (val) => (this.perlinStrength = val),
+        () => (this.easing = null)
+      );
     }
   }
 }

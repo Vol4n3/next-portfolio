@@ -1,25 +1,35 @@
 import { PI } from "./number.utils";
 
-export type EasingCallback = () => number | null;
+export type EasingCallback = (
+  onValue: (value: number) => void,
+  onFinish: () => void
+) => void;
 export type EasingFunction = (n: number) => number;
-export const createEasing = (
-  easing: EasingFunction,
-  startValue: number,
-  endValue: number,
-  time: number
-): EasingCallback => {
+export type EasingOption = {
+  easing: EasingFunction;
+  startValue: number;
+  endValue: number;
+  time: number;
+};
+export const createEasing = (options: EasingOption[]): EasingCallback => {
   let current = 0;
-  return () => {
+  let index = 0;
+  const cb: EasingCallback = (onValue, onFinish) => {
+    const option = options[index];
+    if (!option) {
+      return onFinish();
+    }
+    const { easing, time, startValue, endValue } = option;
     const ratio = current++ / time;
     if (ratio > 1) {
-      return null;
+      index++;
+      current = 0;
+      return cb(onValue, onFinish);
     }
-    return startValue + easing(ratio) * (endValue - startValue);
+    return onValue(startValue + easing(ratio) * (endValue - startValue));
   };
+  return cb;
 };
-const c1 = 1.70158;
-const c2 = c1 * 1.525;
-const c3 = c1 + 1;
 const c4 = (2 * PI) / 3;
 const c5 = (2 * PI) / 4.5;
 

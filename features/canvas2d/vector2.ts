@@ -17,7 +17,7 @@ export class Vector2 implements IPoint2 {
 
   set angle(angle) {
     const length = this.length;
-    this.b.operation("add", Math.cos(angle) * length, Math.sin(angle) * length);
+    this.b.operation("equal", Math.cos(angle) * length, Math.sin(angle) * length);
   }
 
   get length(): number {

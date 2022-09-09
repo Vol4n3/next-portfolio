@@ -13,7 +13,10 @@ export class Point2 implements IPoint2 {
   static create(point: IPoint2): Point2 {
     return new Point2(point.x, point.y);
   }
-
+  rotateFrom(p: IPoint2,angle: number){
+    const length = this.distanceTo(p);
+    this.operation("equal", p.x + Math.cos(angle) * length, p.y + Math.sin(angle) * length);
+  }
   angleFrom(p: IPoint2): number {
     return Math.atan2(this.y - p.y, this.x - p.x);
   }

@@ -18,7 +18,11 @@ export function MainTemplate({ children }: PropsWithChildren) {
       return;
     }
     const scene = new Scene2d(container);
-    const item = new BlobBall(50, 50, 50);
+    const item = new BlobBall(
+      scene.canvas.width / 2,
+      scene.canvas.height / 2,
+      50
+    );
     scene.addItem(item);
     const onClick = () => {
       item.bounce();
@@ -31,7 +35,7 @@ export function MainTemplate({ children }: PropsWithChildren) {
   }, []);
   return (
     <>
-      <Container color={'red'} ref={refContainer}></Container>
+      <Container color={"red"} ref={refContainer}></Container>
       {children}
     </>
   );

@@ -21,23 +21,16 @@ export class BlobBall extends Circle2 implements Item2Scene {
   perlinRotation: number = 0;
   perlinMovement: Segment2 = new Segment2();
   easing: EasingCallback | null = null;
-  easingOut: EasingCallback | null = null;
   private perlin = new Perlin();
 
   bounce = () => {
-    if (this.easingOut || this.easing) return;
+    if (this.easing) return;
     this.easing = createEasing([
       {
-        easing: Easing.easeInQuad,
-        startValue: this.perlinStrength,
-        endValue: this.perlinStrength + 2,
-        time: 25,
-      },
-      {
-        easing: Easing.easeOutQuad,
-        startValue: this.perlinStrength + 2,
-        endValue: this.perlinStrength,
-        time: 25,
+        easing: Easing.easeOutElastic,
+        startValue: this.radius,
+        endValue: this.radius + 50,
+        time: 50,
       },
     ]);
   };
@@ -81,7 +74,7 @@ export class BlobBall extends Circle2 implements Item2Scene {
     );
     if (this.easing) {
       this.easing(
-        (val) => (this.perlinStrength = val),
+        (val) => (this.radius = val),
         () => (this.easing = null)
       );
     }

@@ -11,11 +11,11 @@ export type EasingOption = {
   endValue: number;
   time: number;
 };
-export const createEasing = (options: EasingOption[]): EasingCallback => {
+export const createEasing = (steps: EasingOption[]): EasingCallback => {
   let current = 0;
   let index = 0;
   const cb: EasingCallback = (onValue, onFinish) => {
-    const option = options[index];
+    const option = steps[index];
     if (!option) {
       return onFinish();
     }

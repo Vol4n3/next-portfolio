@@ -7,7 +7,6 @@ const Container = styled.div`
   width: 100vw;
   height: 100vh;
   position: absolute;
-  pointer-events: none;
 `;
 
 export function MainTemplate({ children }: PropsWithChildren) {
@@ -21,16 +20,23 @@ export function MainTemplate({ children }: PropsWithChildren) {
     const item = new BlobBall(
       scene.canvas.width / 2,
       scene.canvas.height / 2,
-      50
+      50,
+      "circle"
     );
     scene.addItem(item);
-    const onClick = () => {
-      item.bounce();
+    const onClick = (ev: MouseEvent) => {
+      scene.moveCamera({ scale: scene.camera.scale + 0.2 });
     };
-    window.addEventListener("click", onClick);
+    scene.canvas.addEventListener("click", onClick);
+
+    function onMouseMove(ev: MouseEvent) {
+      item.hover = item.distanceTo({ x: ev.x, y: ev.y }) < item.radius;
+    }
+
+    scene.canvas.addEventListener("mousemove", onMouseMove);
     return () => {
       scene.destroy();
-      window.removeEventListener("click", onClick);
+      scene.canvas.removeEventListener("click", onClick);
     };
   }, []);
   return (

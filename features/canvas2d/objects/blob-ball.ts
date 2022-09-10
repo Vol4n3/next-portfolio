@@ -2,7 +2,7 @@ import { Item2Scene, Scene2d } from "../scene2d";
 import { Perlin } from "../../../commons/utils/perlin-utils";
 import { PI2 } from "../../../commons/utils/number.utils";
 import { Vector2 } from "../vector2";
-import { darkBlue } from "../../theme/hellipse-colors";
+import { darkBlue, lightBlue } from "../../theme/hellipse-colors";
 import { Circle2 } from "../circle2";
 import {
   createEasing,
@@ -21,27 +21,23 @@ export class BlobBall extends Circle2 implements Item2Scene {
   perlinRotation: number = 0;
   perlinMovement: Segment2 = new Segment2();
   easing: EasingCallback | null = null;
+  constructor(x: number, y: number, r: number, public name: string) {
+    super(x, y, r);
+  }
   private perlin = new Perlin();
 
-  bounce = () => {
-    if (this.easing) return;
-    this.easing = createEasing([
-      {
-        easing: Easing.easeOutElastic,
-        startValue: this.radius,
-        endValue: this.radius + 50,
-        time: 50,
-      },
-    ]);
-  };
+  destroy(): void {}
+
+  bounce = () => {};
 
   onResize(canvasWidth: number, canvasHeight: number): void {}
 
   draw2d(scene: Scene2d, time: number): void {
     const { ctx } = scene;
-    ctx.translate(this.x, this.y);
-    ctx.beginPath();
 
+    ctx.translate(this.x, this.y);
+
+    ctx.beginPath();
     for (let i = 0; i < PI2 * this.definition; i++) {
       const circlePerlin = Vector2.createFromAngle(
         this.perlinRotation + i / this.definition,
@@ -61,8 +57,18 @@ export class BlobBall extends Circle2 implements Item2Scene {
         ctx.lineTo(vec.x, vec.y);
       }
     }
-    ctx.fillStyle = darkBlue;
+    ctx.fillStyle = this.hover ? lightBlue : darkBlue;
     ctx.fill();
+    scene.writeText({
+      text: this.name,
+      x: 0,
+      textAlign: "center",
+      fillStyle: "white",
+      strokeStyle: "black",
+      textBaseline: "middle",
+      y: 0,
+      font: { size: this.radius / 3, type: "Raleway" },
+    });
   }
 
   update(scene: Scene2d, time: number): void {
@@ -79,4 +85,5 @@ export class BlobBall extends Circle2 implements Item2Scene {
       );
     }
   }
+  hover: boolean = false;
 }

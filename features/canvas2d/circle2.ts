@@ -1,21 +1,8 @@
 import { IPoint2 } from "../../commons/utils/point.utils";
+import { Point2 } from "./point2";
 
-export class Circle2 implements IPoint2 {
-  constructor(private _x: number, private _y: number, public radius: number) {}
-
-  get x(): number {
-    return this._x;
-  }
-
-  set x(value: number) {
-    this._x = value;
-  }
-
-  get y(): number {
-    return this._y;
-  }
-
-  set y(value: number) {
-    this._y = value;
+export class Circle2 extends Point2 implements IPoint2 {
+  constructor(x: number, y: number, public radius: number) {
+    super(x, y);
   }
 }

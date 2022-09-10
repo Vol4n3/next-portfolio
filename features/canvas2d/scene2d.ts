@@ -1,5 +1,12 @@
 import { loadImage } from "../../commons/utils/load-image";
 import { IPoint2 } from "../../commons/utils/point.utils";
+import { CreateDebounce } from "../../commons/utils/commons-utils";
+import { RequireAtLeastOne } from "../../commons/types/utils-type";
+import {
+  createEasing,
+  Easing,
+  EasingCallback,
+} from "../../commons/utils/easing.utils";
 
 export interface Item2Scene {
   isUpdated: boolean;
@@ -7,39 +14,49 @@ export interface Item2Scene {
   sceneId: number;
   scenePriority: number;
 
+  destroy(): void;
+
   draw2d(scene: Scene2d, time: number): void;
 
   update(scene: Scene2d, time: number): void;
 }
 
+type FillOrStroke = RequireAtLeastOne<{
+  fillStyle: string | CanvasGradient | CanvasPattern;
+  strokeStyle: string | CanvasGradient | CanvasPattern;
+}>;
 export type canvasWriteTextConfig = {
-  fillStyle?: string | CanvasGradient | CanvasPattern;
-  strokeStyle?: string | CanvasGradient | CanvasPattern;
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;
   direction?: CanvasDirection;
   text: string;
-  font?: string;
+  font?: { type: string; size: number };
   x: number;
   y: number;
   lineWidth?: number;
-};
+} & FillOrStroke;
+
+interface Camera extends IPoint2 {
+  scale: number;
+}
 
 export class Scene2d {
   public readonly canvas: HTMLCanvasElement;
   public readonly ctx: CanvasRenderingContext2D;
   fpsInterval;
-  private camera: IPoint2 = { x: 0, y: 0 };
+  camera: Camera = { x: 0, y: 0, scale: 1 };
   private elapsed: number = 0;
   private forceUpdate: boolean = true;
   private items: Item2Scene[] = [];
   private loopTime: number = 0;
   private now: number = 0;
-  private refResize = this.resize.bind(this);
   private startTime: number = 0;
   private then: number = 0;
   private tickAnimation: number = 0;
   private uid: number = 100;
+  private resizeObs = new ResizeObserver(this.debouncedResize.bind(this));
+  private debounce = CreateDebounce(this.resize.bind(this), 300);
+  private easingCameraZoom: EasingCallback | null = null;
 
   constructor(private container: HTMLDivElement, fps: number = 60) {
     this.fpsInterval = 1000 / fps;
@@ -52,7 +69,7 @@ export class Scene2d {
     this.canvas.style.position = "absolute";
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     container.appendChild(this.canvas);
-    window.addEventListener("resize", this.refResize);
+    this.resizeObs.observe(this.container);
     this.resize();
     this.tickAnimation = requestAnimationFrame(this.animate.bind(this));
   }
@@ -76,17 +93,20 @@ export class Scene2d {
     this.elapsed = this.now - this.then;
     if (this.elapsed > this.fpsInterval) {
       this.then = this.now - (this.elapsed % this.fpsInterval);
+      this.calcCamera();
       if (!this.forceUpdate && !this.items.some((i) => i.isUpdated)) {
         return;
       }
       this.forceUpdate = false;
       this.loopTime++;
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
       this.items.forEach((d) => {
+        this.ctx.save();
         // move camera
         this.ctx.translate(this.camera.x, this.camera.y);
+        this.ctx.scale(this.camera.scale, this.camera.scale);
         // draw first
-        this.ctx.save();
         d.draw2d(this, this.loopTime);
         this.ctx.restore();
         // set updated too false because draw
@@ -116,7 +136,9 @@ export class Scene2d {
 
   destroy() {
     this.container.removeChild(this.canvas);
-    window.removeEventListener("resize", this.refResize);
+    this.items.forEach((i) => i.destroy());
+    this.debounce.abort();
+    this.resizeObs.disconnect();
     window.cancelAnimationFrame(this.tickAnimation);
   }
 
@@ -124,10 +146,18 @@ export class Scene2d {
     return this.items.find((f) => f.sceneId === id);
   }
 
-  moveCamera(x: number, y: number) {
-    this.camera.x = x;
-    this.camera.y = y;
-    this.forceUpdate = true;
+  moveCamera(camera: Partial<Camera>) {
+    //this.camera = { ...this.camera, ...camera };
+    if (camera.scale) {
+      this.easingCameraZoom = createEasing([
+        {
+          easing: Easing.easeOutElastic,
+          startValue: this.camera.scale,
+          endValue: camera.scale,
+          time: 50,
+        },
+      ]);
+    }
   }
 
   removeItem(item: Item2Scene): void {
@@ -159,7 +189,9 @@ export class Scene2d {
     if (config.direction) this.ctx.direction = config.direction;
     if (config.textBaseline) this.ctx.textBaseline = config.textBaseline;
     if (config.lineWidth) this.ctx.lineWidth = config.lineWidth;
-    this.ctx.font = config.font || "26px Arial";
+    this.ctx.font = config.font
+      ? `${config.font.size}px ${config.font.type}`
+      : "26px Raleway";
     if (config.fillStyle) {
       this.ctx.fillStyle = config.fillStyle;
       this.ctx.fillText(config.text, config.x, config.y);
@@ -170,5 +202,21 @@ export class Scene2d {
     }
 
     this.ctx.restore();
+  }
+
+  private calcCamera() {
+    if (this.easingCameraZoom) {
+      this.easingCameraZoom(
+        (v) => {
+          this.camera.scale = v;
+          this.forceUpdate = true;
+        },
+        () => (this.easingCameraZoom = null)
+      );
+    }
+  }
+
+  private debouncedResize() {
+    this.debounce.call();
   }
 }

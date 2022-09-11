@@ -7,7 +7,7 @@ import {
   Easing,
   EasingCallback,
 } from "../../commons/utils/easing.utils";
-import { Camera, CameraViewport } from "./camera";
+import { Camera } from "./camera";
 
 export interface Item2Scene {
   isUpdated: boolean;
@@ -78,7 +78,7 @@ export class Scene2d {
     item.sceneId = id;
     item.scenePriority = order || id;
     this.items.push(item);
-    this.items = this.items.sort((a, b) => b.scenePriority - a.scenePriority);
+    this.items = this.items.sort((a, b) => a.scenePriority - b.scenePriority);
   }
 
   addMultipleItem(items: Item2Scene[]) {
@@ -149,7 +149,7 @@ export class Scene2d {
       this.easingCameraZoom = createEasing([
         {
           easing: Easing.easeOutElastic,
-          startValue: this.camera.distance,
+          startValue: this.camera.scale,
           endValue: camera.distance,
           time: 50,
         },
@@ -168,11 +168,11 @@ export class Scene2d {
   }
 
   resize() {
-    const width = this.container.clientWidth;
-    const height = this.container.clientHeight;
+    const rect = this.container.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
     this.canvas.width = width;
     this.canvas.height = height;
-    this.camera.resize(width, height);
     this.forceUpdate = true;
     this.items.forEach((item) => {
       if (item.onResize) {

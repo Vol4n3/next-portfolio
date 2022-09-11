@@ -4,11 +4,7 @@ import { PI2 } from "../../../commons/utils/number.utils";
 import { Vector2 } from "../vector2";
 import { darkBlue, lightBlue } from "../../theme/hellipse-colors";
 import { Circle2 } from "../circle2";
-import {
-  createEasing,
-  Easing,
-  EasingCallback,
-} from "../../../commons/utils/easing.utils";
+import { EasingCallback } from "../../../commons/utils/easing.utils";
 import { Segment2 } from "../segment2";
 
 export class BlobBall extends Circle2 implements Item2Scene {
@@ -16,15 +12,17 @@ export class BlobBall extends Circle2 implements Item2Scene {
   sceneId: number = 0;
   scenePriority: number = 0;
   definition: number = 20;
-  perlinDepth: number = 8;
+  perlinDepth: number = this.radius / 5;
   perlinStrength: number = 1;
   perlinRotation: number = 0;
   perlinMovement: Segment2 = new Segment2();
   easing: EasingCallback | null = null;
+  hover: boolean = false;
+  private perlin = new Perlin();
+
   constructor(x: number, y: number, r: number, public name: string) {
     super(x, y, r);
   }
-  private perlin = new Perlin();
 
   destroy(): void {}
 
@@ -64,19 +62,18 @@ export class BlobBall extends Circle2 implements Item2Scene {
       x: 0,
       textAlign: "center",
       fillStyle: "white",
-      strokeStyle: "black",
       textBaseline: "middle",
       y: 0,
-      font: { size: this.radius / 3, type: "Raleway" },
+      font: { size: this.radius / 4, type: "Raleway" },
     });
   }
 
   update(scene: Scene2d, time: number): void {
     this.isUpdated = true;
-    this.perlinMovement.operation("add", { x: 0.01, y: 0.01 });
+    this.perlinMovement.operation("add", { x: 0.01, y: -0.01 });
     this.perlinMovement.p2.rotateFrom(
       this.perlinMovement.p1,
-      (this.perlinRotation -= 0.001)
+      (this.perlinRotation -= 0.0001)
     );
     if (this.easing) {
       this.easing(
@@ -85,5 +82,4 @@ export class BlobBall extends Circle2 implements Item2Scene {
       );
     }
   }
-  hover: boolean = false;
 }

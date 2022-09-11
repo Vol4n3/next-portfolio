@@ -7,6 +7,7 @@ import {
   Easing,
   EasingCallback,
 } from "../../commons/utils/easing.utils";
+import { Camera, CameraViewport } from "./camera";
 
 export interface Item2Scene {
   isUpdated: boolean;
@@ -36,15 +37,11 @@ export type canvasWriteTextConfig = {
   lineWidth?: number;
 } & FillOrStroke;
 
-interface Camera extends IPoint2 {
-  scale: number;
-}
-
 export class Scene2d {
   public readonly canvas: HTMLCanvasElement;
   public readonly ctx: CanvasRenderingContext2D;
   fpsInterval;
-  camera: Camera = { x: 0, y: 0, scale: 1 };
+  camera: Camera;
   private elapsed: number = 0;
   private forceUpdate: boolean = true;
   private items: Item2Scene[] = [];
@@ -70,6 +67,7 @@ export class Scene2d {
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     container.appendChild(this.canvas);
     this.resizeObs.observe(this.container);
+    this.camera = new Camera();
     this.resize();
     this.tickAnimation = requestAnimationFrame(this.animate.bind(this));
   }
@@ -104,8 +102,7 @@ export class Scene2d {
       this.items.forEach((d) => {
         this.ctx.save();
         // move camera
-        this.ctx.translate(this.camera.x, this.camera.y);
-        this.ctx.scale(this.camera.scale, this.camera.scale);
+        this.camera.apply(this.ctx);
         // draw first
         d.draw2d(this, this.loopTime);
         this.ctx.restore();
@@ -146,14 +143,14 @@ export class Scene2d {
     return this.items.find((f) => f.sceneId === id);
   }
 
-  moveCamera(camera: Partial<Camera>) {
+  moveCamera(camera: { distance?: number; x?: number; y?: number }) {
     //this.camera = { ...this.camera, ...camera };
-    if (camera.scale) {
+    if (camera.distance) {
       this.easingCameraZoom = createEasing([
         {
           easing: Easing.easeOutElastic,
-          startValue: this.camera.scale,
-          endValue: camera.scale,
+          startValue: this.camera.distance,
+          endValue: camera.distance,
           time: 50,
         },
       ]);
@@ -175,6 +172,7 @@ export class Scene2d {
     const height = this.container.clientHeight;
     this.canvas.width = width;
     this.canvas.height = height;
+    this.camera.resize(width, height);
     this.forceUpdate = true;
     this.items.forEach((item) => {
       if (item.onResize) {
@@ -208,7 +206,7 @@ export class Scene2d {
     if (this.easingCameraZoom) {
       this.easingCameraZoom(
         (v) => {
-          this.camera.scale = v;
+          this.camera.zoomTo(v);
           this.forceUpdate = true;
         },
         () => (this.easingCameraZoom = null)

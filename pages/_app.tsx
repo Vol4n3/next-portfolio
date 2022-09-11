@@ -13,6 +13,7 @@ const GlobalStyle = createGlobalStyle`
     font-size: 16px;
     font-weight: 500;
     color: ${({ theme }) => theme.colors.text.base};
+    position: relative;
   }
 
   a {

@@ -3,12 +3,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import * as Process from "process";
 import { Hellipsien } from "../../../features/notion/notion-api-type";
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Hellipsien[] | null>
-) {
-  if (req.method === "GET") {
-    fetch(
+async function getHellipsiens(): Promise<Hellipsien[]> {
+  try {
+    const response = await fetch(
       "https://api.notion.com/v1/databases/a8189d8ca8cb45d085c3422f5158fb9b/query",
       {
         method: "POST",
@@ -18,27 +15,36 @@ export default function handler(
           "Content-Type": "application/json",
         },
       }
-    )
-      .then((blob) => blob.json())
-      .then((response) =>
-        res.status(200).json(
-          response.results.map((result: any) => {
-            const firstFile = result["properties"]["Avatar"]["files"][0];
-            return {
-              name: result["properties"]["Name"]["title"][0]["plain_text"],
-              roles: result["properties"]["Rôles"]["relation"].map(
-                (role: any) => role.id
-              ),
-              avatar: firstFile?.file.url,
-              id: result.id,
-            };
-          })
-        )
-      )
-      .catch((error) => res.status(500).send(error));
-
-    return;
+    );
+    const toJson = await response.json();
+    return toJson.results.map((result: any) => {
+      const firstFile = result["properties"]["Avatar"]["files"][0];
+      return {
+        name: result["properties"]["Name"]["title"][0]["plain_text"],
+        roles: result["properties"]["Rôles"]["relation"].map(
+          (role: any) => role.id
+        ),
+        avatar: firstFile?.file.url,
+        id: result.id,
+      };
+    });
+  } catch (error) {
+    throw error;
   }
+}
 
-  res.status(404).send(null);
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<Hellipsien[] | null>
+) {
+  switch (req.method) {
+    case "GET":
+      getHellipsiens()
+        .then((response) => res.status(200).json(response))
+        .catch(() => res.status(500).send(null));
+      break;
+    default:
+      res.status(404).send(null);
+      break;
+  }
 }

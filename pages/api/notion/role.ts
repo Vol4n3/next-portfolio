@@ -3,12 +3,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import * as Process from "process";
 import { Role } from "../../../features/notion/notion-api-type";
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Role[] | null>
-) {
-  if (req.method === "GET") {
-    fetch(
+async function getRoles(): Promise<Role[]> {
+  try {
+    const response = await fetch(
       "https://api.notion.com/v1/databases/ee5d0dcb19744ecd86d0d871ca6826af/query",
       {
         method: "POST",
@@ -18,21 +15,30 @@ export default function handler(
           "Content-Type": "application/json",
         },
       }
-    )
-      .then((blob) => blob.json())
-      .then((response) =>
-        res.status(200).json(
-          response.results.map((result: any) => ({
-            name: result["properties"]["Rôles"]["title"][0]["plain_text"],
-            icon: result.icon,
-            id: result.id,
-          }))
-        )
-      )
-      .catch((error) => res.status(500).send(error));
-
-    return;
+    );
+    const toJson = await response.json();
+    return toJson.results.map((result: any) => ({
+      name: result["properties"]["Rôles"]["title"][0]["plain_text"],
+      icon: result.icon,
+      id: result.id,
+    }));
+  } catch (error) {
+    throw error;
   }
+}
 
-  res.status(404).send(null);
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<Role[] | null>
+) {
+  switch (req.method) {
+    case "GET":
+      getRoles()
+        .then((response) => res.status(200).json(response))
+        .catch(() => res.status(500).send(null));
+      break;
+    default:
+      res.status(404).send(null);
+      break;
+  }
 }

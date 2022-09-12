@@ -54,6 +54,8 @@ export class Scene2d {
   private resizeObs = new ResizeObserver(this.debouncedResize.bind(this));
   private debounce = CreateDebounce(this.resize.bind(this), 300);
   private easingCameraZoom: EasingCallback | null = null;
+  private height: number = 0;
+  private width: number = 0;
 
   constructor(private container: HTMLDivElement, fps: number = 60) {
     this.fpsInterval = 1000 / fps;
@@ -169,14 +171,14 @@ export class Scene2d {
 
   resize() {
     const rect = this.container.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.width = rect.width;
+    this.height = rect.height;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
     this.forceUpdate = true;
     this.items.forEach((item) => {
       if (item.onResize) {
-        item.onResize(width, height);
+        item.onResize(this.width, this.height);
       }
     });
   }
@@ -206,7 +208,10 @@ export class Scene2d {
     if (this.easingCameraZoom) {
       this.easingCameraZoom(
         (v) => {
-          this.camera.zoomTo(v);
+          this.camera.lookAt(null, v, {
+            x: this.camera.x + this.width / 2,
+            y: this.camera.y + this.height / 2,
+          });
           this.forceUpdate = true;
         },
         () => (this.easingCameraZoom = null)

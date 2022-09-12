@@ -43,7 +43,9 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
     }
 
     const scene = new Scene2d(container);
+
     const items = [
+      new BlobBall(scene.canvas.width / 2, scene.canvas.height / 2, 80, "Test"),
       ...cercles.map(
         (c, i) =>
           new BlobBall(
@@ -111,7 +113,11 @@ export async function getServerSideProps({
   } catch (error) {
     console.error(error);
     return {
-      notFound: true,
+      props: {
+        hellipsiens: [],
+        roles: [],
+        cercles: [],
+      },
     };
   }
 }

@@ -42,24 +42,24 @@ export class Camera extends Point2 {
 
   screenToWorld(point: IPoint2): IPoint2 {
     const x =
-        (point.x - this.x - this.scale.origin.x) / this.scale.strength +
-        this.scale.origin.x;
+      (point.x - this.x - this.scale.origin.x) / this.scale.strength +
+      this.scale.origin.x;
     const y =
-        (point.y - this.y - this.scale.origin.y) / this.scale.strength +
-        this.scale.origin.y;
-    return {x, y};
+      (point.y - this.y - this.scale.origin.y) / this.scale.strength +
+      this.scale.origin.y;
+    return { x, y };
   }
 
   worldToScreen(point: IPoint2): IPoint2 {
     const x =
-        (point.x - this.scale.origin.x) * this.scale.strength +
-        this.scale.origin.x +
-        this.x;
+      (point.x - this.scale.origin.x) * this.scale.strength +
+      this.scale.origin.x +
+      this.x;
     const y =
-        (point.y - this.scale.origin.y) * this.scale.strength +
-        this.scale.origin.y +
-        this.y;
-    return {x, y};
+      (point.y - this.scale.origin.y) * this.scale.strength +
+      this.scale.origin.y +
+      this.y;
+    return { x, y };
   }
 
   private applyScale(context: CanvasRenderingContext2D) {

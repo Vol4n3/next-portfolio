@@ -1,5 +1,4 @@
 import { loadImage } from "../../commons/utils/load-image";
-import { IPoint2 } from "../../commons/utils/point.utils";
 import { CreateDebounce } from "../../commons/utils/commons-utils";
 import { RequireAtLeastOne } from "../../commons/types/utils-type";
 import {

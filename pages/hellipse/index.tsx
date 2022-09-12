@@ -66,7 +66,7 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
       ),
     ];
     items.forEach((item) => scene.addItem(item));
-    const onClick = (ev: MouseEvent) => {
+    const onClick = () => {
       scene.moveCamera({ distance: scene.camera.scale + 0.1 });
     };
     scene.canvas.addEventListener("click", onClick);
@@ -83,7 +83,7 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
       scene.destroy();
       scene.canvas.removeEventListener("click", onClick);
     };
-  }, []);
+  }, [cercles, roles, hellipsiens]);
   return <Container ref={refContainer}></Container>;
 };
 

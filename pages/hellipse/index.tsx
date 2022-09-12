@@ -67,7 +67,7 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
     ];
     items.forEach((item) => scene.addItem(item));
     const onClick = () => {
-      scene.moveCamera({ distance: scene.camera.scale + 0.1 });
+      scene.moveCamera({ distance: scene.camera.scale.strength + 0.1 });
     };
     scene.canvas.addEventListener("click", onClick);
 

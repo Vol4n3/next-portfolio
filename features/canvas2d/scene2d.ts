@@ -150,7 +150,7 @@ export class Scene2d {
       this.easingCameraZoom = createEasing([
         {
           easing: Easing.easeOutElastic,
-          startValue: this.camera.scale,
+          startValue: this.camera.scale.strength,
           endValue: camera.distance,
           time: 50,
         },
@@ -207,9 +207,9 @@ export class Scene2d {
     if (this.easingCameraZoom) {
       this.easingCameraZoom(
         (v) => {
-          this.camera.lookAt(null, v, {
-            x: this.camera.x + this.width / 2,
-            y: this.camera.y + this.height / 2,
+          this.camera.lookAt(null, {
+            strength: v,
+            origin: { x: this.width / 2, y: this.height / 2 },
           });
           this.forceUpdate = true;
         },

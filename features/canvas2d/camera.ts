@@ -2,13 +2,15 @@
 import { IPoint2 } from "../../commons/utils/point.utils";
 import { Point2 } from "./point2";
 
+interface Scale {
+  origin: IPoint2;
+  strength: number;
+}
+
 export class Camera extends Point2 {
-  scale = 1;
-  scaleOrigin: IPoint2 = {
-    x: 0,
-    y: 0,
-  };
+  scale: Scale = { strength: 1, origin: { x: 0, y: 0 } };
   private mouseOffset: IPoint2 | null = null;
+  private screen: IPoint2 = { x: 0, y: 0 };
 
   constructor(position: IPoint2 = { x: 0, y: 0 }) {
     super(position.x, position.y);
@@ -20,7 +22,10 @@ export class Camera extends Point2 {
     this.applyTranslation(ctx);
   }
 
-  lookAt(position: Partial<IPoint2> | null, zoom?: number, origin?: IPoint2) {
+  lookAt(
+    position: Partial<IPoint2> | null,
+    scale?: { origin: IPoint2; strength: number }
+  ) {
     if (position) {
       if (typeof position.x === "number") {
         this.x = position.x;
@@ -30,29 +35,35 @@ export class Camera extends Point2 {
       }
     }
 
-    if (typeof zoom !== "undefined" && zoom > 0) {
-      this.scale = zoom;
-    }
-    if (origin) {
-      this.scaleOrigin = {
-        x: origin.x,
-        y: origin.y,
-      };
+    if (typeof scale !== "undefined" && scale.strength > 0) {
+      this.scale = scale;
     }
   }
 
   screenToWorld(point: IPoint2): IPoint2 {
     const x =
-      (point.x - this.scaleOrigin.x) / this.scale + this.scaleOrigin.x - this.x;
+      (point.x - this.x - this.scale.origin.x) / this.scale.strength +
+      this.x +
+      this.scale.origin.x -
+      this.x;
     const y =
-      (point.y - this.scaleOrigin.y) / this.scale + this.scaleOrigin.y - this.y;
+      (point.y - this.y - this.scale.origin.y) / this.scale.strength +
+      this.y +
+      this.scale.origin.y -
+      this.y;
     return { x, y };
   }
 
   private applyScale(context: CanvasRenderingContext2D) {
-    context.translate(this.scaleOrigin.x, this.scaleOrigin.y);
-    context.scale(this.scale, this.scale);
-    context.translate(-this.scaleOrigin.x, -this.scaleOrigin.y);
+    context.translate(
+      this.x + this.scale.origin.x,
+      this.y + this.scale.origin.y
+    );
+    context.scale(this.scale.strength, this.scale.strength);
+    context.translate(
+      -this.x - this.scale.origin.x,
+      -this.y - this.scale.origin.y
+    );
   }
 
   private applyTranslation(context: CanvasRenderingContext2D) {

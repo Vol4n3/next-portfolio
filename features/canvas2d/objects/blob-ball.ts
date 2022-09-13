@@ -2,17 +2,27 @@ import { Item2Scene, Scene2d } from "../scene2d";
 import { Perlin } from "../../../commons/utils/perlin-utils";
 import { PI2 } from "../../../commons/utils/number.utils";
 import { Vector2 } from "../vector2";
-import { darkBlue, lightBlue } from "../../theme/hellipse-colors";
 import { Circle2 } from "../circle2";
 import { EasingCallback } from "../../../commons/utils/easing.utils";
 import { Segment2 } from "../segment2";
+import { lighten } from "polished";
+
+interface BlobBallParams {
+  x: number;
+  y: number;
+  r: number;
+  name: string;
+  color: string;
+  scenePriority: number;
+  children: BlobBall[];
+  parent?: BlobBall;
+}
 
 export class BlobBall extends Circle2 implements Item2Scene {
   isUpdated: boolean = false;
-  sceneId: number = 0;
-  scenePriority: number = 0;
+  scenePriority: number;
   definition: number = 20;
-  perlinDepth: number = this.radius / 5;
+  perlinDepth: number = this.radius / 20;
   perlinStrength: number = 1;
   perlinRotation: number = 0;
   perlinMovement: Segment2 = new Segment2();
@@ -20,8 +30,28 @@ export class BlobBall extends Circle2 implements Item2Scene {
   hover: boolean = false;
   private perlin = new Perlin();
 
-  constructor(x: number, y: number, r: number, public name: string) {
+  public name: string;
+
+  public color: string;
+  private parent: BlobBall | undefined;
+  private children: BlobBall[];
+
+  constructor({
+    x,
+    y,
+    r,
+    name,
+    color,
+    scenePriority,
+    parent,
+    children,
+  }: BlobBallParams) {
     super(x, y, r);
+    this.color = color;
+    this.name = name;
+    this.scenePriority = scenePriority;
+    this.parent = parent;
+    this.children = children;
   }
 
   destroy(): void {}
@@ -32,7 +62,7 @@ export class BlobBall extends Circle2 implements Item2Scene {
 
   draw2d(scene: Scene2d, time: number): void {
     const { ctx } = scene;
-
+    ctx.save();
     ctx.translate(this.x, this.y);
 
     ctx.beginPath();
@@ -55,7 +85,7 @@ export class BlobBall extends Circle2 implements Item2Scene {
         ctx.lineTo(vec.x, vec.y);
       }
     }
-    ctx.fillStyle = this.hover ? lightBlue : darkBlue;
+    ctx.fillStyle = this.hover ? lighten(0.1, this.color) : this.color;
     ctx.fill();
     scene.writeText({
       text: this.name,
@@ -64,16 +94,18 @@ export class BlobBall extends Circle2 implements Item2Scene {
       fillStyle: "white",
       textBaseline: "middle",
       y: 0,
-      font: { size: this.radius / 4, type: "Raleway" },
+      font: { size: this.radius / 8, type: "Raleway" },
     });
+    ctx.restore();
+    this.children.forEach((c) => c.draw2d(scene, time));
   }
 
   update(scene: Scene2d, time: number): void {
     this.isUpdated = true;
-    this.perlinMovement.operation("add", { x: 0.01, y: -0.01 });
+    this.perlinMovement.operation("add", { x: 0.005, y: -0.005 });
     this.perlinMovement.p2.rotateFrom(
       this.perlinMovement.p1,
-      (this.perlinRotation -= 0.0001)
+      (this.perlinRotation -= 0.001)
     );
     if (this.easing) {
       this.easing(
@@ -81,5 +113,6 @@ export class BlobBall extends Circle2 implements Item2Scene {
         () => (this.easing = null)
       );
     }
+    this.children.forEach((c) => c.update(scene, time));
   }
 }

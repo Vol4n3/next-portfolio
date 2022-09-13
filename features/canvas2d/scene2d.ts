@@ -6,12 +6,11 @@ import {
   Easing,
   EasingCallback,
 } from "../../commons/utils/easing.utils";
-import { Camera } from "./camera";
+import { Camera2 } from "./camera2";
 
 export interface Item2Scene {
   isUpdated: boolean;
   onResize?: (canvasWidth: number, canvasHeight: number) => void;
-  sceneId: number;
   scenePriority: number;
 
   destroy(): void;
@@ -35,26 +34,35 @@ export type canvasWriteTextConfig = {
   y: number;
   lineWidth?: number;
 } & FillOrStroke;
+type UpdateGroupCallbackArgs = {
+  items: Item2Scene[];
+  scene: Scene2d;
+  time: number;
+};
 
 export class Scene2d {
   public readonly canvas: HTMLCanvasElement;
   public readonly ctx: CanvasRenderingContext2D;
   fpsInterval;
-  camera: Camera;
+  camera: Camera2;
+  height: number = 0;
+  width: number = 0;
+  private groups: {
+    onUpdate: (info: UpdateGroupCallbackArgs) => void;
+    items: Item2Scene[];
+  }[] = [];
   private elapsed: number = 0;
   private forceUpdate: boolean = true;
-  private items: Item2Scene[] = [];
   private loopTime: number = 0;
   private now: number = 0;
   private startTime: number = 0;
   private then: number = 0;
   private tickAnimation: number = 0;
-  private uid: number = 100;
   private resizeObs = new ResizeObserver(this.debouncedResize.bind(this));
   private debounce = CreateDebounce(this.resize.bind(this), 300);
-  private easingCameraZoom: EasingCallback | null = null;
-  private height: number = 0;
-  private width: number = 0;
+  private easingCameraDistance: EasingCallback | null = null;
+  private easingCameraX: EasingCallback | null = null;
+  private easingCameraY: EasingCallback | null = null;
 
   constructor(private container: HTMLDivElement, fps: number = 60) {
     this.fpsInterval = 1000 / fps;
@@ -68,18 +76,35 @@ export class Scene2d {
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     container.appendChild(this.canvas);
     this.resizeObs.observe(this.container);
-    this.camera = new Camera();
+    const rect = this.container.getBoundingClientRect();
+    this.camera = new Camera2({ x: rect.width, y: rect.height });
     this.resize();
     this.tickAnimation = requestAnimationFrame(this.animate.bind(this));
   }
 
-  addItem(item: Item2Scene, order?: number) {
+  private _items: Item2Scene[] = [];
+
+  get items(): Item2Scene[] {
+    return this._items;
+  }
+
+  set items(value: Item2Scene[]) {
+    this.cleanItems();
+    value.forEach((item) => this.addItem(item));
+  }
+
+  addItem(item: Item2Scene) {
     this.forceUpdate = true;
-    const id = this.uid++;
-    item.sceneId = id;
-    item.scenePriority = order || id;
-    this.items.push(item);
-    this.items = this.items.sort((a, b) => a.scenePriority - b.scenePriority);
+    this._items.push(item);
+    this._items = this._items.sort((a, b) => a.scenePriority - b.scenePriority);
+  }
+
+  addGroup(
+    items: Item2Scene[],
+    updateCallback: (arg: UpdateGroupCallbackArgs) => void
+  ) {
+    items.forEach((item) => this.addItem(item));
+    this.groups = [...this.groups, { onUpdate: updateCallback, items }];
   }
 
   addMultipleItem(items: Item2Scene[]) {
@@ -93,14 +118,14 @@ export class Scene2d {
     if (this.elapsed > this.fpsInterval) {
       this.then = this.now - (this.elapsed % this.fpsInterval);
       this.calcCamera();
-      if (!this.forceUpdate && !this.items.some((i) => i.isUpdated)) {
+      if (!this.forceUpdate && !this._items.some((i) => i.isUpdated)) {
         return;
       }
       this.forceUpdate = false;
       this.loopTime++;
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-      this.items.forEach((d) => {
+      this._items.forEach((d) => {
         this.ctx.save();
         // move camera
         this.camera.apply(this.ctx);
@@ -111,12 +136,15 @@ export class Scene2d {
         d.isUpdated = false;
         d.update(this, this.loopTime);
       });
+      this.groups.forEach((g) => {
+        g.onUpdate({ items: g.items, scene: this, time: this.loopTime });
+      });
     }
   }
 
   cleanItems(): void {
-    this.items = [];
-    this.uid = 100;
+    this._items = [];
+    this.groups = [];
   }
 
   async createTexture(
@@ -134,24 +162,39 @@ export class Scene2d {
 
   destroy() {
     this.container.removeChild(this.canvas);
-    this.items.forEach((i) => i.destroy());
+    this._items.forEach((i) => i.destroy());
     this.debounce.abort();
     this.resizeObs.disconnect();
     window.cancelAnimationFrame(this.tickAnimation);
   }
 
-  getItem(id: number): Item2Scene | undefined {
-    return this.items.find((f) => f.sceneId === id);
-  }
-
-  moveCamera(camera: { distance?: number; x?: number; y?: number }) {
-    //this.camera = { ...this.camera, ...camera };
+  moveCamera(camera: { x?: number; y?: number; distance?: number }) {
     if (camera.distance) {
-      this.easingCameraZoom = createEasing([
+      this.easingCameraDistance = createEasing([
         {
-          easing: Easing.easeOutElastic,
-          startValue: this.camera.scale.strength,
+          easing: Easing.easeOutCubic,
+          startValue: this.camera.distance,
           endValue: camera.distance,
+          time: 50,
+        },
+      ]);
+    }
+    if (camera.x) {
+      this.easingCameraX = createEasing([
+        {
+          easing: Easing.easeOutCubic,
+          startValue: this.camera.lookAtVector.x,
+          endValue: camera.x,
+          time: 50,
+        },
+      ]);
+    }
+    if (camera.y) {
+      this.easingCameraY = createEasing([
+        {
+          easing: Easing.easeOutCubic,
+          startValue: this.camera.lookAtVector.y,
+          endValue: camera.y,
           time: 50,
         },
       ]);
@@ -159,13 +202,12 @@ export class Scene2d {
   }
 
   removeItem(item: Item2Scene): void {
-    const findDrawIndex = this.items.findIndex(
-      (f) => f.sceneId === item.sceneId
-    );
-    if (findDrawIndex >= 0) {
-      this.items.splice(findDrawIndex, 1);
-      this.forceUpdate = true;
-    }
+    this._items = this._items.filter((f) => f !== item);
+    this.groups = this.groups.map((fg) => ({
+      onUpdate: fg.onUpdate,
+      items: fg.items.filter((fi) => fi !== item),
+    }));
+    this.forceUpdate = true;
   }
 
   resize() {
@@ -174,8 +216,9 @@ export class Scene2d {
     this.height = rect.height;
     this.canvas.width = this.width;
     this.canvas.height = this.height;
+    this.camera.resize(this.width, this.height);
     this.forceUpdate = true;
-    this.items.forEach((item) => {
+    this._items.forEach((item) => {
       if (item.onResize) {
         item.onResize(this.width, this.height);
       }
@@ -204,16 +247,31 @@ export class Scene2d {
   }
 
   private calcCamera() {
-    if (this.easingCameraZoom) {
-      this.easingCameraZoom(
-        (v) => {
-          this.camera.lookAt(null, {
-            strength: v,
-            origin: { x: this.width / 2, y: this.height / 2 },
-          });
+    if (this.easingCameraDistance) {
+      this.easingCameraDistance(
+        (strength) => {
+          this.camera.zoomTo(strength);
           this.forceUpdate = true;
         },
-        () => (this.easingCameraZoom = null)
+        () => (this.easingCameraDistance = null)
+      );
+    }
+    if (this.easingCameraX) {
+      this.easingCameraX(
+        (x) => {
+          this.camera.lookAt({ x });
+          this.forceUpdate = true;
+        },
+        () => (this.easingCameraX = null)
+      );
+    }
+    if (this.easingCameraY) {
+      this.easingCameraY(
+        (y) => {
+          this.camera.lookAt({ y });
+          this.forceUpdate = true;
+        },
+        () => (this.easingCameraY = null)
       );
     }
   }

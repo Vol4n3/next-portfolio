@@ -7,7 +7,12 @@ import { useEffect, useRef } from "react";
 import { Scene2d } from "../../features/canvas2d/scene2d";
 import { BlobBall } from "../../features/canvas2d/objects/blob-ball";
 import styled from "styled-components";
-import { darkPurple } from "../../features/theme/hellipse-colors";
+import {
+  darkBlue,
+  darkPurple,
+  darkRed,
+  navyBlue,
+} from "../../features/theme/hellipse-colors";
 import {
   Cercle,
   Hellipsien,
@@ -21,7 +26,6 @@ const Container = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  background: ${darkPurple};
 `;
 
 interface HellipsePageProps {
@@ -43,45 +47,119 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
     }
 
     const scene = new Scene2d(container);
+    const hellipseRadius = 600;
+    const cercleRadius = 200;
+    const roleRadius = 50;
+    const hellipseRadiusWithoutCercleRadius = hellipseRadius - cercleRadius * 2;
+    const hellipseWithoutRoleRadius = hellipseRadius - roleRadius * 2;
+    const CercleWithoutRoleRadius = cercleRadius - roleRadius * 2;
 
-    const items = [
-      new BlobBall(scene.canvas.width / 2, scene.canvas.height / 2, 80, "Test"),
-      ...cercles.map(
-        (c, i) =>
-          new BlobBall(
-            (scene.canvas.width / 4) * (i + 1),
-            (scene.canvas.height / 4) * (i + 1),
-            80,
-            c.name + c.icon.emoji
-          )
-      ),
-      ...roles.map(
-        (r, i) =>
-          new BlobBall(
-            scene.canvas.width - (scene.canvas.width / 16) * (i + 1),
-            (scene.canvas.height / 16) * (i + 1),
-            30,
-            r.name + r.icon.emoji
-          )
-      ),
-    ];
-    items.forEach((item) => scene.addItem(item));
-    const onClick = () => {
-      scene.moveCamera({ distance: scene.camera.scale.strength + 0.1 });
+    const rolesWithoutCircle = roles.filter(
+      (role) => !cercles.some((c) => c.roles.some((r) => r === role.id))
+    );
+    const BlobsRolesWithoutCircle = rolesWithoutCircle.map((role) => {
+      return new BlobBall({
+        x:
+          Math.random() * hellipseWithoutRoleRadius * 2 -
+          hellipseWithoutRoleRadius,
+        y:
+          Math.random() * hellipseWithoutRoleRadius * 2 -
+          hellipseWithoutRoleRadius,
+        r: roleRadius,
+        name: role.name + role.icon.emoji,
+        color: darkPurple,
+        scenePriority: 1,
+        children: [],
+      });
+    });
+    const cerclesBlob = cercles.map((c) => {
+      const cercleX =
+        Math.random() * hellipseRadiusWithoutCercleRadius * 2 -
+        hellipseRadiusWithoutCercleRadius;
+      const cercleY =
+        Math.random() * hellipseRadiusWithoutCercleRadius * 2 -
+        hellipseRadiusWithoutCercleRadius;
+      const cercleRoles = c.roles
+        .map((id) => roles.find((f) => f.id === id))
+        .filter((f) => typeof f !== "undefined") as Role[];
+      const cercleRoleBlobs = cercleRoles.map((r) => {
+        return new BlobBall({
+          x:
+            cercleX +
+            (Math.random() * CercleWithoutRoleRadius * 2 -
+              CercleWithoutRoleRadius),
+          y:
+            cercleY +
+            (Math.random() * CercleWithoutRoleRadius * 2 -
+              CercleWithoutRoleRadius),
+          r: roleRadius,
+          name: r.name + r.icon.emoji,
+          color: darkRed,
+          scenePriority: 2,
+          children: [],
+        });
+      });
+      return new BlobBall({
+        x: cercleX,
+        y: cercleY,
+        r: cercleRadius,
+        name: c.name + c.icon.emoji,
+        color: darkBlue,
+        scenePriority: 1,
+        children: cercleRoleBlobs,
+      });
+    });
+    const hellipseBlob = new BlobBall({
+      x: 0,
+      y: 0,
+      r: hellipseRadius,
+      name: "",
+      color: navyBlue,
+      scenePriority: 0,
+      children: [...BlobsRolesWithoutCircle, ...cerclesBlob],
+    });
+    scene.addItem(hellipseBlob);
+
+    const onClick = (ev: MouseEvent) => {
+      const worldClick = scene.camera.screenToWorld({
+        x: ev.x,
+        y: ev.y,
+      });
+      scene.moveCamera({
+        x: worldClick.x,
+        y: worldClick.y,
+        distance: scene.camera.distance - 100,
+      });
+    };
+    const onRightClick = (ev: MouseEvent) => {
+      ev.preventDefault();
+      const worldClick = scene.camera.screenToWorld({
+        x: ev.x,
+        y: ev.y,
+      });
+      scene.moveCamera({
+        x: worldClick.x,
+        y: worldClick.y,
+        distance: scene.camera.distance + 200,
+      });
     };
     scene.canvas.addEventListener("click", onClick);
+    scene.canvas.addEventListener("contextmenu", onRightClick);
 
     function onMouseMove(ev: MouseEvent) {
       const calc = scene.camera.screenToWorld({ x: ev.x, y: ev.y });
-      items.forEach(
-        (item) => (item.hover = item.distanceTo(calc) < item.radius)
-      );
+      scene.items.forEach((item) => {
+        if (item instanceof BlobBall) {
+          item.hover = item.distanceTo(calc) < item.radius;
+        }
+      });
     }
 
     scene.canvas.addEventListener("mousemove", onMouseMove);
     return () => {
       scene.destroy();
       scene.canvas.removeEventListener("click", onClick);
+      scene.canvas.removeEventListener("contextmenu", onRightClick);
     };
   }, [cercles, roles, hellipsiens]);
   return <Container ref={refContainer}></Container>;

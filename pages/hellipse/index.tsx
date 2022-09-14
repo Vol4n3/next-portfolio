@@ -162,7 +162,11 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
       scene.canvas.removeEventListener("contextmenu", onRightClick);
     };
   }, [cercles, roles, hellipsiens]);
-  return <Container ref={refContainer}></Container>;
+  return (
+    <Flex>
+      <Container ref={refContainer}></Container>
+    </Flex>
+  );
 };
 
 export async function getServerSideProps({

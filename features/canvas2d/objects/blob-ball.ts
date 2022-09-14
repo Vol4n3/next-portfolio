@@ -15,7 +15,6 @@ interface BlobBallParams {
   color: string;
   scenePriority: number;
   children: BlobBall[];
-  parent?: BlobBall;
 }
 
 export class BlobBall extends Circle2 implements Item2Scene {
@@ -33,7 +32,6 @@ export class BlobBall extends Circle2 implements Item2Scene {
   public name: string;
 
   public color: string;
-  private parent: BlobBall | undefined;
   private children: BlobBall[];
 
   constructor({
@@ -43,14 +41,12 @@ export class BlobBall extends Circle2 implements Item2Scene {
     name,
     color,
     scenePriority,
-    parent,
     children,
   }: BlobBallParams) {
     super(x, y, r);
     this.color = color;
     this.name = name;
     this.scenePriority = scenePriority;
-    this.parent = parent;
     this.children = children;
   }
 

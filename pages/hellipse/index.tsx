@@ -19,6 +19,7 @@ import {
   Role,
 } from "../../features/notion/notion-api-type";
 import * as Process from "process";
+import { Flex } from "../../commons/components/flex/flex";
 
 const Container = styled.div`
   width: 100vw;

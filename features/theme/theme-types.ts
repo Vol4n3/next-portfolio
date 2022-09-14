@@ -31,4 +31,8 @@ export interface ThemeColors {
 
 export interface Theme {
   colors: ThemeColors;
+  /**
+   * mobile first
+   */
+  breakPoints: [number, number, number];
 }

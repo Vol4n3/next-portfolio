@@ -80,4 +80,4 @@ const colors: ThemeColors = {
   background,
   text,
 };
-export const ThemeLight: Theme = { colors };
+export const ThemeLight: Theme = { colors, breakPoints: [576, 768, 992] };

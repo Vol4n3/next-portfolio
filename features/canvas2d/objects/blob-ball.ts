@@ -58,7 +58,6 @@ export class BlobBall extends Circle2 implements Item2Scene {
 
   draw2d(scene: Scene2d, time: number): void {
     const { ctx } = scene;
-    ctx.save();
     ctx.translate(this.x, this.y);
 
     ctx.beginPath();
@@ -92,8 +91,6 @@ export class BlobBall extends Circle2 implements Item2Scene {
       y: 0,
       font: { size: this.radius / 8, type: "Raleway" },
     });
-    ctx.restore();
-    this.children.forEach((c) => c.draw2d(scene, time));
   }
 
   update(scene: Scene2d, time: number): void {
@@ -109,6 +106,5 @@ export class BlobBall extends Circle2 implements Item2Scene {
         () => (this.easing = null)
       );
     }
-    this.children.forEach((c) => c.update(scene, time));
   }
 }

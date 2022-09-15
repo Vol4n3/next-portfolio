@@ -34,11 +34,6 @@ export type canvasWriteTextConfig = {
   y: number;
   lineWidth?: number;
 } & FillOrStroke;
-type UpdateGroupCallbackArgs = {
-  items: Item2Scene[];
-  scene: Scene2d;
-  time: number;
-};
 
 export class Scene2d {
   public readonly canvas: HTMLCanvasElement;
@@ -47,10 +42,6 @@ export class Scene2d {
   camera: Camera2;
   height: number = 0;
   width: number = 0;
-  private groups: {
-    onUpdate: (info: UpdateGroupCallbackArgs) => void;
-    items: Item2Scene[];
-  }[] = [];
   private elapsed: number = 0;
   private forceUpdate: boolean = true;
   private loopTime: number = 0;
@@ -99,14 +90,6 @@ export class Scene2d {
     this._items = this._items.sort((a, b) => a.scenePriority - b.scenePriority);
   }
 
-  addGroup(
-    items: Item2Scene[],
-    updateCallback: (arg: UpdateGroupCallbackArgs) => void
-  ) {
-    items.forEach((item) => this.addItem(item));
-    this.groups = [...this.groups, { onUpdate: updateCallback, items }];
-  }
-
   addMultipleItem(items: Item2Scene[]) {
     items.forEach((i) => this.addItem(i));
   }
@@ -136,15 +119,11 @@ export class Scene2d {
         d.isUpdated = false;
         d.update(this, this.loopTime);
       });
-      this.groups.forEach((g) => {
-        g.onUpdate({ items: g.items, scene: this, time: this.loopTime });
-      });
     }
   }
 
   cleanItems(): void {
     this._items = [];
-    this.groups = [];
   }
 
   async createTexture(
@@ -203,10 +182,6 @@ export class Scene2d {
 
   removeItem(item: Item2Scene): void {
     this._items = this._items.filter((f) => f !== item);
-    this.groups = this.groups.map((fg) => ({
-      onUpdate: fg.onUpdate,
-      items: fg.items.filter((fi) => fi !== item),
-    }));
     this.forceUpdate = true;
   }
 

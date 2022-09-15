@@ -73,6 +73,7 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
         children: [],
       });
     });
+
     const cerclesBlob = cercles.map((c) => {
       const cercleX =
         Math.random() * hellipseRadiusWithoutCercleRadius * 2 -
@@ -110,6 +111,7 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
         children: cercleRoleBlobs,
       });
     });
+
     const hellipseBlob = new BlobBall({
       x: 0,
       y: 0,
@@ -119,8 +121,12 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
       scenePriority: 0,
       children: [...BlobsRolesWithoutCircle, ...cerclesBlob],
     });
-    scene.addItem(hellipseBlob);
-
+    scene.addMultipleItem([
+      hellipseBlob,
+      ...cerclesBlob,
+      ...BlobsRolesWithoutCircle,
+    ]);
+    const hoverItems: BlobBall[] = [...cerclesBlob, ...BlobsRolesWithoutCircle];
     const onClick = (ev: MouseEvent) => {
       const worldClick = scene.camera.screenToWorld({
         x: ev.x,
@@ -149,10 +155,8 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
 
     function onMouseMove(ev: MouseEvent) {
       const calc = scene.camera.screenToWorld({ x: ev.x, y: ev.y });
-      scene.items.forEach((item) => {
-        if (item instanceof BlobBall) {
-          item.hover = item.distanceTo(calc) < item.radius;
-        }
+      hoverItems.forEach((item) => {
+        item.hover = item.distanceTo(calc) < item.radius;
       });
     }
 

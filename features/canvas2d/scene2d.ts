@@ -8,16 +8,16 @@ import {
 } from "../../commons/utils/easing.utils";
 import { Camera2 } from "./camera2";
 
+type SceneCallBack = (scene: Scene2d, time: number) => void;
+
 export interface Item2Scene {
   isUpdated: boolean;
   onResize?: (canvasWidth: number, canvasHeight: number) => void;
   scenePriority: number;
+  draw2d: SceneCallBack;
+  update: SceneCallBack;
 
   destroy(): void;
-
-  draw2d(scene: Scene2d, time: number): void;
-
-  update(scene: Scene2d, time: number): void;
 }
 
 type FillOrStroke = RequireAtLeastOne<{
@@ -54,6 +54,7 @@ export class Scene2d {
   private easingCameraDistance: EasingCallback | null = null;
   private easingCameraX: EasingCallback | null = null;
   private easingCameraY: EasingCallback | null = null;
+  private updateListeners: SceneCallBack[] = [];
 
   constructor(private container: HTMLDivElement, fps: number = 60) {
     this.fpsInterval = 1000 / fps;
@@ -82,6 +83,14 @@ export class Scene2d {
   set items(value: Item2Scene[]) {
     this.cleanItems();
     value.forEach((item) => this.addItem(item));
+  }
+
+  addUpdateListener(callBack: SceneCallBack) {
+    this.updateListeners = [...this.updateListeners, callBack];
+  }
+
+  removeUpdateListener(callBack: SceneCallBack) {
+    this.updateListeners = this.updateListeners.filter((f) => f !== callBack);
   }
 
   addItem(item: Item2Scene) {
@@ -118,6 +127,7 @@ export class Scene2d {
         // set updated too false because draw
         d.isUpdated = false;
         d.update(this, this.loopTime);
+        this.updateListeners.forEach((ul) => ul(this, this.loopTime));
       });
     }
   }

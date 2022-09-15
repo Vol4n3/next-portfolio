@@ -34,7 +34,6 @@ interface HellipsePageProps {
   roles: Role[];
   cercles: Cercle[];
 }
-
 const HellipsePage: NextPage<HellipsePageProps> = ({
   cercles,
   roles,

@@ -7,10 +7,15 @@ import { IPoint2 } from "../../commons/utils/point.utils";
 
 export type AlgorithmType = "sorted" | "all" | "binaryTree" | "quadraticTree";
 
+interface isCollideResponse<T extends CanCollide> {
+  a: T;
+  b: T;
+}
+
 interface ColliderGroup<T> {
   algorithmType: AlgorithmType;
   id: number;
-  item: T;
+  items: T;
   confrontId?: number;
 }
 
@@ -18,39 +23,39 @@ export interface CanCollide extends IPoint2 {
   isCollide(item: CanCollide): boolean;
 }
 
-export class Collider {
-  private groups: ColliderGroup<CanCollide[]>[] = [];
+export class Collider<T extends CanCollide> {
+  private groups: ColliderGroup<T[]>[] = [];
   private uid = 0;
 
-  addGroup(algorithmType: AlgorithmType): number {
-    this.groups = [...this.groups, { item: [], id: ++this.uid, algorithmType }];
+  addGroup(algorithmType: AlgorithmType, items: T[] = []): number {
+    this.groups = [...this.groups, { items, id: ++this.uid, algorithmType }];
     return this.uid;
   }
 
-  addItemToGroup(item: CanCollide, groupId: number) {
+  addItemToGroup(item: T, groupId: number) {
     this.groups = this.groups.map((group) =>
       group.id === groupId
         ? {
             ...group,
-            item: [...group.item, item],
+            items: [...group.items, item],
           }
         : group
     );
 
     const findGroup = this.groups.findIndex((f) => f.id === groupId);
     if (findGroup >= 0) {
-      this.groups[findGroup].item.push(item);
+      this.groups[findGroup].items.push(item);
       return;
     }
     throw new Error("impossible de trouver le groupe pour ajouter un item");
   }
 
-  getCollisions(): CanCollide[][] {
-    let collides: CanCollide[][] = [];
+  getCollisions(): isCollideResponse<T>[] {
+    let collides: isCollideResponse<T>[] = [];
     this.groups.forEach((group) => {
       switch (group.algorithmType) {
         case "sorted":
-          const copy = group.item.sort((a, b) => {
+          const copy = group.items.sort((a, b) => {
             return a.x !== b.x ? a.x - b.x : a.y - b.y;
           });
           for (let i = 0; i < copy.length; i++) {
@@ -60,18 +65,19 @@ export class Collider {
               return;
             }
             if (current.isCollide(next)) {
-              collides = [...collides, [current, next]];
+              collides = [...collides, { a: current, b: next }];
             }
           }
           break;
         default:
         case "all":
-          for (let i = 0; i < group.item.length; i++) {
-            const item1 = group.item[i];
-            for (let j = i + 1; j < group.item.length; j++) {
-              const item2 = group.item[j];
-              item1.isCollide(item2);
-              collides = [...collides, [item1, item2]];
+          for (let i = 0; i < group.items.length; i++) {
+            const item1 = group.items[i];
+            for (let j = i + 1; j < group.items.length; j++) {
+              const item2 = group.items[j];
+              if (item1.isCollide(item2)) {
+                collides = [...collides, { a: item1, b: item2 }];
+              }
             }
           }
       }
@@ -83,12 +89,12 @@ export class Collider {
     this.groups = this.groups.filter((group) => group.id !== index);
   }
 
-  removeItemFromGroup(item: CanCollide, groupIndex: number): void {
+  removeItemFromGroup(item: T, groupIndex: number): void {
     this.groups = this.groups.map((group) =>
       group.id === groupIndex
         ? {
             ...group,
-            item: group.item.filter((f) => f !== item),
+            items: group.items.filter((f) => f !== item),
           }
         : group
     );

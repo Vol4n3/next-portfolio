@@ -17,7 +17,11 @@ export class Vector2 implements IPoint2 {
 
   set angle(angle) {
     const length = this.length;
-    this.b.operation("equal", Math.cos(angle) * length, Math.sin(angle) * length);
+    this.b.operation(
+      "equal",
+      Math.cos(angle) * length,
+      Math.sin(angle) * length
+    );
   }
 
   get length(): number {
@@ -60,6 +64,9 @@ export class Vector2 implements IPoint2 {
 
   normalized(): Vector2 {
     const len = this.length;
+    if (len === 0) {
+      return new Vector2(this.x, this.y);
+    }
     return new Vector2(this.x / len, this.y / len);
   }
 

@@ -129,7 +129,8 @@ export class Camera2 {
   private applyTranslation(ctx: CanvasRenderingContext2D) {
     ctx.translate(-this.viewport.left, -this.viewport.top);
   }
-
+  destroy() {}
+  initEvent(element: HTMLElement) {}
   private updateViewport() {
     if (this.flipAspectRatio) {
       this.aspectRatio = this.canvasSize.y / this.canvasSize.x;

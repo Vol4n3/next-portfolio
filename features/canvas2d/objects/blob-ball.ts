@@ -6,6 +6,7 @@ import { Circle2 } from "../circle2";
 import { EasingCallback } from "../../../commons/utils/easing.utils";
 import { Segment2 } from "../segment2";
 import { lighten } from "polished";
+import { CanCollide } from "../collider";
 
 interface BlobBallParams {
   x: number;
@@ -17,7 +18,7 @@ interface BlobBallParams {
   children: BlobBall[];
 }
 
-export class BlobBall extends Circle2 implements Item2Scene {
+export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
   isUpdated: boolean = false;
   scenePriority: number;
   definition: number = 20;
@@ -27,11 +28,11 @@ export class BlobBall extends Circle2 implements Item2Scene {
   perlinMovement: Segment2 = new Segment2();
   easing: EasingCallback | null = null;
   hover: boolean = false;
-  private perlin = new Perlin();
-
   public name: string;
-
   public color: string;
+  public mass = 1;
+  public velocity: Vector2 = new Vector2(0, 0);
+  private perlin = new Perlin();
   private children: BlobBall[];
 
   constructor({
@@ -106,5 +107,38 @@ export class BlobBall extends Circle2 implements Item2Scene {
         () => (this.easing = null)
       );
     }
+    if (Math.abs(this.velocity.x) < 0.01) {
+      this.velocity.x = 0;
+    }
+    if (Math.abs(this.velocity.y) < 0.01) {
+      this.velocity.y = 0;
+    }
+    this.operation("add", this.velocity);
+    this.children.forEach((c) => {
+      c.operation("add", this.velocity);
+    });
+  }
+
+  isParent(ball: BlobBall): boolean {
+    return this.children.some((c) => c === ball);
+  }
+
+  isCollide(item: BlobBall): boolean {
+    if (item.isParent(this)) {
+      return this.distanceToCircle(item) > 0;
+    }
+    return this.distanceToCircle(item) < 0;
+  }
+  interneCollisionResponse(other: BlobBall): void {}
+  externeCollisionResponse(other: BlobBall): void {
+    const intersect = new Vector2(other.x - this.x, other.y - this.y);
+    const distance = intersect.length;
+    if (distance === 0) {
+      return;
+    }
+    // separate the two circles after intersection (static response)
+    const overlap = 0.5 * (distance - this.radius - other.radius);
+    this.x -= (overlap * (this.x - other.x)) / distance;
+    this.y -= (overlap * (this.y - other.y)) / distance;
   }
 }

@@ -7,6 +7,7 @@ import {
   navyBlue,
 } from "../../theme/hellipse-colors";
 import { Cercle, Hellipsien, Role } from "../../notion/notion-api-type";
+import { Collider } from "../collider";
 
 export interface HellipseSceneAction {
   destroy: () => void;
@@ -19,24 +20,18 @@ export function HellipseSceneInit(
   hellipsien: Hellipsien[]
 ): HellipseSceneAction {
   const scene = new Scene2d(container);
+
   const hellipseRadius = 600;
   const cercleRadius = 200;
   const roleRadius = 50;
-  const hellipseRadiusWithoutCercleRadius = hellipseRadius - cercleRadius * 2;
-  const hellipseWithoutRoleRadius = hellipseRadius - roleRadius * 2;
-  const CercleWithoutRoleRadius = cercleRadius - roleRadius * 2;
 
   const rolesWithoutCircle = roles.filter(
     (role) => !cercles.some((c) => c.roles.some((r) => r === role.id))
   );
   const BlobsRolesWithoutCircle = rolesWithoutCircle.map((role) => {
     return new BlobBall({
-      x:
-        Math.random() * hellipseWithoutRoleRadius * 2 -
-        hellipseWithoutRoleRadius,
-      y:
-        Math.random() * hellipseWithoutRoleRadius * 2 -
-        hellipseWithoutRoleRadius,
+      x: 0,
+      y: 0,
       r: roleRadius,
       name: role.name + role.icon.emoji,
       color: darkPurple,
@@ -44,27 +39,15 @@ export function HellipseSceneInit(
       children: [],
     });
   });
-
-  const cerclesBlob = cercles.map((c) => {
-    const cercleX =
-      Math.random() * hellipseRadiusWithoutCercleRadius * 2 -
-      hellipseRadiusWithoutCercleRadius;
-    const cercleY =
-      Math.random() * hellipseRadiusWithoutCercleRadius * 2 -
-      hellipseRadiusWithoutCercleRadius;
+  let cercleRoleBlobs: BlobBall[] = [];
+  const cerclesBlobs = cercles.map((c) => {
     const cercleRoles = c.roles
       .map((id) => roles.find((f) => f.id === id))
       .filter((f) => typeof f !== "undefined") as Role[];
-    const cercleRoleBlobs = cercleRoles.map((r) => {
+    const children = cercleRoles.map((r) => {
       return new BlobBall({
-        x:
-          cercleX +
-          (Math.random() * CercleWithoutRoleRadius * 2 -
-            CercleWithoutRoleRadius),
-        y:
-          cercleY +
-          (Math.random() * CercleWithoutRoleRadius * 2 -
-            CercleWithoutRoleRadius),
+        x: 0,
+        y: 0,
         r: roleRadius,
         name: r.name + r.icon.emoji,
         color: darkRed,
@@ -72,14 +55,15 @@ export function HellipseSceneInit(
         children: [],
       });
     });
+    cercleRoleBlobs = [...cercleRoleBlobs, ...children];
     return new BlobBall({
-      x: cercleX,
-      y: cercleY,
+      x: 0,
+      y: 0,
       r: cercleRadius,
       name: c.name + c.icon.emoji,
       color: darkBlue,
       scenePriority: 1,
-      children: cercleRoleBlobs,
+      children,
     });
   });
 
@@ -90,14 +74,19 @@ export function HellipseSceneInit(
     name: "",
     color: navyBlue,
     scenePriority: 0,
-    children: [...BlobsRolesWithoutCircle, ...cerclesBlob],
+    children: [...BlobsRolesWithoutCircle, ...cerclesBlobs],
   });
   scene.addMultipleItem([
     hellipseBlob,
-    ...cerclesBlob,
+    ...cerclesBlobs,
     ...BlobsRolesWithoutCircle,
+    ...cercleRoleBlobs,
   ]);
-  const hoverItems: BlobBall[] = [...cerclesBlob, ...BlobsRolesWithoutCircle];
+  const hoverItems: BlobBall[] = [
+    ...cerclesBlobs,
+    ...BlobsRolesWithoutCircle,
+    ...cercleRoleBlobs,
+  ];
   const onClick = (ev: MouseEvent) => {
     const worldClick = scene.camera.screenToWorld({
       x: ev.x,
@@ -106,23 +95,9 @@ export function HellipseSceneInit(
     scene.moveCamera({
       x: worldClick.x,
       y: worldClick.y,
-      distance: scene.camera.distance - 100,
-    });
-  };
-  const onRightClick = (ev: MouseEvent) => {
-    ev.preventDefault();
-    const worldClick = scene.camera.screenToWorld({
-      x: ev.x,
-      y: ev.y,
-    });
-    scene.moveCamera({
-      x: worldClick.x,
-      y: worldClick.y,
-      distance: scene.camera.distance + 200,
     });
   };
   scene.canvas.addEventListener("click", onClick);
-  scene.canvas.addEventListener("contextmenu", onRightClick);
 
   function onMouseMove(ev: MouseEvent) {
     const calc = scene.camera.screenToWorld({ x: ev.x, y: ev.y });
@@ -130,13 +105,36 @@ export function HellipseSceneInit(
       item.hover = item.distanceTo(calc) < item.radius;
     });
   }
-
+  const collider = new Collider<BlobBall>();
+  BlobsRolesWithoutCircle.forEach((c) => {
+    c.velocity.x = Math.random() - 0.5;
+    c.velocity.y = Math.random() - 0.5;
+  });
+  cerclesBlobs.forEach((c) => {
+    c.velocity.x = Math.random() - 0.5;
+    c.velocity.y = Math.random() - 0.5;
+  });
+  cercleRoleBlobs.forEach((c) => {
+    c.velocity.x = Math.random() - 0.5;
+    c.velocity.y = Math.random() - 0.5;
+  });
+  const groupRoleAndCircle = collider.addGroup("all", [
+    ...cerclesBlobs,
+    ...BlobsRolesWithoutCircle,
+  ]);
+  const onCollide = () => {
+    collider.getCollisions().forEach(({ a, b }) => {
+      a.externeCollisionResponse(b);
+    });
+  };
+  scene.addUpdateListener(onCollide);
   scene.canvas.addEventListener("mousemove", onMouseMove);
   return {
     destroy: () => {
+      scene.removeUpdateListener(onCollide);
       scene.destroy();
       scene.canvas.removeEventListener("click", onClick);
-      scene.canvas.removeEventListener("contextmenu", onRightClick);
+      collider.removeGroup(groupRoleAndCircle);
     },
   };
 }

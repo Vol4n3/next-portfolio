@@ -7,11 +7,7 @@ import { EasingCallback } from "../../../commons/utils/easing.utils";
 import { Segment2 } from "../segment2";
 import { lighten } from "polished";
 import { CanCollide } from "../collider";
-import {
-  DotProduct,
-  IPoint2,
-  Operation2d,
-} from "../../../commons/utils/point.utils";
+import { DotProduct, Operation2d } from "../../../commons/utils/point.utils";
 
 interface BlobBallParams {
   x: number;
@@ -26,7 +22,7 @@ interface BlobBallParams {
 export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
   isUpdated: boolean = false;
   scenePriority: number;
-  definition: number = 20;
+  definition: number = 10;
   perlinDepth: number = this.radius / 20;
   perlinStrength: number = 1;
   perlinRotation: number = 0;

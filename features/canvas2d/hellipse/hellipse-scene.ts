@@ -1,11 +1,6 @@
 import { Scene2d } from "../scene2d";
 import { BlobBall } from "../objects/blob-ball";
-import {
-  darkBlue,
-  darkPurple,
-  darkRed,
-  navyBlue,
-} from "../../theme/hellipse-colors";
+import { darkBlue, darkPurple, navyBlue } from "../../theme/hellipse-colors";
 import { Cercle, Hellipsien, Role } from "../../notion/notion-api-type";
 import { Collider } from "../collider";
 
@@ -21,9 +16,9 @@ export function HellipseSceneInit(
 ): HellipseSceneAction {
   const scene = new Scene2d(container);
 
-  const hellipseRadius = 600;
-  const cercleRadius = 200;
-  const roleRadius = 50;
+  const hellipseRadius = 1200;
+  const cercleRadius = 350;
+  const roleRadius = 100;
 
   const rolesWithoutCircle = roles.filter(
     (role) => !cercles.some((c) => c.roles.some((r) => r === role.id))
@@ -50,7 +45,7 @@ export function HellipseSceneInit(
         y: 0,
         r: roleRadius,
         name: r.name + r.icon.emoji,
-        color: darkRed,
+        color: darkPurple,
         scenePriority: 2,
         children: [],
       });
@@ -108,16 +103,16 @@ export function HellipseSceneInit(
   }
 
   BlobsRolesWithoutCircle.forEach((c) => {
-    c.velocity.x = Math.random() - 0.5;
-    c.velocity.y = Math.random() - 0.5;
+    c.velocity.x = Math.random() * 6 - 3;
+    c.velocity.y = Math.random() * 6 - 3;
   });
   cerclesBlobs.forEach((c) => {
-    c.velocity.x = Math.random() - 0.5;
-    c.velocity.y = Math.random() - 0.5;
+    c.velocity.x = Math.random() * 6 - 3;
+    c.velocity.y = Math.random() * 6 - 3;
   });
   cercleRoleBlobs.forEach((c) => {
-    c.velocity.x = Math.random() - 0.5;
-    c.velocity.y = Math.random() - 0.5;
+    c.velocity.x = Math.random() * 6 - 3;
+    c.velocity.y = Math.random() * 6 - 3;
   });
 
   const collider = new Collider<BlobBall>("all", [

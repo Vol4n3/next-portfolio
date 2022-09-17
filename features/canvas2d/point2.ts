@@ -1,22 +1,23 @@
 import { numberRange } from "../../commons/utils/number.utils";
-import { IPoint2 } from "../../commons/utils/point.utils";
+import {
+  IPoint2,
+  OperationName,
+  Operation2d,
+} from "../../commons/utils/point.utils";
 
-export type OperationName =
-  | "multiply"
-  | "subtract"
-  | "add"
-  | "divide"
-  | "equal";
 export class Point2 implements IPoint2 {
   constructor(public x: number = 0, public y: number = 0) {}
 
   static create(point: IPoint2): Point2 {
     return new Point2(point.x, point.y);
   }
-  rotateFrom(p: IPoint2,angle: number){
+
+  rotateFrom(p: IPoint2, angle: number) {
     const length = this.distanceTo(p);
-    this.operation("equal", p.x + Math.cos(angle) * length, p.y + Math.sin(angle) * length);
+    this.x = p.x + Math.cos(angle) * length;
+    this.y = p.y + Math.sin(angle) * length;
   }
+
   angleFrom(p: IPoint2): number {
     return Math.atan2(this.y - p.y, this.x - p.x);
   }
@@ -80,27 +81,8 @@ export class Point2 implements IPoint2 {
   }
 
   private _operation(type: OperationName, x: number, y: number) {
-    switch (type) {
-      case "equal":
-        this.x = x;
-        this.y = y;
-        break;
-      case "add":
-        this.x += x;
-        this.y += y;
-        break;
-      case "divide":
-        this.x /= x;
-        this.y /= y;
-        break;
-      case "multiply":
-        this.x *= x;
-        this.y *= y;
-        break;
-      case "subtract":
-        this.x -= x;
-        this.y -= y;
-        break;
-    }
+    const val = Operation2d(type, this, { x, y });
+    this.x = val.x;
+    this.y = val.y;
   }
 }

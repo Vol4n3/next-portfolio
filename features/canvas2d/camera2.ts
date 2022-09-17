@@ -11,7 +11,7 @@ export type CameraViewport = {
 };
 
 export class Camera2 {
-  distance = 1500;
+  distance = 3000;
   fieldOfView: number;
   margin: LookAtMargins;
   viewport: CameraViewport = {

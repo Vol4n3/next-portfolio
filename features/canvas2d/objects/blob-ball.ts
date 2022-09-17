@@ -7,6 +7,11 @@ import { EasingCallback } from "../../../commons/utils/easing.utils";
 import { Segment2 } from "../segment2";
 import { lighten } from "polished";
 import { CanCollide } from "../collider";
+import {
+  DotProduct,
+  IPoint2,
+  Operation2d,
+} from "../../../commons/utils/point.utils";
 
 interface BlobBallParams {
   x: number;
@@ -31,9 +36,10 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
   public name: string;
   public color: string;
   public mass = 1;
+  isStatic: boolean = false;
   public velocity: Vector2 = new Vector2(0, 0);
+  public children: BlobBall[];
   private perlin = new Perlin();
-  private children: BlobBall[];
 
   constructor({
     x,
@@ -124,21 +130,105 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
   }
 
   isCollide(item: BlobBall): boolean {
-    if (item.isParent(this)) {
-      return this.distanceToCircle(item) > 0;
+    if (item.children.length || this.children.length) {
+      if (item.isParent(this) || this.isParent(item)) {
+        return this.distanceTo(item) > Math.abs(this.radius - item.radius);
+      }
     }
     return this.distanceToCircle(item) < 0;
   }
-  interneCollisionResponse(other: BlobBall): void {}
+  reflectBallVector(ball: BlobBall) {
+    if (this.distanceTo(ball) === 0) {
+      return;
+    }
+    const v = ball.velocity;
+    const n = new Vector2(Operation2d("subtract", ball, this)).normalized();
+    const u = Operation2d("multiply", n, DotProduct(v, n));
+    const w = Operation2d("subtract", v, u);
+    const v_after = Operation2d("subtract", w, u);
+    const reflection = Operation2d("subtract", v_after, v);
+    ball.velocity = new Vector2(Operation2d("add", v, reflection));
+  }
+  interneContactPoint(ball: BlobBall) {
+    if (this.distanceTo(ball) === 0) {
+      return;
+    }
+    const B = Operation2d("subtract", this, ball.velocity);
+    const AB = Operation2d("subtract", B, this);
+    const BC = Operation2d("subtract", ball, B);
+    const AB_len = new Vector2(AB).length;
+    const BC_len = new Vector2(BC).length;
+    if (BC_len === 0) {
+      return;
+    }
+    const b = (DotProduct(AB, BC) / Math.pow(BC_len, 2)) * -1;
+    const c =
+      (Math.pow(AB_len, 2) - Math.pow(this.radius - ball.radius, 2)) /
+      Math.pow(BC_len, 2);
+    const d = b * b - c;
+    let k = b - Math.sqrt(d);
+
+    if (k < 0) {
+      k = b + Math.sqrt(d);
+    }
+    const BD = new Vector2(Operation2d("subtract", ball, B));
+    const BD_len = BC_len * k;
+    BD.length = BD_len;
+
+    const interPoint = Operation2d("add", B, BD);
+    ball.x = interPoint.x;
+    ball.y = interPoint.y;
+  }
+
+  interneCollisionResponse(other: BlobBall): void {
+    if (this.isParent(other)) {
+      this.interneContactPoint(other);
+      this.reflectBallVector(other);
+    } else {
+      other.interneContactPoint(this);
+      other.reflectBallVector(this);
+    }
+  }
+
   externeCollisionResponse(other: BlobBall): void {
     const intersect = new Vector2(other.x - this.x, other.y - this.y);
     const distance = intersect.length;
     if (distance === 0) {
       return;
     }
+    const normalized = intersect.normalized();
     // separate the two circles after intersection (static response)
     const overlap = 0.5 * (distance - this.radius - other.radius);
-    this.x -= (overlap * (this.x - other.x)) / distance;
-    this.y -= (overlap * (this.y - other.y)) / distance;
+    if (!this.isStatic) {
+      this.x -= (overlap * (this.x - other.x)) / distance;
+      this.y -= (overlap * (this.y - other.y)) / distance;
+    } else {
+      if (!other.isStatic) {
+        other.x += (overlap * (this.x - other.x)) / distance;
+        other.y += (overlap * (this.y - other.y)) / distance;
+      }
+    }
+    const tanVec = normalized.perp();
+
+    const dpTan1 = this.velocity.b.dotProduct(tanVec);
+    const dpTan2 = other.velocity.b.dotProduct(tanVec);
+
+    const dpNorm1 = this.velocity.b.dotProduct(normalized);
+    const dpNorm2 = other.velocity.b.dotProduct(normalized);
+
+    const m1 =
+      (dpNorm1 * (this.mass - other.mass) + 2 * other.mass * dpNorm2) /
+      (this.mass + other.mass);
+    const m2 =
+      (dpNorm2 * (other.mass - this.mass) + 2 * this.mass * dpNorm1) /
+      (this.mass + other.mass);
+    if (!this.isStatic) {
+      this.velocity.x = (tanVec.x * dpTan1 + normalized.x * m1) * 0.99;
+      this.velocity.y = (tanVec.y * dpTan1 + normalized.y * m1) * 0.99;
+    }
+    if (!other.isStatic) {
+      other.velocity.x = (tanVec.x * dpTan2 + normalized.x * m2) * 0.99;
+      other.velocity.y = (tanVec.y * dpTan2 + normalized.y * m2) * 0.99;
+    }
   }
 }

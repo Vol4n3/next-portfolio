@@ -76,6 +76,7 @@ export function HellipseSceneInit(
     scenePriority: 0,
     children: [...BlobsRolesWithoutCircle, ...cerclesBlobs],
   });
+  hellipseBlob.isStatic = true;
   scene.addMultipleItem([
     hellipseBlob,
     ...cerclesBlobs,
@@ -105,7 +106,7 @@ export function HellipseSceneInit(
       item.hover = item.distanceTo(calc) < item.radius;
     });
   }
-  const collider = new Collider<BlobBall>();
+
   BlobsRolesWithoutCircle.forEach((c) => {
     c.velocity.x = Math.random() - 0.5;
     c.velocity.y = Math.random() - 0.5;
@@ -118,23 +119,38 @@ export function HellipseSceneInit(
     c.velocity.x = Math.random() - 0.5;
     c.velocity.y = Math.random() - 0.5;
   });
-  const groupRoleAndCircle = collider.addGroup("all", [
+
+  const collider = new Collider<BlobBall>("all", [
+    hellipseBlob,
     ...cerclesBlobs,
     ...BlobsRolesWithoutCircle,
   ]);
-  const onCollide = () => {
-    collider.getCollisions().forEach(({ a, b }) => {
+  const onCollide = (co: Collider<BlobBall>) => {
+    co.getCollisions().forEach(({ a, b }) => {
+      if (a.children.length || b.children.length) {
+        if (a.isParent(b) || b.isParent(a)) {
+          a.interneCollisionResponse(b);
+          return;
+        }
+      }
       a.externeCollisionResponse(b);
     });
   };
-  scene.addUpdateListener(onCollide);
+  cerclesBlobs.forEach((blob) => {
+    const colliderCircle = new Collider<BlobBall>("all", [
+      blob,
+      ...blob.children,
+    ]);
+    scene.addUpdateListener(onCollide.bind(null, colliderCircle));
+  });
+
+  scene.addUpdateListener(onCollide.bind(null, collider));
   scene.canvas.addEventListener("mousemove", onMouseMove);
   return {
     destroy: () => {
-      scene.removeUpdateListener(onCollide);
+      scene.removeUpdateListener(onCollide.bind(null, collider));
       scene.destroy();
       scene.canvas.removeEventListener("click", onClick);
-      collider.removeGroup(groupRoleAndCircle);
     },
   };
 }

@@ -2,6 +2,7 @@ export interface IPoint2 {
   x: number;
   y: number;
 }
+
 export const PointDistance = (
   p1: IPoint2,
   p2: IPoint2 = { x: 0, y: 0 }
@@ -39,4 +40,33 @@ export const PointsSum = (points: IPoint2[]): IPoint2 => {
     }),
     { x: 0, y: 0 }
   );
+};
+export type OperationName = "multiply" | "subtract" | "add" | "divide";
+export const Operation2d = (
+  type: OperationName,
+  a: IPoint2,
+  b: number | IPoint2
+): IPoint2 => {
+  if (typeof b === "number") {
+    switch (type) {
+      case "add":
+        return { x: a.x + b, y: a.y + b };
+      case "divide":
+        return { x: a.x / b, y: a.y / b };
+      case "multiply":
+        return { x: a.x * b, y: a.y * b };
+      case "subtract":
+        return { x: a.x - b, y: a.y - b };
+    }
+  }
+  switch (type) {
+    case "add":
+      return { x: a.x + b.x, y: a.y + b.y };
+    case "divide":
+      return { x: a.x / b.x, y: a.y / b.y };
+    case "multiply":
+      return { x: a.x * b.x, y: a.y * b.y };
+    case "subtract":
+      return { x: a.x - b.x, y: a.y - b.y };
+  }
 };

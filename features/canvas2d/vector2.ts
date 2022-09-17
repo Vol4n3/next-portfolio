@@ -2,13 +2,23 @@ import { Point2 } from "./point2";
 import { Segment2 } from "./segment2";
 import { IPoint2 } from "../../commons/utils/point.utils";
 
-export class Vector2 implements IPoint2 {
+export class Vector2<T extends IPoint2 | number = number> implements IPoint2 {
   public b: Point2 = new Point2();
   private a: Point2 = new Point2();
 
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+  constructor(p: T, y?: T extends number ? number : undefined) {
+    if (typeof p === "number") {
+      if (typeof y === "number") {
+        this.x = p;
+        this.y = y;
+      } else {
+        this.x = p;
+        this.y = p;
+      }
+    } else {
+      this.x = p.x;
+      this.y = p.y;
+    }
   }
 
   get angle(): number {
@@ -17,11 +27,8 @@ export class Vector2 implements IPoint2 {
 
   set angle(angle) {
     const length = this.length;
-    this.b.operation(
-      "equal",
-      Math.cos(angle) * length,
-      Math.sin(angle) * length
-    );
+    this.x = Math.cos(angle) * length;
+    this.y = Math.sin(angle) * length;
   }
 
   get length(): number {

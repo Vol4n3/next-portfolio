@@ -13,6 +13,7 @@ import {
 import * as Process from "process";
 import { Flex } from "../../commons/components/flex/flex";
 import { HellipseSceneInit } from "../../features/canvas2d/hellipse/hellipse-scene";
+import { navyBlue } from "../../features/theme/hellipse-colors";
 
 const Container = styled.div`
   position: absolute;
@@ -20,6 +21,7 @@ const Container = styled.div`
   height: 100%;
   top: 0;
   left: 0;
+  background: ${navyBlue};
 `;
 
 interface HellipsePageProps {
@@ -47,11 +49,11 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
   }, [cercles, roles, hellipsiens]);
   return (
     <Flex width={"100vw"} height={"100vh"}>
-      <Flex width={["100%", "100%", "70%"]}>
+      <Flex width={["100%", "100%", "100%"]}>
         <Container ref={refContainer}></Container>
       </Flex>
 
-      <Flex width={["100%", "100%", "30%"]}></Flex>
+      <Flex width={["100%", "100%", "0%"]}></Flex>
     </Flex>
   );
 };
@@ -63,7 +65,7 @@ export async function getServerSideProps({
 > {
   res.setHeader(
     "Cache-Control",
-    "public, s-maxage=3600, stale-while-revalidate=59"
+    "public, s-maxage=3600, stale-while-revalidate=3600"
   );
   try {
     const data = await Promise.all([

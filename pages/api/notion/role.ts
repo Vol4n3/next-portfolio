@@ -17,6 +17,7 @@ async function getRoles(): Promise<Role[]> {
       }
     );
     const toJson = await response.json();
+    //console.log(toJson);
     return toJson.results.map((result: any) => ({
       name: result["properties"]["Rôles"]["title"][0]["plain_text"],
       icon: result.icon,

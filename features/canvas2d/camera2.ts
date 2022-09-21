@@ -11,7 +11,7 @@ export type CameraViewport = {
 };
 
 export class Camera2 {
-  distance = 3000;
+  distance = 5000;
   fieldOfView: number;
   margin: LookAtMargins;
   viewport: CameraViewport = {
@@ -48,7 +48,7 @@ export class Camera2 {
     return this._lookAtVector;
   }
 
-  set lookAtVector(value: IPoint2) {
+  private set lookAtVector(value: IPoint2) {
     this.lookAt(value);
   }
 
@@ -58,7 +58,7 @@ export class Camera2 {
   }
 
   zoomTo(z: number) {
-    if (z < 10) {
+    if (z < 100) {
       return;
     }
     if (z > 10000) {

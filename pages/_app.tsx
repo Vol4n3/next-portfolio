@@ -12,6 +12,7 @@ const GlobalStyle = createGlobalStyle`
     font-family: "Raleway", sans-serif;
     font-size: 16px;
     font-weight: 500;
+    background: ${({ theme }) => theme.colors.background.base};
     color: ${({ theme }) => theme.colors.text.base};
     position: relative;
   }

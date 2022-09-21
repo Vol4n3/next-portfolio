@@ -14,7 +14,10 @@ interface BlobBallParams {
   y: number;
   r: number;
   name: string;
-  color: string;
+  fillColor?: string;
+  strokeColor?: string;
+  textColor?: string;
+  emoji?: string;
   scenePriority: number;
   children: BlobBall[];
 }
@@ -30,27 +33,36 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
   easing: EasingCallback | null = null;
   hover: boolean = false;
   public name: string;
-  public color: string;
+  public fillColor: string | undefined;
   public mass = 1;
   isStatic: boolean = false;
   public velocity: Vector2 = new Vector2(0, 0);
   public children: BlobBall[];
   private perlin = new Perlin();
+  private strokeColor: string | undefined;
+  private textColor: string | undefined;
+  private emoji: string | undefined;
 
   constructor({
     x,
     y,
     r,
     name,
-    color,
+    fillColor,
+    strokeColor,
     scenePriority,
     children,
+    textColor,
+    emoji,
   }: BlobBallParams) {
     super(x, y, r);
-    this.color = color;
+    this.fillColor = fillColor;
+    this.strokeColor = strokeColor;
+    this.textColor = textColor;
     this.name = name;
     this.scenePriority = scenePriority;
     this.children = children;
+    this.emoji = emoji;
   }
 
   destroy(): void {}
@@ -60,9 +72,8 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
   onResize(canvasWidth: number, canvasHeight: number): void {}
 
   draw2d(scene: Scene2d, time: number): void {
-    const { ctx } = scene;
+    const { ctx, camera } = scene;
     ctx.translate(this.x, this.y);
-
     ctx.beginPath();
     for (let i = 0; i < PI2 * this.definition; i++) {
       const circlePerlin = Vector2.createFromAngle(
@@ -83,16 +94,48 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
         ctx.lineTo(vec.x, vec.y);
       }
     }
-    ctx.fillStyle = this.hover ? lighten(0.1, this.color) : this.color;
-    ctx.fill();
+
+    ctx.closePath();
+    if (this.fillColor) {
+      var grd = ctx.createRadialGradient(
+        0,
+        0,
+        this.radius / 3,
+        0,
+        0,
+        this.radius
+      );
+      grd.addColorStop(
+        0,
+        this.hover
+          ? lighten(0.1, this.fillColor)
+          : lighten(0.03, this.fillColor)
+      );
+      grd.addColorStop(1, this.fillColor);
+      ctx.fillStyle = grd;
+      ctx.fill();
+    }
+    if (this.strokeColor) {
+      ctx.lineWidth = 20;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = this.strokeColor;
+      ctx.stroke();
+    }
+
     scene.writeText({
-      text: this.name,
+      text:
+        camera.distance > 1500
+          ? this.emoji || ""
+          : this.name + (this.emoji || ""),
       x: 0,
       textAlign: "center",
-      fillStyle: "white",
+      fillStyle: this.textColor ?? "white",
       textBaseline: "middle",
       y: 0,
-      font: { size: this.radius / 8, type: "Raleway" },
+      font: {
+        size: camera.distance > 1500 ? 50 : 14,
+        type: "Raleway",
+      },
     });
   }
 
@@ -133,6 +176,7 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
     }
     return this.distanceToCircle(item) < 0;
   }
+
   reflectBallVector(ball: BlobBall) {
     if (this.distanceTo(ball) === 0) {
       return;
@@ -145,6 +189,7 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
     const reflection = Operation2d("subtract", v_after, v);
     ball.velocity = new Vector2(Operation2d("add", v, reflection));
   }
+
   interneContactPoint(ball: BlobBall) {
     if (this.distanceTo(ball) === 0) {
       return;

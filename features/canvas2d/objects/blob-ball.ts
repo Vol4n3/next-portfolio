@@ -100,7 +100,7 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
       var grd = ctx.createRadialGradient(
         0,
         0,
-        this.radius / 3,
+        this.radius / 4,
         0,
         0,
         this.radius
@@ -109,7 +109,7 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
         0,
         this.hover
           ? lighten(0.1, this.fillColor)
-          : lighten(0.03, this.fillColor)
+          : lighten(0.05, this.fillColor)
       );
       grd.addColorStop(1, this.fillColor);
       ctx.fillStyle = grd;
@@ -123,8 +123,10 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
     }
 
     scene.writeText({
+      maxWidth: this.radius,
+      lineHeight: 14,
       text:
-        camera.distance > 1500
+        camera.distance > 2000
           ? this.emoji || ""
           : this.name + (this.emoji || ""),
       x: 0,
@@ -133,7 +135,7 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
       textBaseline: "middle",
       y: 0,
       font: {
-        size: camera.distance > 1500 ? 50 : 14,
+        size: camera.distance > 2000 ? 50 : 12,
         type: "Raleway",
       },
     });

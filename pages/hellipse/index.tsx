@@ -3,7 +3,7 @@ import type {
   GetServerSidePropsResult,
   NextPage,
 } from "next";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import {
   Cercle,
@@ -14,6 +14,7 @@ import * as Process from "process";
 import { Flex } from "../../commons/components/flex/flex";
 import { HellipseSceneInit } from "../../features/canvas2d/hellipse/hellipse-scene";
 import { navyBlue } from "../../features/theme/hellipse-colors";
+import { Scene2d } from "../../features/canvas2d/scene2d";
 
 const Container = styled.div`
   position: absolute;
@@ -35,6 +36,7 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
   roles,
   hellipsiens,
 }: HellipsePageProps) => {
+  const [instance, setInstance] = useState<Scene2d | null>(null);
   const refContainer = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const container = refContainer.current;
@@ -42,18 +44,32 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
       return;
     }
     const instance = HellipseSceneInit(container, roles, cercles, hellipsiens);
-
+    setInstance(instance.instance);
     return () => {
+      setInstance(null);
       instance.destroy();
     };
   }, [cercles, roles, hellipsiens]);
   return (
-    <Flex width={"100vw"} height={"100vh"}>
-      <Flex width={["100%", "100%", "100%"]}>
+    <Flex
+      width={"100vw"}
+      height={"100vh"}
+      direction={["column", "column", null]}
+    >
+      <Flex style={{ flex: 1 }}>
         <Container ref={refContainer}></Container>
       </Flex>
-
-      <Flex width={["100%", "100%", "0%"]}></Flex>
+      <Flex width={["100%", "100%", "30%"]}>
+        <button
+          onClick={() =>
+            instance
+              ? (instance.pauseAnimation = !instance.pauseAnimation)
+              : null
+          }
+        >
+          pause
+        </button>
+      </Flex>
     </Flex>
   );
 };

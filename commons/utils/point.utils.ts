@@ -41,7 +41,7 @@ export const PointsSum = (points: IPoint2[]): IPoint2 => {
     { x: 0, y: 0 }
   );
 };
-export type OperationName = "multiply" | "subtract" | "add" | "divide";
+export type OperationName = "multiply" | "subtract" | "add" | "divide" | "pow";
 export const Operation2d = (
   type: OperationName,
   a: IPoint2,
@@ -57,6 +57,8 @@ export const Operation2d = (
         return { x: a.x * b, y: a.y * b };
       case "subtract":
         return { x: a.x - b, y: a.y - b };
+      case "pow":
+        return { x: Math.pow(a.x, b), y: Math.pow(a.y, b) };
     }
   }
   switch (type) {
@@ -68,5 +70,7 @@ export const Operation2d = (
       return { x: a.x * b.x, y: a.y * b.y };
     case "subtract":
       return { x: a.x - b.x, y: a.y - b.y };
+    case "pow":
+      return { x: Math.pow(a.x, b.x), y: Math.pow(a.y, b.y) };
   }
 };

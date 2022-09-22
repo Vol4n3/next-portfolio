@@ -29,10 +29,12 @@ export type canvasWriteTextConfig = {
   textBaseline?: CanvasTextBaseline;
   direction?: CanvasDirection;
   text: string;
+  maxWidth?: number;
   font?: { type: string; size: number };
   x: number;
   y: number;
   lineWidth?: number;
+  lineHeight?: number;
 } & FillOrStroke;
 
 export class Scene2d {
@@ -42,6 +44,7 @@ export class Scene2d {
   camera: Camera2;
   height: number = 0;
   width: number = 0;
+  public pauseAnimation: boolean = false;
   private elapsed: number = 0;
   private forceUpdate: boolean = true;
   private loopTime: number = 0;
@@ -109,26 +112,32 @@ export class Scene2d {
     this.elapsed = this.now - this.then;
     if (this.elapsed > this.fpsInterval) {
       this.then = this.now - (this.elapsed % this.fpsInterval);
-      this.calcCamera();
       if (!this.forceUpdate && !this._items.some((i) => i.isUpdated)) {
         return;
       }
       this.forceUpdate = false;
       this.loopTime++;
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.save();
+      // move camera
+      this.camera.apply(this.ctx);
 
       this._items.forEach((d) => {
         this.ctx.save();
-        // move camera
-        this.camera.apply(this.ctx);
         // draw first
         d.draw2d(this, this.loopTime);
         this.ctx.restore();
         // set updated too false because draw
-        d.isUpdated = false;
-        d.update(this, this.loopTime);
-        this.updateListeners.forEach((ul) => ul(this, this.loopTime));
+        if (!this.pauseAnimation) {
+          d.isUpdated = false;
+          d.update(this, this.loopTime);
+        }
       });
+
+      this.ctx.restore();
+
+      this.updateListeners.forEach((ul) => ul(this, this.loopTime));
+      this.calcCamera();
     }
   }
 
@@ -158,6 +167,11 @@ export class Scene2d {
   }
 
   moveCamera(camera: { x?: number; y?: number; distance?: number }) {
+    if (typeof camera.x !== "undefined") {
+    }
+  }
+
+  moveEaseCamera(camera: { x?: number; y?: number; distance?: number }) {
     if (camera.distance) {
       this.easingCameraDistance = createEasing([
         {
@@ -172,7 +186,7 @@ export class Scene2d {
       this.easingCameraX = createEasing([
         {
           easing: Easing.easeOutCubic,
-          startValue: this.camera.lookAtVector.x,
+          startValue: this.camera.position.x,
           endValue: camera.x,
           time: 30,
         },
@@ -182,7 +196,7 @@ export class Scene2d {
       this.easingCameraY = createEasing([
         {
           easing: Easing.easeOutCubic,
-          startValue: this.camera.lookAtVector.y,
+          startValue: this.camera.position.y,
           endValue: camera.y,
           time: 30,
         },
@@ -212,6 +226,7 @@ export class Scene2d {
 
   writeText(config: canvasWriteTextConfig) {
     this.ctx.save();
+    let text = config.text;
     if (config.textAlign) this.ctx.textAlign = config.textAlign;
     if (config.direction) this.ctx.direction = config.direction;
     if (config.textBaseline) this.ctx.textBaseline = config.textBaseline;
@@ -219,14 +234,25 @@ export class Scene2d {
     this.ctx.font = config.font
       ? `${config.font.size}px ${config.font.type}`
       : "26px Raleway";
-    if (config.fillStyle) {
-      this.ctx.fillStyle = config.fillStyle;
-      this.ctx.fillText(config.text, config.x, config.y);
+    if (
+      config.maxWidth &&
+      this.ctx.measureText(text).width > config.maxWidth * 2
+    ) {
+      text = text.replace(" ", "\n");
     }
-    if (config.strokeStyle) {
-      this.ctx.strokeStyle = config.strokeStyle;
-      this.ctx.strokeText(config.text, config.x, config.y);
-    }
+    const lines = text.split("\n");
+    lines.forEach((l, i) => {
+      const lineHeight = config.lineHeight || config.font?.size || 26;
+      const h = config.y + lineHeight * i;
+      if (config.fillStyle) {
+        this.ctx.fillStyle = config.fillStyle;
+        this.ctx.fillText(l, config.x, h);
+      }
+      if (config.strokeStyle) {
+        this.ctx.strokeStyle = config.strokeStyle;
+        this.ctx.strokeText(l, config.x, h);
+      }
+    });
 
     this.ctx.restore();
   }
@@ -234,8 +260,8 @@ export class Scene2d {
   private calcCamera() {
     if (this.easingCameraDistance) {
       this.easingCameraDistance(
-        (strength) => {
-          this.camera.zoomTo(strength);
+        (distance) => {
+          this.camera.distance = distance;
           this.forceUpdate = true;
         },
         () => (this.easingCameraDistance = null)
@@ -244,7 +270,7 @@ export class Scene2d {
     if (this.easingCameraX) {
       this.easingCameraX(
         (x) => {
-          this.camera.lookAt({ x });
+          this.camera.lookAt({ x, y: this.camera.position.y });
           this.forceUpdate = true;
         },
         () => (this.easingCameraX = null)
@@ -253,7 +279,7 @@ export class Scene2d {
     if (this.easingCameraY) {
       this.easingCameraY(
         (y) => {
-          this.camera.lookAt({ y });
+          this.camera.lookAt({ x: this.camera.position.x, y });
           this.forceUpdate = true;
         },
         () => (this.easingCameraY = null)

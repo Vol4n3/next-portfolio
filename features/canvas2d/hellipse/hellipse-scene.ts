@@ -9,6 +9,7 @@ import { PickRandomOne } from "../../../commons/utils/array-utils";
 
 export interface HellipseSceneAction {
   destroy: () => void;
+  instance: Scene2d;
 }
 
 function randomRoleColor() {
@@ -80,6 +81,7 @@ export function HellipseSceneInit(
     r: hellipseRadius,
     name: "",
     strokeColor: "#F2F5FF",
+    fillColor: navyBlue,
     scenePriority: 0,
     children: [...BlobsRolesWithoutCircle, ...cerclesBlobs],
   });
@@ -97,16 +99,16 @@ export function HellipseSceneInit(
   ];
 
   BlobsRolesWithoutCircle.forEach((c) => {
-    c.velocity.x = Math.random() * 4 - 2;
-    c.velocity.y = Math.random() * 4 - 2;
+    c.velocity.x = Math.random() - 0.5;
+    c.velocity.y = Math.random() - 0.5;
   });
   cerclesBlobs.forEach((c) => {
-    c.velocity.x = Math.random() * 4 - 2;
-    c.velocity.y = Math.random() * 4 - 2;
+    c.velocity.x = Math.random() - 0.5;
+    c.velocity.y = Math.random() - 0.5;
   });
   cercleRoleBlobs.forEach((c) => {
-    c.velocity.x = Math.random() * 4 - 2;
-    c.velocity.y = Math.random() * 4 - 2;
+    c.velocity.x = Math.random() - 0.5;
+    c.velocity.y = Math.random() - 0.5;
   });
 
   const collider = new Collider<BlobBall>("all", [
@@ -150,12 +152,14 @@ export function HellipseSceneInit(
       scene.camera.lookAt(Operation2d("add", dragStart.camera, vecMouse));
     }
   };
-
-  const onMouseHold = (ev: MouseEvent) => {
+  const setDragStart = (p: IPoint2) => {
     dragStart = {
-      click: scene.camera.screenToWorld({ x: ev.x, y: ev.y }),
-      camera: scene.camera.lookAtVector,
+      click: scene.camera.screenToWorld(p),
+      camera: scene.camera.position,
     };
+  };
+  const onMouseHold = (ev: MouseEvent) => {
+    setDragStart({ x: ev.x, y: ev.y });
   };
   const onMouseRelease = () => {
     dragStart = null;
@@ -163,38 +167,53 @@ export function HellipseSceneInit(
   const onWheel = (ev: WheelEvent) => {
     ev.preventDefault();
     const mousePoint = scene.camera.screenToWorld({ x: ev.x, y: ev.y });
-    const move = Operation2d(
+
+    let move = Operation2d(
       "divide",
-      Operation2d("add", mousePoint, scene.camera.lookAtVector),
+      Operation2d("add", mousePoint, scene.camera.position),
       2
     );
     let distance = scene.camera.distance;
     if (ev.deltaY > 0) {
-      distance += distance / 3;
+      distance += distance / 6;
+      const vec = new Vector2(
+        Operation2d("subtract", scene.camera.position, mousePoint)
+      )
+        .perp()
+        .perp();
+      move = Operation2d(
+        "add",
+        scene.camera.position,
+        Operation2d("divide", vec, 5)
+      );
     }
     if (ev.deltaY < 0) {
-      distance -= distance / 3;
+      distance -= distance / 6;
     }
-    scene.camera.zoomTo(distance);
-    scene.camera.lookAt({ ...move });
+    scene.camera.distance = distance;
+    //scene.camera.lookAt(move);
   };
   const onTouchHold = (ev: TouchEvent) => {
-    ev.preventDefault();
-    console.log(ev);
+    if (ev.touches.length === 1) {
+      ev.preventDefault();
+      setDragStart({ x: ev.touches[0].clientX, y: ev.touches[0].clientY });
+    }
   };
 
   scene.canvas.addEventListener("touchstart", onTouchHold);
   scene.canvas.addEventListener("mousemove", onMouseMove, { passive: true });
-  scene.canvas.addEventListener("wheel", onWheel);
   scene.canvas.addEventListener("mousedown", onMouseHold);
   scene.canvas.addEventListener("mouseup", onMouseRelease);
   scene.canvas.addEventListener("mouseleave", onMouseRelease);
+  scene.canvas.addEventListener("wheel", onWheel);
   return {
+    instance: scene,
     destroy: () => {
+      scene.canvas.removeEventListener("touchstart", onTouchHold);
+      scene.canvas.removeEventListener("mousemove", onMouseMove);
       scene.canvas.removeEventListener("mousedown", onMouseHold);
       scene.canvas.removeEventListener("mouseup", onMouseRelease);
       scene.canvas.removeEventListener("mouseleave", onMouseRelease);
-      scene.canvas.removeEventListener("mousemove", onMouseMove);
       scene.canvas.removeEventListener("wheel", onWheel);
       scene.destroy();
     },

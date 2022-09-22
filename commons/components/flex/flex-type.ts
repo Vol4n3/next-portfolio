@@ -37,26 +37,26 @@ type FlexDirectionProperty =
 type FlexWrapProperty = Globals | "nowrap" | "wrap" | "wrap-reverse";
 
 export interface AlignItemProps {
-  alignItems?: AlignItemsProperty | AlignItemsProperty[];
+  alignItems?: AlignItemsProperty | (AlignItemsProperty | null)[];
 }
 export interface JustifyContentProps {
-  justifyContent?: JustifyContentProperty | JustifyContentProperty[];
+  justifyContent?: JustifyContentProperty | (JustifyContentProperty | null)[];
 }
 export interface FlexDirectionProps {
-  direction?: FlexDirectionProperty | FlexDirectionProperty[];
+  direction?: FlexDirectionProperty | (FlexDirectionProperty | null)[];
 }
 export interface FlexWrapProps {
-  wraps?: FlexWrapProperty | FlexWrapProperty[];
+  wraps?: FlexWrapProperty | (FlexWrapProperty | null)[];
 }
 export interface FlexWidthProps {
-  width?: string | string[];
+  width?: string | (string | null)[];
 }
 export interface FlexHeightProps {
-  height?: string | string[];
+  height?: string | (string | null)[];
 }
 export interface FlexGapColumnProps {
-  gapColumn?: string | string[];
+  gapColumn?: string | (string | null)[];
 }
 export interface FlexGapRowProps {
-  gapRow?: string | string[];
+  gapRow?: string | (string | null)[];
 }

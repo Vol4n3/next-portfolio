@@ -11,7 +11,6 @@ export type CameraViewport = {
 };
 
 export class Camera2 {
-  distance = 5000;
   fieldOfView: number;
   margin: LookAtMargins;
   viewport: CameraViewport = {
@@ -26,6 +25,7 @@ export class Camera2 {
   aspectRatio!: number;
   flipAspectRatio = false;
   private canvasSize: IPoint2 = { x: 0, y: 0 };
+  private lazy: boolean | undefined;
 
   constructor(
     canvasSize: IPoint2,
@@ -40,32 +40,30 @@ export class Camera2 {
       left: 0,
     };
     this.flipAspectRatio = !!options.flipAspectRatio;
+    this.lazy = options.lazy;
     this.resize(canvasSize.x, canvasSize.y);
     this.lookAt({ x: _lookAtVector.x / 2, y: _lookAtVector.y / 2 });
   }
 
-  get lookAtVector(): IPoint2 {
-    return this._lookAtVector;
+  private _distance = 5000;
+
+  get distance(): number {
+    return this._distance;
   }
 
-  private set lookAtVector(value: IPoint2) {
-    this.lookAt(value);
-  }
-
-  apply(ctx: CanvasRenderingContext2D) {
-    this.applyScale(ctx);
-    this.applyTranslation(ctx);
-  }
-
-  zoomTo(z: number) {
-    if (z < 100) {
+  set distance(value: number) {
+    if (value < 100) {
       return;
     }
-    if (z > 10000) {
+    if (value > 10000) {
       return;
     }
-    this.distance = z;
+    this._distance = value;
     this.updateViewport();
+  }
+
+  get position(): IPoint2 {
+    return this._lookAtVector;
   }
 
   lookAt(point: Partial<IPoint2>, lazy = false) {
@@ -104,6 +102,11 @@ export class Camera2 {
     this.updateViewport();
   }
 
+  apply(ctx: CanvasRenderingContext2D) {
+    this.applyScale(ctx);
+    this.applyTranslation(ctx);
+  }
+
   screenToWorld(point: IPoint2): IPoint2 {
     const x = point.x / this.viewport.scale.x + this.viewport.left;
     const y = point.y / this.viewport.scale.y + this.viewport.top;
@@ -121,7 +124,6 @@ export class Camera2 {
     this.canvasSize.y = height;
     this.updateViewport();
   }
-
   private applyScale(ctx: CanvasRenderingContext2D) {
     ctx.scale(this.viewport.scale.x, this.viewport.scale.y);
   }
@@ -129,16 +131,15 @@ export class Camera2 {
   private applyTranslation(ctx: CanvasRenderingContext2D) {
     ctx.translate(-this.viewport.left, -this.viewport.top);
   }
-  destroy() {}
-  initEvent(element: HTMLElement) {}
+
   private updateViewport() {
     if (this.flipAspectRatio) {
       this.aspectRatio = this.canvasSize.y / this.canvasSize.x;
-      this.viewport.height = this.distance * Math.tan(this.fieldOfView);
+      this.viewport.height = this._distance * Math.tan(this.fieldOfView);
       this.viewport.width = this.viewport.height / this.aspectRatio;
     } else {
       this.aspectRatio = this.canvasSize.x / this.canvasSize.y;
-      this.viewport.width = this.distance * Math.tan(this.fieldOfView);
+      this.viewport.width = this._distance * Math.tan(this.fieldOfView);
       this.viewport.height = this.viewport.width / this.aspectRatio;
     }
     this.viewport.left = this._lookAtVector.x - this.viewport.width / 2;
@@ -161,4 +162,5 @@ export type CameraSettings = {
   fieldOfView?: number;
   margin?: LookAtMargins;
   flipAspectRatio?: boolean;
+  lazy?: boolean;
 };

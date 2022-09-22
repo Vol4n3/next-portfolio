@@ -1,18 +1,22 @@
 import {
   AlignItemProps,
-  FlexWidthProps,
   FlexDirectionProps,
-  FlexWrapProps,
-  JustifyContentProps,
-  ScreenDevice,
   FlexGapColumnProps,
   FlexGapRowProps,
   FlexHeightProps,
+  FlexWidthProps,
+  FlexWrapProps,
+  JustifyContentProps,
+  ScreenDevice,
 } from "./flex-type";
 import { css } from "styled-components";
+import { BreakPoints } from "../../../features/theme/theme-types";
 
 const DEVICES: ScreenDevice[] = ["xs", "sm", "lg", "xl"];
-const PickChoiceByDevice = <T>(device: ScreenDevice, choices: T[]): T => {
+const PickChoiceByDevice = <T>(
+  device: ScreenDevice,
+  choices: T[]
+): T | undefined => {
   switch (device) {
     case "xl":
       return choices[3] || choices[2] || choices[1] || choices[0];
@@ -28,7 +32,7 @@ const PickChoiceByDevice = <T>(device: ScreenDevice, choices: T[]): T => {
 export const MakeCssMediaBreakPoint = (
   css: string,
   devices: ScreenDevice,
-  breakPoints: [number, number, number]
+  breakPoints: BreakPoints
 ): string => {
   let media = 0;
   switch (devices) {
@@ -59,13 +63,16 @@ export function MakeResponsiveCss<T>(
     ${({ [key]: val, theme: { breakPoints } }) => {
       if (typeof val === "undefined") return defaultValue || "";
       if (typeof val === "string") return `${cssPrefix}: ${val};`;
-      return DEVICES.slice(0, val.length).map((device) =>
-        MakeCssMediaBreakPoint(
-          `${cssPrefix}: ${PickChoiceByDevice(device, val)};`,
-          device,
-          breakPoints
-        )
-      );
+      return DEVICES.slice(0, val.length).map((device) => {
+        const choice = PickChoiceByDevice(device, val);
+        return choice
+          ? MakeCssMediaBreakPoint(
+              `${cssPrefix}: ${choice};`,
+              device,
+              breakPoints
+            )
+          : "";
+      });
     }};
   `;
 }

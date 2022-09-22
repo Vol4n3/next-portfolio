@@ -28,11 +28,11 @@ export interface ThemeColors {
   grey95: string;
   light: string;
 }
-
+export type BreakPoints = [number, number, number];
 export interface Theme {
   colors: ThemeColors;
   /**
    * mobile first
    */
-  breakPoints: [number, number, number];
+  breakPoints: BreakPoints;
 }

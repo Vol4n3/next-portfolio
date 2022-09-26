@@ -69,6 +69,8 @@ export class Scene2d {
     this.canvas.style.display = "block";
     this.canvas.style.position = "absolute";
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+    this.ctx.imageSmoothingEnabled = false;
+
     container.appendChild(this.canvas);
     this.resizeObs.observe(this.container);
     const rect = this.container.getBoundingClientRect();

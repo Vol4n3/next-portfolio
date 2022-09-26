@@ -13,8 +13,8 @@ import {
 import * as Process from "process";
 import { Flex } from "../../commons/components/flex/flex";
 import { HellipseSceneInit } from "../../features/canvas2d/hellipse/hellipse-scene";
-import { navyBlue } from "../../features/theme/hellipse-colors";
 import { Scene2d } from "../../features/canvas2d/scene2d";
+import { navyBlue } from "../../features/theme/hellipse-colors";
 
 const Container = styled.div`
   position: absolute;
@@ -38,6 +38,7 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
 }: HellipsePageProps) => {
   const [instance, setInstance] = useState<Scene2d | null>(null);
   const refContainer = useRef<HTMLDivElement>(null);
+  const [getRole, setRole] = useState<Role | null>(null);
   useEffect(() => {
     const container = refContainer.current;
     if (!container) {
@@ -45,30 +46,41 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
     }
     const instance = HellipseSceneInit(container, roles, cercles, hellipsiens);
     setInstance(instance.instance);
+    instance.onClickRole((role) => {
+      setRole(role);
+    });
     return () => {
       setInstance(null);
       instance.destroy();
     };
   }, [cercles, roles, hellipsiens]);
   return (
-    <Flex
-      width={"100vw"}
-      height={"100vh"}
-      direction={["column", "column", null]}
-    >
-      <Flex style={{ flex: 1 }}>
+    <Flex width={"100vw"} height={"100vh"}>
+      <Flex width={["100%", "100%", "70%"]} height={["30%", "30%", "100%"]}>
         <Container ref={refContainer}></Container>
       </Flex>
-      <Flex width={["100%", "100%", "30%"]}>
-        <button
-          onClick={() =>
-            instance
-              ? (instance.pauseAnimation = !instance.pauseAnimation)
-              : null
-          }
-        >
-          pause
-        </button>
+      <Flex
+        style={{ background: navyBlue }}
+        width={["100%", "100%", "30%"]}
+        height={["70%", "70%", "100%"]}
+      >
+        <div>
+          <button
+            onClick={() =>
+              instance
+                ? (instance.pauseAnimation = !instance.pauseAnimation)
+                : null
+            }
+          >
+            pause
+          </button>
+          {getRole ? (
+            <>
+              {getRole.name}
+              {getRole.attentes}
+            </>
+          ) : null}
+        </div>
       </Flex>
     </Flex>
   );

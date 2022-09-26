@@ -38,10 +38,14 @@ export default function handler(
     case "GET":
       getCercles()
         .then((response) => res.status(200).json(response))
-        .catch(() => res.status(500).send(null));
+        .catch(() => {
+          res.status(500);
+          res.end();
+        });
       break;
     default:
-      res.status(404).send(null);
+      res.status(404);
+      res.end();
       break;
   }
 }

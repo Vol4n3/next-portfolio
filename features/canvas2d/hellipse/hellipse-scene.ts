@@ -10,6 +10,7 @@ import { PickRandomOne } from "../../../commons/utils/array-utils";
 export interface HellipseSceneAction {
   destroy: () => void;
   instance: Scene2d;
+  onClickRole: (cb: (role: Role | null) => void) => void;
 }
 
 function randomRoleColor() {
@@ -42,6 +43,7 @@ export function HellipseSceneInit(
       textColor: navyBlue,
       scenePriority: 1,
       children: [],
+      role: role,
     });
   });
   let cercleRoleBlobs: BlobBall[] = [];
@@ -60,6 +62,7 @@ export function HellipseSceneInit(
         textColor: navyBlue,
         scenePriority: 2,
         children: [],
+        role: r,
       });
     });
     cercleRoleBlobs = [...cercleRoleBlobs, ...children];
@@ -140,7 +143,7 @@ export function HellipseSceneInit(
   const onMouseMove = (ev: MouseEvent) => {
     const mousePoint = scene.camera.screenToWorld({ x: ev.x, y: ev.y });
     hoverItems.forEach((item) => {
-      item.hover = item.distanceTo(mousePoint) < item.radius;
+      item.isHover = item.distanceTo(mousePoint) < item.radius;
     });
     if (dragStart) {
       const vecMouse = new Vector2(
@@ -158,12 +161,22 @@ export function HellipseSceneInit(
       camera: scene.camera.position,
     };
   };
+  let onClickRoleCb: (role: Role | null) => void = () => {};
+  const onClick = () => {
+    onClickRoleCb(null);
+    hoverItems.forEach((blob) => {
+      if (blob.isHover && blob.role) {
+        onClickRoleCb(blob.role);
+      }
+    });
+  };
   const onMouseHold = (ev: MouseEvent) => {
     setDragStart({ x: ev.x, y: ev.y });
   };
   const onMouseRelease = () => {
     dragStart = null;
   };
+
   const onWheel = (ev: WheelEvent) => {
     ev.preventDefault();
     const mousePoint = scene.camera.screenToWorld({ x: ev.x, y: ev.y });
@@ -204,10 +217,15 @@ export function HellipseSceneInit(
   scene.canvas.addEventListener("mousemove", onMouseMove, { passive: true });
   scene.canvas.addEventListener("mousedown", onMouseHold);
   scene.canvas.addEventListener("mouseup", onMouseRelease);
+
+  scene.canvas.addEventListener("click", onClick);
   scene.canvas.addEventListener("mouseleave", onMouseRelease);
   scene.canvas.addEventListener("wheel", onWheel);
   return {
     instance: scene,
+    onClickRole: (cb) => {
+      onClickRoleCb = cb;
+    },
     destroy: () => {
       scene.canvas.removeEventListener("touchstart", onTouchHold);
       scene.canvas.removeEventListener("mousemove", onMouseMove);

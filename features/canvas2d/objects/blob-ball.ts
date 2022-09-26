@@ -8,6 +8,7 @@ import { Segment2 } from "../segment2";
 import { lighten } from "polished";
 import { CanCollide } from "../collider";
 import { DotProduct, Operation2d } from "../../../commons/utils/point.utils";
+import { Role } from "../../notion/notion-api-type";
 
 interface BlobBallParams {
   x: number;
@@ -20,6 +21,7 @@ interface BlobBallParams {
   emoji?: string;
   scenePriority: number;
   children: BlobBall[];
+  role?: Role;
 }
 
 export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
@@ -31,13 +33,14 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
   perlinRotation: number = 0;
   perlinMovement: Segment2 = new Segment2();
   easing: EasingCallback | null = null;
-  hover: boolean = false;
-  public name: string;
-  public fillColor: string | undefined;
-  public mass = 1;
+  isHover: boolean = false;
+  role?: Role;
+  name: string;
+  fillColor: string | undefined;
+  mass = 1;
   isStatic: boolean = false;
-  public velocity: Vector2 = new Vector2(0, 0);
-  public children: BlobBall[];
+  velocity: Vector2 = new Vector2(0, 0);
+  children: BlobBall[];
   private perlin = new Perlin();
   private strokeColor: string | undefined;
   private textColor: string | undefined;
@@ -54,6 +57,7 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
     children,
     textColor,
     emoji,
+    role,
   }: BlobBallParams) {
     super(x, y, r);
     this.fillColor = fillColor;
@@ -63,6 +67,7 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
     this.scenePriority = scenePriority;
     this.children = children;
     this.emoji = emoji;
+    this.role = role;
   }
 
   destroy(): void {}
@@ -107,7 +112,7 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
       );
       grd.addColorStop(
         0,
-        this.hover
+        this.isHover
           ? lighten(0.1, this.fillColor)
           : lighten(0.05, this.fillColor)
       );

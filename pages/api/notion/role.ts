@@ -18,11 +18,15 @@ async function getRoles(): Promise<Role[]> {
     );
     const toJson = await response.json();
     //console.log(toJson);
-    return toJson.results.map((result: any) => ({
-      name: result["properties"]["Rôles"]["title"][0]["plain_text"],
-      icon: result.icon,
-      id: result.id,
-    }));
+    return toJson.results.map((result: any) => {
+      const attente = result["properties"]["Attentes"]["rich_text"];
+      return {
+        name: result["properties"]["Rôles"]["title"][0]["plain_text"],
+        icon: result.icon,
+        attentes: attente[0] ? attente[0]["plain_text"] : "",
+        id: result.id,
+      } as Role;
+    });
   } catch (error) {
     throw error;
   }
@@ -36,7 +40,11 @@ export default function handler(
     case "GET":
       getRoles()
         .then((response) => res.status(200).json(response))
-        .catch(() => res.status(500).send(null));
+        .catch((e) => {
+          console.error(e);
+          res.status(500);
+          res.end();
+        });
       break;
     default:
       res.status(404).send(null);

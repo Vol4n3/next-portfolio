@@ -16,6 +16,7 @@ export type Hellipsien = {
 export type Role = {
   name: string;
   id: string;
+  attentes: string;
   icon: {
     type: string;
     emoji: string;

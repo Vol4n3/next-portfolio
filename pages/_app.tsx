@@ -9,11 +9,11 @@ const GlobalStyle = createGlobalStyle`
   body {
     padding: 0;
     margin: 0;
-    font-family: "Raleway", sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    background: ${({ theme }) => theme.colors.background.base};
-    color: ${({ theme }) => theme.colors.text.base};
+    background: ${({ theme }) => theme.body.background};
+    color: ${({ theme }) => theme.body.font.color};
+    font-weight: ${({ theme }) => theme.body.font.weight};
+    font-family: ${({ theme }) => theme.body.font.family};
+    font-size: ${({ theme }) => theme.body.font.size};
     position: relative;
   }
 

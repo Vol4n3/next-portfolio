@@ -1,62 +1,31 @@
-export type ScreenDevice = "xs" | "sm" | "lg" | "xl";
-type Globals = "-moz-initial" | "inherit" | "initial" | "revert" | "unset";
-type SelfPosition =
-  | "center"
-  | "end"
-  | "flex-end"
-  | "flex-start"
-  | "self-end"
-  | "self-start"
-  | "start";
-type AlignItemsProperty =
-  | Globals
-  | SelfPosition
-  | "baseline"
-  | "normal"
-  | "stretch";
-type ContentDistribution =
-  | "space-around"
-  | "space-between"
-  | "space-evenly"
-  | "stretch";
-type ContentPosition = "center" | "end" | "flex-end" | "flex-start" | "start";
-type JustifyContentProperty =
-  | Globals
-  | ContentDistribution
-  | ContentPosition
-  | "left"
-  | "normal"
-  | "right";
+import { Property } from "csstype";
 
-type FlexDirectionProperty =
-  | Globals
-  | "column"
-  | "column-reverse"
-  | "row"
-  | "row-reverse";
-type FlexWrapProperty = Globals | "nowrap" | "wrap" | "wrap-reverse";
+export type ScreenDevice = "xs" | "sm" | "md" | "lg" | "xl";
 
 export interface AlignItemProps {
-  alignItems?: AlignItemsProperty | (AlignItemsProperty | null)[];
+  alignItems?: Property.AlignItems | (Property.AlignItems | null)[];
 }
 export interface JustifyContentProps {
-  justifyContent?: JustifyContentProperty | (JustifyContentProperty | null)[];
+  justifyContent?: Property.JustifyContent | (Property.JustifyContent | null)[];
 }
 export interface FlexDirectionProps {
-  direction?: FlexDirectionProperty | (FlexDirectionProperty | null)[];
+  direction?: Property.FlexDirection | (Property.FlexDirection | null)[];
 }
 export interface FlexWrapProps {
-  wraps?: FlexWrapProperty | (FlexWrapProperty | null)[];
+  wraps?: Property.FlexWrap | (Property.FlexWrap | null)[];
 }
 export interface FlexWidthProps {
-  width?: string | (string | null)[];
+  width?: Property.Width | (Property.Width | null)[];
 }
+
 export interface FlexHeightProps {
-  height?: string | (string | null)[];
+  height?: Property.Height | (Property.Height | null)[];
 }
-export interface FlexGapColumnProps {
-  gapColumn?: string | (string | null)[];
+
+export interface FlexColumnGapProps {
+  columnGap?: Property.ColumnGap | (Property.ColumnGap | null)[];
 }
-export interface FlexGapRowProps {
-  gapRow?: string | (string | null)[];
+
+export interface FlexRowGapProps {
+  rowGap?: Property.RowGap | (Property.RowGap | null)[];
 }

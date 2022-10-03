@@ -19,8 +19,9 @@ async function getHellipsiens(): Promise<Hellipsien[]> {
     const toJson = await response.json();
     return toJson.results.map((result: any) => {
       const firstFile = result["properties"]["Avatar"]["files"][0];
+      const name = result["properties"]["Name"]["title"][0];
       return {
-        name: result["properties"]["Name"]["title"][0]["plain_text"],
+        name: name?.plain_text || "",
         roles: result["properties"]["Rôles"]["relation"].map(
           (role: any) => role.id
         ),

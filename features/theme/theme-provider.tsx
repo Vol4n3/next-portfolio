@@ -9,8 +9,7 @@ import {
 import { notInitializedFn } from "../../commons/utils/commons-utils";
 import { Theme, ThemeName } from "./theme-types";
 import { ThemeProvider as ThemeStyledProvider } from "styled-components";
-import { ThemeDark } from "./theme-dark";
-import { ThemeLight } from "./theme-light";
+import { ThemeHellipse } from "./theme-hellipse";
 
 interface ThemeContextProps {
   changeTheme: (options: ThemeName) => void;
@@ -18,12 +17,11 @@ interface ThemeContextProps {
 }
 
 const themes: { [key in ThemeName]: Theme } = {
-  dark: ThemeDark,
-  light: ThemeLight,
+  hellipse: ThemeHellipse,
 };
 const ThemeContext = createContext<ThemeContextProps>({
   changeTheme: notInitializedFn,
-  theme: themes["light"],
+  theme: themes["hellipse"],
 });
 export const useTheme = () => useContext(ThemeContext);
 
@@ -31,7 +29,7 @@ const keyLocalStorageTheme = "theme";
 let isInit = false;
 
 export function ThemeProvider({ children }: PropsWithChildren) {
-  const [themeName, setThemeName] = useState<ThemeName>("light");
+  const [themeName, setThemeName] = useState<ThemeName>("hellipse");
   const changeTheme = useCallback(
     (name: ThemeName) => {
       if (themeName === name) {
@@ -52,9 +50,8 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     if (!name && !window.matchMedia("(prefers-color-scheme: dark)").matches) {
       return;
     }
-    changeTheme(name || "dark");
+    changeTheme(name || "hellipse");
   }, [changeTheme]);
-
   return (
     <ThemeContext.Provider value={{ changeTheme, theme: themes[themeName] }}>
       <ThemeStyledProvider theme={themes[themeName]}>

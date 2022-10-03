@@ -9,7 +9,7 @@ import { PickRandomOne } from "../../../commons/utils/array-utils";
 
 export interface HellipseSceneAction {
   destroy: () => void;
-  instance: Scene2d;
+  scene: Scene2d;
   onClickRole: (cb: (role: Role | null) => void) => void;
 }
 
@@ -222,7 +222,7 @@ export function HellipseSceneInit(
   scene.canvas.addEventListener("mouseleave", onMouseRelease);
   scene.canvas.addEventListener("wheel", onWheel);
   return {
-    instance: scene,
+    scene: scene,
     onClickRole: (cb) => {
       onClickRoleCb = cb;
     },

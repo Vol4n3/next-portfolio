@@ -1,9 +1,9 @@
 import {
   AlignItemProps,
+  FlexColumnGapProps,
   FlexDirectionProps,
-  FlexGapColumnProps,
-  FlexGapRowProps,
   FlexHeightProps,
+  FlexRowGapProps,
   FlexWidthProps,
   FlexWrapProps,
   JustifyContentProps,
@@ -12,22 +12,13 @@ import {
 import { css } from "styled-components";
 import { BreakPoints } from "../../../features/theme/theme-types";
 
-const DEVICES: ScreenDevice[] = ["xs", "sm", "lg", "xl"];
-const PickChoiceByDevice = <T>(
+const DEVICES: ScreenDevice[] = ["xs", "sm", "md", "lg", "xl"];
+export const PickChoiceByDevice = <T>(
   device: ScreenDevice,
   choices: T[]
 ): T | undefined => {
-  switch (device) {
-    case "xl":
-      return choices[3] || choices[2] || choices[1] || choices[0];
-    case "lg":
-      return choices[2] || choices[1] || choices[0];
-    case "sm":
-      return choices[1] || choices[0];
-    case "xs":
-    default:
-      return choices[0];
-  }
+  const index = DEVICES.indexOf(device);
+  return choices.at(index) || choices[choices.length - 1];
 };
 export const MakeCssMediaBreakPoint = (
   css: string,
@@ -41,11 +32,14 @@ export const MakeCssMediaBreakPoint = (
     case "sm":
       media = breakPoints[0];
       break;
-    case "lg":
+    case "md":
       media = breakPoints[1];
       break;
-    case "xl":
+    case "lg":
       media = breakPoints[2];
+      break;
+    case "xl":
+      media = breakPoints[3];
       break;
   }
   return `
@@ -54,6 +48,7 @@ export const MakeCssMediaBreakPoint = (
      }
     `;
 };
+
 export function MakeResponsiveCss<T>(
   key: keyof T,
   cssPrefix: string,
@@ -76,6 +71,7 @@ export function MakeResponsiveCss<T>(
     }};
   `;
 }
+
 export const ResponsiveWrap = MakeResponsiveCss<FlexWrapProps>(
   "wraps",
   "flex-wrap",
@@ -101,11 +97,11 @@ export const ResponsiveHeight = MakeResponsiveCss<FlexHeightProps>(
   "height",
   "height"
 );
-export const ResponsiveGapColumn = MakeResponsiveCss<FlexGapColumnProps>(
-  "gapColumn",
+export const ResponsiveColumnGap = MakeResponsiveCss<FlexColumnGapProps>(
+  "columnGap",
   "column-gap"
 );
-export const ResponsiveGapRow = MakeResponsiveCss<FlexGapRowProps>(
-  "gapRow",
+export const ResponsiveRowGap = MakeResponsiveCss<FlexRowGapProps>(
+  "rowGap",
   "row-gap"
 );

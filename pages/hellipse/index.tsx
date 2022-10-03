@@ -3,7 +3,7 @@ import type {
   GetServerSidePropsResult,
   NextPage,
 } from "next";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import styled from "styled-components";
 import {
   Cercle,
@@ -13,8 +13,9 @@ import {
 import * as Process from "process";
 import { Flex } from "../../commons/components/flex/flex";
 import { HellipseSceneInit } from "../../features/canvas2d/hellipse/hellipse-scene";
-import { Scene2d } from "../../features/canvas2d/scene2d";
 import { navyBlue } from "../../features/theme/hellipse-colors";
+import { Card } from "../../commons/components/card/card";
+import { pageStateReducer } from "../../features/hellipse-page/hellipse-page-state-action";
 
 const Container = styled.div`
   position: absolute;
@@ -22,7 +23,6 @@ const Container = styled.div`
   height: 100%;
   top: 0;
   left: 0;
-  background: ${navyBlue};
 `;
 
 interface HellipsePageProps {
@@ -36,21 +36,24 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
   roles,
   hellipsiens,
 }: HellipsePageProps) => {
-  const [instance, setInstance] = useState<Scene2d | null>(null);
   const refContainer = useRef<HTMLDivElement>(null);
-  const [getRole, setRole] = useState<Role | null>(null);
+  const [pageState, dispatchPageState] = useReducer<typeof pageStateReducer>(
+    pageStateReducer,
+    {}
+  );
+  const { currentScene, selectedCercle, selectedRole } = pageState;
   useEffect(() => {
     const container = refContainer.current;
     if (!container) {
       return;
     }
     const instance = HellipseSceneInit(container, roles, cercles, hellipsiens);
-    setInstance(instance.instance);
+    dispatchPageState({ type: "setSelectedScene", scene: instance.scene });
     instance.onClickRole((role) => {
-      setRole(role);
+      dispatchPageState({ type: "setSelectedRole", role });
     });
     return () => {
-      setInstance(null);
+      dispatchPageState({ type: "setSelectedScene", scene: null });
       instance.destroy();
     };
   }, [cercles, roles, hellipsiens]);
@@ -66,19 +69,15 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
       >
         <div>
           <button
-            onClick={() =>
-              instance
-                ? (instance.pauseAnimation = !instance.pauseAnimation)
-                : null
-            }
+            onClick={() => dispatchPageState({ type: "toggleAnimation" })}
           >
-            pause
+            toggle animation
           </button>
-          {getRole ? (
-            <>
-              {getRole.name}
-              {getRole.attentes}
-            </>
+          {selectedRole ? (
+            <Card>
+              {selectedRole.name}
+              {selectedRole.attentes}
+            </Card>
           ) : null}
         </div>
       </Flex>

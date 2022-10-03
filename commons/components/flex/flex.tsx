@@ -2,21 +2,21 @@ import { HTMLProps, PropsWithChildren } from "react";
 import styled from "styled-components";
 import {
   AlignItemProps,
+  FlexColumnGapProps,
   FlexDirectionProps,
-  FlexGapColumnProps,
-  FlexGapRowProps,
   FlexHeightProps,
+  FlexRowGapProps,
   FlexWidthProps,
   FlexWrapProps,
   JustifyContentProps,
 } from "./flex-type";
 import {
   ResponsiveAlignItems,
+  ResponsiveColumnGap,
   ResponsiveDirection,
-  ResponsiveGapColumn,
-  ResponsiveGapRow,
   ResponsiveHeight,
   ResponsiveJustifyContent,
+  ResponsiveRowGap,
   ResponsiveWidth,
   ResponsiveWrap,
 } from "./flex-util";
@@ -27,8 +27,8 @@ type FlexProps = FlexWrapProps &
   FlexDirectionProps &
   FlexWidthProps &
   FlexHeightProps &
-  FlexGapColumnProps &
-  FlexGapRowProps;
+  FlexColumnGapProps &
+  FlexRowGapProps;
 const FlexCss = styled.div<FlexProps>`
   display: flex;
   position: relative;
@@ -38,8 +38,8 @@ const FlexCss = styled.div<FlexProps>`
   ${ResponsiveDirection};
   ${ResponsiveWidth};
   ${ResponsiveHeight};
-  ${ResponsiveGapColumn};
-  ${ResponsiveGapRow};
+  ${ResponsiveColumnGap};
+  ${ResponsiveRowGap};
 `;
 
 export function Flex(

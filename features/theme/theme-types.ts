@@ -3,19 +3,19 @@ import { Property } from "csstype";
 export type ThemeName = "hellipse";
 
 export interface PartialColorShades {
-  50: string;
-  300: string;
-  500: string;
-  700: string;
-  900: string;
+  g50: string;
+  g300: string;
+  g500: string;
+  g700: string;
+  g900: string;
 }
 
 export interface ColorShades extends PartialColorShades {
-  100: string;
-  200: string;
-  400: string;
-  600: string;
-  800: string;
+  g100: string;
+  g200: string;
+  g400: string;
+  g600: string;
+  g800: string;
 }
 
 export interface ThemeColors {
@@ -63,11 +63,24 @@ export interface ThemeInput {
   margin: Property.Margin;
 }
 
+export interface ThemeTypo {
+  p: ThemeFont;
+  h1: ThemeFont;
+  h2: ThemeFont;
+  h3: ThemeFont;
+  h4: ThemeFont;
+  h5: ThemeFont;
+  h6: ThemeFont;
+  label: ThemeFont;
+  caption: ThemeFont;
+}
+
 export interface Theme {
   colors: ThemeColors;
   card: ThemeCard;
   body: ThemeBody;
   input: ThemeInput;
+  typo: ThemeTypo;
   /**
    * breakpoints are ordered by smallest devices to largest
    */

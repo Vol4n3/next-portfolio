@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 const StyledArticle = styled.article<{ isCentered?: boolean }>`
   position: relative;
-  padding: max(5px, min(2vh, 40px));
+  padding: max(5px, min(2vw, 40px));
   width: 100%;
   margin: 0 ${({ isCentered }) => (isCentered ? "auto" : "")};
 `;

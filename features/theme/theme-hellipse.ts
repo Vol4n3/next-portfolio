@@ -5,56 +5,58 @@ import {
   ThemeBody,
   ThemeCard,
   ThemeColors,
+  ThemeFont,
   ThemeInput,
+  ThemeTypo,
 } from "./theme-types";
 import { navyBlue } from "./hellipse-colors";
 
 const neutral: ColorShades = {
-  "50": "#F8FAFC",
-  "100": "#F1F5F9",
-  "200": "#E2E8F0",
-  "300": "#CBD5E1",
-  "400": "#94A3B8",
-  "600": "#64748B",
-  "800": "#475569",
-  "500": "#334155",
-  "700": "#1E293B",
-  "900": "#0F172A",
+  g50: "#F8FAFC",
+  g100: "#F1F5F9",
+  g200: "#E2E8F0",
+  g300: "#CBD5E1",
+  g400: "#94A3B8",
+  g600: "#64748B",
+  g800: "#475569",
+  g500: "#334155",
+  g700: "#1E293B",
+  g900: "#0F172A",
 };
 const primary: PartialColorShades = {
-  "50": "#F2F5FF",
-  "300": "#CCD8FF",
-  "500": "#505AAB",
-  "700": "#19317B",
-  "900": "#000C4E",
+  g50: "#F2F5FF",
+  g300: "#CCD8FF",
+  g500: "#505AAB",
+  g700: "#19317B",
+  g900: "#000C4E",
 };
 const secondary: PartialColorShades = {
-  "50": "#FBF7FF",
-  "300": "#E8D2FF",
-  "500": "#BCA7FF",
-  "700": "#8778FF",
-  "900": "#504CCB",
+  g50: "#FBF7FF",
+  g300: "#E8D2FF",
+  g500: "#BCA7FF",
+  g700: "#8778FF",
+  g900: "#504CCB",
 };
 const success: PartialColorShades = {
-  "50": "#EAFDFF",
-  "300": "#C3FFFF",
-  "500": "#8EF7FF",
-  "700": "#56C4DF",
-  "900": "#0093AD",
+  g50: "#EAFDFF",
+  g300: "#C3FFFF",
+  g500: "#8EF7FF",
+  g700: "#56C4DF",
+  g900: "#0093AD",
 };
 const warning: PartialColorShades = {
-  "50": "#FFFFF0",
-  "300": "#FFF4BD",
-  "500": "#FFFF83",
-  "700": "#FFD951",
-  "900": "#C8A818",
+  g50: "#FFFFF0",
+  g300: "#FFF4BD",
+  g500: "#FFFF83",
+  g700: "#FFD951",
+  g900: "#C8A818",
 };
 const error: PartialColorShades = {
-  "50": "#FFF3F1",
-  "300": "#FFCDC6",
-  "500": "#FF6E8D",
-  "700": "#ED3560",
-  "900": "#B40037",
+  g50: "#FFF3F1",
+  g300: "#FFCDC6",
+  g500: "#FF6E8D",
+  g700: "#ED3560",
+  g900: "#B40037",
 };
 const colors: ThemeColors = {
   error,
@@ -65,8 +67,8 @@ const colors: ThemeColors = {
   success,
   warning,
 };
-const fontBody = {
-  color: "black",
+const fontBody: ThemeFont = {
+  color: "inherit",
   family: '"Raleway", sans-serif',
   size: "16px",
   weight: "500",
@@ -78,13 +80,13 @@ const body: ThemeBody = {
   font: fontBody,
 };
 const card: ThemeCard = {
-  borderRadius: "",
-  margin: "",
-  color: "",
-  background: "",
-  border: "",
-  padding: "",
-  boxShadow: "",
+  borderRadius: "5px",
+  margin: "min(5px,max(3vw,20px))",
+  color: colors.shade.black,
+  background: colors.shade.white,
+  border: "none",
+  padding: "min(5px,max(3vw,20px))",
+  boxShadow: "0 0 5px rgba(0,0,0,0.2)",
 };
 const input: ThemeInput = {
   borderRadius: "",
@@ -94,10 +96,86 @@ const input: ThemeInput = {
   margin: "",
   padding: "",
 };
+const caption: ThemeFont = {
+  color: "",
+  family: "",
+  letterSpacing: "",
+  lineHeight: "",
+  size: "",
+  weight: "",
+};
+const h1: ThemeFont = {
+  color: "",
+  family: "",
+  letterSpacing: "",
+  lineHeight: "",
+  size: "",
+  weight: "",
+};
+const h2: ThemeFont = {
+  color: "",
+  family: "",
+  letterSpacing: "",
+  lineHeight: "",
+  size: "",
+  weight: "",
+};
+const h3: ThemeFont = {
+  color: "",
+  family: "",
+  letterSpacing: "",
+  lineHeight: "",
+  size: "",
+  weight: "",
+};
+const h4: ThemeFont = {
+  color: "",
+  family: "",
+  letterSpacing: "",
+  lineHeight: "",
+  size: "",
+  weight: "",
+};
+const h5: ThemeFont = {
+  color: "",
+  family: "",
+  letterSpacing: "",
+  lineHeight: "",
+  size: "",
+  weight: "",
+};
+const h6: ThemeFont = {
+  color: "",
+  family: "",
+  letterSpacing: "",
+  lineHeight: "",
+  size: "",
+  weight: "",
+};
+const label: ThemeFont = {
+  color: "",
+  family: "",
+  letterSpacing: "",
+  lineHeight: "",
+  size: "",
+  weight: "",
+};
+const typo: ThemeTypo = {
+  caption,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  label,
+  p: fontBody,
+};
 export const ThemeHellipse: Theme = {
   body,
   card,
   input,
   colors,
+  typo,
   breakPoints: [576, 768, 992, 1280],
 };

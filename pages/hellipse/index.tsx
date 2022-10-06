@@ -76,7 +76,11 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
           {selectedRole ? (
             <Card>
               {selectedRole.name}
-              {selectedRole.attentes}
+              {selectedRole.attentes
+                ? selectedRole.attentes
+                    .split("\n")
+                    .map((line, i) => <div key={i}>{line}</div>)
+                : null}
             </Card>
           ) : null}
         </div>

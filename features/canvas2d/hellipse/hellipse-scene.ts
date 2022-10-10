@@ -159,7 +159,9 @@ export function HellipseSceneInit(
       scene.camera.lookAt(Operation2d("add", dragStart.camera, vecMouse));
     }
   };
-  const onMouseMove = (ev: MouseEvent) => {};
+  const onMouseMove = (ev: MouseEvent) => {
+    moveCameraByMouse(ev.x, ev.y);
+  };
   const setDragStart = (p: IPoint2) => {
     dragStart = {
       click: scene.camera.screenToWorld(p),
@@ -188,14 +190,6 @@ export function HellipseSceneInit(
   const onWheel = (ev: WheelEvent) => {
     ev.preventDefault();
     const mousePoint = scene.camera.screenToWorld({ x: ev.x, y: ev.y });
-    if (!ev.ctrlKey) {
-      if (!dragStart) {
-        setDragStart({ x: ev.x, y: ev.y });
-      } else {
-        moveCameraByMouse(ev.x, ev.y);
-      }
-      return;
-    }
     let move = Operation2d(
       "divide",
       Operation2d("add", mousePoint, scene.camera.position),

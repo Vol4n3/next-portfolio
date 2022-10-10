@@ -52,6 +52,9 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
     instance.onClickRole((role) => {
       dispatchPageState({ type: "setSelectedRole", role });
     });
+    instance.onClickCercle((cercle) => {
+      dispatchPageState({ type: "setSelectedCercle", cercle });
+    });
     return () => {
       dispatchPageState({ type: "setSelectedScene", scene: null });
       instance.destroy();
@@ -67,23 +70,33 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
         width={["100%", "100%", "30%"]}
         height={["70%", "70%", "100%"]}
       >
-        <div>
-          <button
-            onClick={() => dispatchPageState({ type: "toggleAnimation" })}
-          >
-            toggle animation
-          </button>
-          {selectedRole ? (
-            <Card>
-              {selectedRole.name}
-              {selectedRole.attentes
-                ? selectedRole.attentes
-                    .split("\n")
-                    .map((line, i) => <div key={i}>{line}</div>)
-                : null}
-            </Card>
-          ) : null}
-        </div>
+        <Card>
+          <div>
+            {pageState.currentScene && (
+              <button
+                onClick={() =>
+                  pageState.currentScene
+                    ? (pageState.currentScene.pauseAnimation =
+                        !pageState.currentScene.pauseAnimation)
+                    : undefined
+                }
+              >
+                toggle animation
+              </button>
+            )}
+          </div>
+          {selectedCercle && <h2>Cercle :{selectedCercle.name}</h2>}
+          {selectedRole && (
+            <div>
+              <h3>Rôle : {selectedRole.name}</h3>
+
+              {selectedRole.attentes &&
+                selectedRole.attentes
+                  .split("\n")
+                  .map((line, i) => <div key={i}>{line}</div>)}
+            </div>
+          )}
+        </Card>
       </Flex>
     </Flex>
   );

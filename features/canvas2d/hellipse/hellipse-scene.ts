@@ -11,6 +11,7 @@ export interface HellipseSceneAction {
   destroy: () => void;
   scene: Scene2d;
   onClickRole: (cb: (role: Role | null) => void) => void;
+  onClickCercle: (cb: (role: Cercle | null) => void) => void;
 }
 
 function randomRoleColor() {
@@ -70,6 +71,7 @@ export function HellipseSceneInit(
       x: 0,
       y: 0,
       r: cercleRadius,
+      cercle: c,
       name: c.name,
       emoji: c.icon.emoji,
       fillColor: darkPurple,
@@ -121,7 +123,7 @@ export function HellipseSceneInit(
   ]);
   const onCollide = (co: Collider<BlobBall>) => {
     co.getCollisions().forEach(({ a, b }) => {
-      if (a.children.length || b.children.length) {
+      if (a.params.children.length || b.params.children.length) {
         if (a.isParent(b) || b.isParent(a)) {
           a.interneCollisionResponse(b);
           return;
@@ -133,28 +135,31 @@ export function HellipseSceneInit(
   cerclesBlobs.forEach((blob) => {
     const colliderCircle = new Collider<BlobBall>("all", [
       blob,
-      ...blob.children,
+      ...blob.params.children,
     ]);
     scene.addUpdateListener(onCollide.bind(null, colliderCircle));
   });
   scene.addUpdateListener(onCollide.bind(null, collider));
   let dragStart: { click: IPoint2; camera: IPoint2 } | null = null;
 
-  const onMouseMove = (ev: MouseEvent) => {
-    const mousePoint = scene.camera.screenToWorld({ x: ev.x, y: ev.y });
+  const moveCameraByMouse = (x: number, y: number) => {
+    const mousePoint = scene.camera.screenToWorld({ x, y });
     hoverItems.forEach((item) => {
       item.isHover = item.distanceTo(mousePoint) < item.radius;
     });
+    scene.canvas.style.cursor = hoverItems.some((item) => item.isHover)
+      ? "pointer"
+      : "normal";
     if (dragStart) {
       const vecMouse = new Vector2(
         Operation2d("subtract", mousePoint, dragStart.click)
       )
         .perp()
         .perp();
-
       scene.camera.lookAt(Operation2d("add", dragStart.camera, vecMouse));
     }
   };
+  const onMouseMove = (ev: MouseEvent) => {};
   const setDragStart = (p: IPoint2) => {
     dragStart = {
       click: scene.camera.screenToWorld(p),
@@ -162,11 +167,14 @@ export function HellipseSceneInit(
     };
   };
   let onClickRoleCb: (role: Role | null) => void = () => {};
+  let onClickCercleCb: (role: Cercle | null) => void = () => {};
   const onClick = () => {
     onClickRoleCb(null);
+    onClickCercleCb(null);
     hoverItems.forEach((blob) => {
-      if (blob.isHover && blob.role) {
-        onClickRoleCb(blob.role);
+      if (blob.isHover) {
+        if (blob.params.role) onClickRoleCb(blob.params.role);
+        if (blob.params.cercle) onClickCercleCb(blob.params.cercle);
       }
     });
   };
@@ -180,7 +188,14 @@ export function HellipseSceneInit(
   const onWheel = (ev: WheelEvent) => {
     ev.preventDefault();
     const mousePoint = scene.camera.screenToWorld({ x: ev.x, y: ev.y });
-
+    if (!ev.ctrlKey) {
+      if (!dragStart) {
+        setDragStart({ x: ev.x, y: ev.y });
+      } else {
+        moveCameraByMouse(ev.x, ev.y);
+      }
+      return;
+    }
     let move = Operation2d(
       "divide",
       Operation2d("add", mousePoint, scene.camera.position),
@@ -225,6 +240,9 @@ export function HellipseSceneInit(
     scene: scene,
     onClickRole: (cb) => {
       onClickRoleCb = cb;
+    },
+    onClickCercle: (cb) => {
+      onClickCercleCb = cb;
     },
     destroy: () => {
       scene.canvas.removeEventListener("touchstart", onTouchHold);

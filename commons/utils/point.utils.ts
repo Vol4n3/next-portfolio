@@ -74,3 +74,6 @@ export const Operation2d = (
       return { x: Math.pow(a.x, b.x), y: Math.pow(a.y, b.y) };
   }
 };
+export const PointsAverage = (points: IPoint2[]): IPoint2 => {
+  return Operation2d("divide", PointsSum(points), points.length);
+};

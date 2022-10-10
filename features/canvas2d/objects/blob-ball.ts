@@ -8,7 +8,7 @@ import { Segment2 } from "../segment2";
 import { lighten } from "polished";
 import { CanCollide } from "../collider";
 import { DotProduct, Operation2d } from "../../../commons/utils/point.utils";
-import { Role } from "../../notion/notion-api-type";
+import { Cercle, Role } from "../../notion/notion-api-type";
 
 interface BlobBallParams {
   x: number;
@@ -22,9 +22,11 @@ interface BlobBallParams {
   scenePriority: number;
   children: BlobBall[];
   role?: Role;
+  cercle?: Cercle;
 }
 
 export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
+  params: BlobBallParams;
   isUpdated: boolean = false;
   scenePriority: number;
   definition: number = 10;
@@ -34,40 +36,15 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
   perlinMovement: Segment2 = new Segment2();
   easing: EasingCallback | null = null;
   isHover: boolean = false;
-  role?: Role;
-  name: string;
-  fillColor: string | undefined;
   mass = 1;
   isStatic: boolean = false;
   velocity: Vector2 = new Vector2(0, 0);
-  children: BlobBall[];
   private perlin = new Perlin();
-  private strokeColor: string | undefined;
-  private textColor: string | undefined;
-  private emoji: string | undefined;
 
-  constructor({
-    x,
-    y,
-    r,
-    name,
-    fillColor,
-    strokeColor,
-    scenePriority,
-    children,
-    textColor,
-    emoji,
-    role,
-  }: BlobBallParams) {
-    super(x, y, r);
-    this.fillColor = fillColor;
-    this.strokeColor = strokeColor;
-    this.textColor = textColor;
-    this.name = name;
-    this.scenePriority = scenePriority;
-    this.children = children;
-    this.emoji = emoji;
-    this.role = role;
+  constructor(params: BlobBallParams) {
+    super(params.x, params.y, params.r);
+    this.scenePriority = params.scenePriority;
+    this.params = params;
   }
 
   destroy(): void {}
@@ -101,7 +78,7 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
     }
 
     ctx.closePath();
-    if (this.fillColor) {
+    if (this.params.fillColor) {
       var grd = ctx.createRadialGradient(
         0,
         0,
@@ -113,17 +90,17 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
       grd.addColorStop(
         0,
         this.isHover
-          ? lighten(0.1, this.fillColor)
-          : lighten(0.05, this.fillColor)
+          ? lighten(0.1, this.params.fillColor)
+          : lighten(0.05, this.params.fillColor)
       );
-      grd.addColorStop(1, this.fillColor);
+      grd.addColorStop(1, this.params.fillColor);
       ctx.fillStyle = grd;
       ctx.fill();
     }
-    if (this.strokeColor) {
+    if (this.params.strokeColor) {
       ctx.lineWidth = 20;
       ctx.lineCap = "round";
-      ctx.strokeStyle = this.strokeColor;
+      ctx.strokeStyle = this.params.strokeColor;
       ctx.stroke();
     }
 
@@ -132,11 +109,11 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
       lineHeight: 14,
       text:
         camera.distance > 2000
-          ? this.emoji || ""
-          : this.name + (this.emoji || ""),
+          ? this.params.emoji || ""
+          : this.params.name + (this.params.emoji || ""),
       x: 0,
       textAlign: "center",
-      fillStyle: this.textColor ?? "white",
+      fillStyle: this.params.textColor ?? "white",
       textBaseline: "middle",
       y: 0,
       font: {
@@ -166,17 +143,17 @@ export class BlobBall extends Circle2 implements Item2Scene, CanCollide {
       this.velocity.y = 0;
     }
     this.operation("add", this.velocity);
-    this.children.forEach((c) => {
+    this.params.children.forEach((c) => {
       c.operation("add", this.velocity);
     });
   }
 
   isParent(ball: BlobBall): boolean {
-    return this.children.some((c) => c === ball);
+    return this.params.children.some((c) => c === ball);
   }
 
   isCollide(item: BlobBall): boolean {
-    if (item.children.length || this.children.length) {
+    if (item.params.children.length || this.params.children.length) {
       if (item.isParent(this) || this.isParent(item)) {
         return this.distanceTo(item) > Math.abs(this.radius - item.radius);
       }

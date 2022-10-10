@@ -2,6 +2,8 @@ import { PropsWithChildren } from "react";
 import styled from "styled-components";
 
 const StyledCard = styled.div`
+  width: 100%;
+  position: relative;
   background: ${({ theme }) => theme.card.background};
   color: ${({ theme }) => theme.card.color};
   border: ${({ theme }) => theme.card.border};

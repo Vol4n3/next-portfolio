@@ -184,7 +184,7 @@ export class Scene2d {
           easing: Easing.easeOutCubic,
           startValue: this.camera.distance,
           endValue: camera.distance,
-          time: 30,
+          time: 15,
         },
       ]);
     }
@@ -194,7 +194,7 @@ export class Scene2d {
           easing: Easing.easeOutCubic,
           startValue: this.camera.position.x,
           endValue: camera.x,
-          time: 30,
+          time: 15,
         },
       ]);
     }
@@ -204,7 +204,7 @@ export class Scene2d {
           easing: Easing.easeOutCubic,
           startValue: this.camera.position.y,
           endValue: camera.y,
-          time: 30,
+          time: 15,
         },
       ]);
     }

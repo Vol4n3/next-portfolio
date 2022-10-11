@@ -145,18 +145,16 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
                 <TextField value={search} onChange={searchAttentes} />
               </label>
               {foundRoles && !!foundRoles.length && (
-                <Card style={{ position: "absolute", top: 50 }}>
-                  <Flex direction={"column"}>
-                    {foundRoles.map((fRoles) => (
-                      <BaseButton
-                        key={fRoles.name}
-                        onClick={() => onClickFRole(fRoles)}
-                      >
-                        {fRoles.name}
-                      </BaseButton>
-                    ))}
-                  </Flex>
-                </Card>
+                <Flex direction={"column"}>
+                  {foundRoles.map((fRoles) => (
+                    <BaseButton
+                      key={fRoles.name}
+                      onClick={() => onClickFRole(fRoles)}
+                    >
+                      {fRoles.name}
+                    </BaseButton>
+                  ))}
+                </Flex>
               )}
             </Flex>
 

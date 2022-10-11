@@ -18,6 +18,10 @@ function randomRoleColor() {
   return PickRandomOne(["#FFCDC6", "#FFF4BD", "#C3FFFF", "#E8D2FF", "#CCD8FF"]);
 }
 
+const hellipseRadius = 1000;
+const cercleRadius = 300;
+const roleRadius = 75;
+
 export function HellipseSceneInit(
   container: HTMLDivElement,
   roles: Role[],
@@ -25,10 +29,6 @@ export function HellipseSceneInit(
   hellipsien: Hellipsien[]
 ): HellipseSceneAction {
   const scene = new Scene2d(container);
-
-  const hellipseRadius = 1000;
-  const cercleRadius = 300;
-  const roleRadius = 75;
 
   const rolesWithoutCircle = roles.filter(
     (role) => !cercles.some((c) => c.roles.some((r) => r === role.id))
@@ -231,7 +231,7 @@ export function HellipseSceneInit(
   scene.canvas.addEventListener("mouseleave", onMouseRelease);
   scene.canvas.addEventListener("wheel", onWheel);
   return {
-    scene: scene,
+    scene,
     onClickRole: (cb) => {
       onClickRoleCb = cb;
     },

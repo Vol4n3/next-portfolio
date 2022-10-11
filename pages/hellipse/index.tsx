@@ -16,6 +16,7 @@ import { HellipseSceneInit } from "../../features/canvas2d/hellipse/hellipse-sce
 import { navyBlue } from "../../features/theme/hellipse-colors";
 import { Card } from "../../commons/components/card/card";
 import { pageStateReducer } from "../../features/hellipse-page/hellipse-page-state-action";
+import { TextField } from "../../commons/components/fields/text-field";
 
 const Container = styled.div`
   position: absolute;
@@ -39,9 +40,9 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
   const refContainer = useRef<HTMLDivElement>(null);
   const [pageState, dispatchPageState] = useReducer<typeof pageStateReducer>(
     pageStateReducer,
-    {}
+    { search: "" }
   );
-  const { currentScene, selectedCercle, selectedRole } = pageState;
+  const { search, currentScene, selectedCercle, selectedRole } = pageState;
   useEffect(() => {
     const container = refContainer.current;
     if (!container) {
@@ -60,6 +61,18 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
       instance.destroy();
     };
   }, [cercles, roles, hellipsiens]);
+
+  function searchAttentes(term: string) {
+    if (!roles) {
+      return;
+    }
+    const normalizedTerm = term.trim().toLowerCase().normalize();
+    const matchedRoles = roles.filter((r) =>
+      r.attentes.toLowerCase().normalize().match(normalizedTerm)
+    );
+    dispatchPageState({ type: "search", term });
+  }
+
   return (
     <Flex width={"100vw"} height={"100vh"}>
       <Flex width={["100%", "100%", "70%"]} height={["30%", "30%", "100%"]}>
@@ -70,33 +83,35 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
         width={["100%", "100%", "30%"]}
         height={["70%", "70%", "100%"]}
       >
-        <Card>
-          <div>
-            {pageState.currentScene && (
-              <button
-                onClick={() =>
-                  pageState.currentScene
-                    ? (pageState.currentScene.pauseAnimation =
-                        !pageState.currentScene.pauseAnimation)
-                    : undefined
-                }
-              >
-                toggle animation
-              </button>
-            )}
-          </div>
-          {selectedCercle && <h2>Cercle :{selectedCercle.name}</h2>}
-          {selectedRole && (
+        <Container>
+          <Card>
             <div>
-              <h3>Rôle : {selectedRole.name}</h3>
-
-              {selectedRole.attentes &&
-                selectedRole.attentes
-                  .split("\n")
-                  .map((line, i) => <div key={i}>{line}</div>)}
+              {currentScene && (
+                <button
+                  onClick={() =>
+                    currentScene
+                      ? (currentScene.pauseAnimation =
+                          !currentScene.pauseAnimation)
+                      : undefined
+                  }
+                >
+                  toggle animation
+                </button>
+              )}
             </div>
-          )}
-        </Card>
+            <TextField value={search} onChange={searchAttentes} />
+            {selectedCercle && <h2>Cercle :{selectedCercle.name}</h2>}
+            {selectedRole && (
+              <div>
+                <h3>Rôle : {selectedRole.name}</h3>
+                {selectedRole.attentes &&
+                  selectedRole.attentes
+                    .split("\n")
+                    .map((line, i) => <div key={i}>{line}</div>)}
+              </div>
+            )}
+          </Card>
+        </Container>
       </Flex>
     </Flex>
   );

@@ -7,8 +7,9 @@ import { IPoint2, Operation2d } from "../../../commons/utils/point.utils";
 import { Vector2 } from "../vector2";
 import { PickRandomOne } from "../../../commons/utils/array-utils";
 
-export interface HellipseSceneAction {
+export interface HellipseSceneInstance {
   destroy: () => void;
+  followRole: (role: Role) => void;
   scene: Scene2d;
   onClickRole: (cb: (role: Role | null) => void) => void;
   onClickCercle: (cb: (role: Cercle | null) => void) => void;
@@ -27,7 +28,7 @@ export function HellipseSceneInit(
   roles: Role[],
   cercles: Cercle[],
   hellipsien: Hellipsien[]
-): HellipseSceneAction {
+): HellipseSceneInstance {
   const scene = new Scene2d(container);
 
   const rolesWithoutCircle = roles.filter(
@@ -141,6 +142,22 @@ export function HellipseSceneInit(
   });
   scene.addUpdateListener(onCollide.bind(null, collider));
   let dragStart: { click: IPoint2; camera: IPoint2 } | null = null;
+  const followCercle = (cercle: Cercle) => {
+    const blob =
+      hoverItems.find((blob) => blob.params.cercle?.id === cercle.id) || null;
+    scene.follow = blob;
+    if (blob) {
+      scene.moveEaseCamera({ distance: 800, y: blob.y, x: blob.x });
+    }
+  };
+  const followRole = (role: Role) => {
+    const blob =
+      hoverItems.find((blob) => blob.params.role?.id === role.id) || null;
+    scene.follow = blob;
+    if (blob) {
+      scene.moveEaseCamera({ distance: 500, y: blob.y, x: blob.x });
+    }
+  };
 
   const moveCameraByMouse = (x: number, y: number) => {
     const mousePoint = scene.camera.screenToWorld({ x, y });
@@ -151,6 +168,7 @@ export function HellipseSceneInit(
       ? "pointer"
       : "normal";
     if (dragStart) {
+      scene.follow = null;
       const vecMouse = new Vector2(
         Operation2d("subtract", mousePoint, dragStart.click)
       )
@@ -173,10 +191,27 @@ export function HellipseSceneInit(
   const onClick = () => {
     onClickRoleCb(null);
     onClickCercleCb(null);
-    hoverItems.forEach((blob) => {
-      if (blob.isHover) {
-        if (blob.params.role) onClickRoleCb(blob.params.role);
-        if (blob.params.cercle) onClickCercleCb(blob.params.cercle);
+
+    const rolesHover = hoverItems.filter(
+      (blob) => blob.params.role && blob.isHover
+    );
+    rolesHover.forEach((blob) => {
+      if (blob.params.role) {
+        onClickRoleCb(blob.params.role);
+
+        followRole(blob.params.role);
+      }
+    });
+    const cerclesHover = hoverItems.filter(
+      (blob) => blob.params.cercle && blob.isHover
+    );
+    cerclesHover.forEach((blob) => {
+      if (blob.params.cercle) {
+        onClickCercleCb(blob.params.cercle);
+        if (rolesHover.length) {
+          return;
+        }
+        followCercle(blob.params.cercle);
       }
     });
   };
@@ -238,6 +273,7 @@ export function HellipseSceneInit(
     onClickCercle: (cb) => {
       onClickCercleCb = cb;
     },
+    followRole,
     destroy: () => {
       scene.canvas.removeEventListener("touchstart", onTouchHold);
       scene.canvas.removeEventListener("mousemove", onMouseMove);

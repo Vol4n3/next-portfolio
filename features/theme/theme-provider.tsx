@@ -1,6 +1,7 @@
 import {
   createContext,
   PropsWithChildren,
+  ReactChild,
   useCallback,
   useContext,
   useEffect,
@@ -47,6 +48,10 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 
     isInit = true;
     const name = localStorage.getItem(keyLocalStorageTheme) as ThemeName | null;
+    if (!Object.keys(themes).includes(name || "")) {
+      localStorage.removeItem(keyLocalStorageTheme);
+      return;
+    }
     if (!name && !window.matchMedia("(prefers-color-scheme: dark)").matches) {
       return;
     }
@@ -55,7 +60,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   return (
     <ThemeContext.Provider value={{ changeTheme, theme: themes[themeName] }}>
       <ThemeStyledProvider theme={themes[themeName]}>
-        {children}
+        {children as ReactChild}
       </ThemeStyledProvider>
     </ThemeContext.Provider>
   );

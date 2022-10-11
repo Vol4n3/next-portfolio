@@ -7,10 +7,11 @@ import {
   EasingCallback,
 } from "../../commons/utils/easing.utils";
 import { Camera2 } from "./camera2";
+import { IPoint2 } from "../../commons/utils/point.utils";
 
 type SceneCallBack = (scene: Scene2d, time: number) => void;
 
-export interface Item2Scene {
+export interface Item2Scene extends IPoint2 {
   isUpdated: boolean;
   onResize?: (canvasWidth: number, canvasHeight: number) => void;
   scenePriority: number;
@@ -58,7 +59,7 @@ export class Scene2d {
   private easingCameraX: EasingCallback | null = null;
   private easingCameraY: EasingCallback | null = null;
   private updateListeners: SceneCallBack[] = [];
-
+  follow: Item2Scene | null = null;
   constructor(private container: HTMLDivElement, fps: number = 60) {
     this.fpsInterval = 1000 / fps;
     this.then = window.performance.now();
@@ -99,6 +100,7 @@ export class Scene2d {
   }
 
   addItem(item: Item2Scene) {
+    this.follow = item;
     this.forceUpdate = true;
     this._items.push(item);
     this._items = this._items.sort((a, b) => a.scenePriority - b.scenePriority);
@@ -122,6 +124,13 @@ export class Scene2d {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.save();
       // move camera
+      if (
+        this.follow &&
+        !this.easingCameraDistance &&
+        !this.easingCameraX &&
+        !this.easingCameraY
+      )
+        this.camera.lookAt(this.follow);
       this.camera.apply(this.ctx);
 
       this._items.forEach((d) => {
@@ -166,11 +175,6 @@ export class Scene2d {
     this.debounce.abort();
     this.resizeObs.disconnect();
     window.cancelAnimationFrame(this.tickAnimation);
-  }
-
-  moveCamera(camera: { x?: number; y?: number; distance?: number }) {
-    if (typeof camera.x !== "undefined") {
-    }
   }
 
   moveEaseCamera(camera: { x?: number; y?: number; distance?: number }) {

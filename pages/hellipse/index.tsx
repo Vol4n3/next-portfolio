@@ -15,8 +15,12 @@ import { Flex } from "../../commons/components/flex/flex";
 import { HellipseSceneInit } from "../../features/canvas2d/hellipse/hellipse-scene";
 import { navyBlue } from "../../features/theme/hellipse-colors";
 import { Card } from "../../commons/components/card/card";
-import { pageStateReducer } from "../../features/hellipse-page/hellipse-page-state-action";
+import {
+  PagesStatesActionsEnum,
+  pageStateReducer,
+} from "../../features/hellipse-page/hellipse-page-state-action";
 import { TextField } from "../../commons/components/fields/text-field";
+import { BaseButton } from "../../commons/components/base-button";
 
 const Container = styled.div`
   position: absolute;
@@ -42,23 +46,38 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
     pageStateReducer,
     { search: "" }
   );
-  const { search, currentScene, selectedCercle, selectedRole } = pageState;
+  const { search, instance, selectedCercle, selectedRole, foundRoles } =
+    pageState;
   useEffect(() => {
     const container = refContainer.current;
     if (!container) {
       return;
     }
-    const instance = HellipseSceneInit(container, roles, cercles, hellipsiens);
-    dispatchPageState({ type: "setSelectedScene", scene: instance.scene });
-    instance.onClickRole((role) => {
-      dispatchPageState({ type: "setSelectedRole", role });
+    const localInstance = HellipseSceneInit(
+      container,
+      roles,
+      cercles,
+      hellipsiens
+    );
+    dispatchPageState({
+      type: PagesStatesActionsEnum.setSelectedScene,
+      instance: localInstance,
     });
-    instance.onClickCercle((cercle) => {
-      dispatchPageState({ type: "setSelectedCercle", cercle });
+    localInstance.onClickRole((role) => {
+      dispatchPageState({ type: PagesStatesActionsEnum.setSelectedRole, role });
+    });
+    localInstance.onClickCercle((cercle) => {
+      dispatchPageState({
+        type: PagesStatesActionsEnum.setSelectedCercle,
+        cercle,
+      });
     });
     return () => {
-      dispatchPageState({ type: "setSelectedScene", scene: null });
-      instance.destroy();
+      dispatchPageState({
+        type: PagesStatesActionsEnum.setSelectedScene,
+        instance: null,
+      });
+      localInstance.destroy();
     };
   }, [cercles, roles, hellipsiens]);
 
@@ -66,12 +85,32 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
     if (!roles) {
       return;
     }
+    dispatchPageState({ type: PagesStatesActionsEnum.setSearch, term });
+    if (term.length < 3) {
+      dispatchPageState({
+        type: PagesStatesActionsEnum.setFoundRoles,
+        roles: null,
+      });
+      return;
+    }
     const normalizedTerm = term.trim().toLowerCase().normalize();
     const matchedRoles = roles.filter((r) =>
       r.attentes.toLowerCase().normalize().match(normalizedTerm)
     );
-    dispatchPageState({ type: "search", term });
+
+    dispatchPageState({
+      type: PagesStatesActionsEnum.setFoundRoles,
+      roles: matchedRoles,
+    });
   }
+
+  const onClickFRole = (fRoles: Role) => {
+    console.log("pass");
+    if (!instance) {
+      return;
+    }
+    instance.followRole(fRoles);
+  };
 
   return (
     <Flex width={"100vw"} height={"100vh"}>
@@ -86,12 +125,12 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
         <Container>
           <Card>
             <div>
-              {currentScene && (
+              {instance?.scene && (
                 <button
                   onClick={() =>
-                    currentScene
-                      ? (currentScene.pauseAnimation =
-                          !currentScene.pauseAnimation)
+                    instance.scene
+                      ? (instance.scene.pauseAnimation =
+                          !instance.scene.pauseAnimation)
                       : undefined
                   }
                 >
@@ -99,7 +138,28 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
                 </button>
               )}
             </div>
-            <TextField value={search} onChange={searchAttentes} />
+            <Flex direction={"column"}>
+              <label>
+                <span>Chercher dans les attentes</span>
+                <br />
+                <TextField value={search} onChange={searchAttentes} />
+              </label>
+              {foundRoles && !!foundRoles.length && (
+                <Card style={{ position: "absolute", top: 50 }}>
+                  <Flex direction={"column"}>
+                    {foundRoles.map((fRoles) => (
+                      <BaseButton
+                        key={fRoles.name}
+                        onClick={() => onClickFRole(fRoles)}
+                      >
+                        {fRoles.name}
+                      </BaseButton>
+                    ))}
+                  </Flex>
+                </Card>
+              )}
+            </Flex>
+
             {selectedCercle && <h2>Cercle :{selectedCercle.name}</h2>}
             {selectedRole && (
               <div>

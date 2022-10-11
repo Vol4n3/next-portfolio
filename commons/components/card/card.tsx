@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import { HTMLProps, PropsWithChildren } from "react";
 import styled from "styled-components";
 
 const StyledCard = styled.div`
@@ -12,6 +12,9 @@ const StyledCard = styled.div`
   padding: ${({ theme }) => theme.card.padding};
 `;
 
-export function Card({ children }: PropsWithChildren) {
-  return <StyledCard>{children}</StyledCard>;
+export function Card({
+  children,
+  ...rest
+}: PropsWithChildren<HTMLProps<HTMLDivElement>>) {
+  return <StyledCard {...rest}>{children}</StyledCard>;
 }

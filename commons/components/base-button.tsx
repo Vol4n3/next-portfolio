@@ -19,7 +19,7 @@ export function BaseButton({
   ...props
 }: PropsWithChildren<BaseButtonProps>) {
   return (
-    <StyleButton type={"button"} {...{ props }}>
+    <StyleButton type={"button"} {...(props as any)}>
       {children}
     </StyleButton>
   );

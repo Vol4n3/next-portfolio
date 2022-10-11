@@ -1,53 +1,62 @@
 import { Cercle, Role } from "../notion/notion-api-type";
-import { Scene2d } from "../canvas2d/scene2d";
+import { HellipseSceneInstance } from "../canvas2d/hellipse/hellipse-scene";
 
-export enum PagesStatesActionType {
+export enum PagesStatesActionsEnum {
   setSelectedCercle = "setSelectedCercle",
   setSelectedRole = "setSelectedRole",
+  setSelectedScene = "setSelectedScene",
+  setSearch = "setSearch",
+  setFoundRoles = "setFoundRoles",
 }
 type SetSelectedCercleAction = {
-  type: PagesStatesActionType.setSelectedCercle;
+  type: PagesStatesActionsEnum.setSelectedCercle;
   cercle: Cercle | null;
 };
 type SetSelectedRoleAction = {
-  type: PagesStatesActionType.setSelectedRole;
+  type: PagesStatesActionsEnum.setSelectedRole;
   role: Role | null;
 };
 type SetSelectedSceneAction = {
-  type: "setSelectedScene";
-  scene: Scene2d | null;
+  type: PagesStatesActionsEnum.setSelectedScene;
+  instance: HellipseSceneInstance | null;
 };
 type SearchAction = {
-  type: "search";
+  type: PagesStatesActionsEnum.setSearch;
   term: string;
+};
+type foundRolesAction = {
+  type: PagesStatesActionsEnum.setFoundRoles;
+  roles: Role[] | null;
 };
 export type PageState = {
   selectedCercle?: Cercle | null;
   selectedRole?: Role | null;
-  currentScene?: Scene2d | null;
+  instance?: HellipseSceneInstance | null;
   search: string;
+  foundRoles?: Role[] | null;
 };
 export type pageStateAction =
   | SetSelectedCercleAction
   | SetSelectedRoleAction
   | SetSelectedSceneAction
-  | SearchAction;
+  | SearchAction
+  | foundRolesAction;
 
 export function pageStateReducer(
   current: PageState,
   action: pageStateAction
 ): PageState {
   switch (action.type) {
-    case "setSelectedCercle":
+    case PagesStatesActionsEnum.setSelectedCercle:
       return { ...current, selectedCercle: action.cercle };
-    case "setSelectedScene":
-      return { ...current, currentScene: action.scene };
-    case "setSelectedRole":
+    case PagesStatesActionsEnum.setSelectedScene:
+      return { ...current, instance: action.instance };
+    case PagesStatesActionsEnum.setSelectedRole:
       return { ...current, selectedRole: action.role };
-    case "search":
+    case PagesStatesActionsEnum.setSearch:
       return { ...current, search: action.term };
-    case "rolesFind":
-      return { ...current };
+    case PagesStatesActionsEnum.setFoundRoles:
+      return { ...current, foundRoles: action.roles };
   }
   return current;
 }

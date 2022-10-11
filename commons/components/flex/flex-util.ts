@@ -49,15 +49,16 @@ export const MakeCssMediaBreakPoint = (
     `;
 };
 
-export function MakeResponsiveCss<T>(
+export function MakeResponsiveCss<T extends object>(
   key: keyof T,
   cssPrefix: string,
   defaultValue: string = ""
-) {
+): any {
   return css<T>`
     ${({ [key]: val, theme: { breakPoints } }) => {
       if (typeof val === "undefined") return defaultValue || "";
       if (typeof val === "string") return `${cssPrefix}: ${val};`;
+      if (!Array.isArray(val)) return "";
       return DEVICES.slice(0, val.length).map((device) => {
         const choice = PickChoiceByDevice(device, val);
         return choice

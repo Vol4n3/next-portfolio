@@ -60,6 +60,7 @@ export class Scene2d {
   private easingCameraY: EasingCallback | null = null;
   private updateListeners: SceneCallBack[] = [];
   follow: Item2Scene | null = null;
+  private followOffset: IPoint2 = { x: 0, y: 0 };
   constructor(private container: HTMLDivElement, fps: number = 60) {
     this.fpsInterval = 1000 / fps;
     this.then = window.performance.now();
@@ -130,7 +131,10 @@ export class Scene2d {
         !this.easingCameraX &&
         !this.easingCameraY
       )
-        this.camera.lookAt(this.follow);
+        this.camera.lookAt({
+          x: this.follow.x + this.followOffset.x,
+          y: this.follow.y + this.followOffset.y,
+        });
       this.camera.apply(this.ctx);
 
       this._items.forEach((d) => {
@@ -184,7 +188,7 @@ export class Scene2d {
           easing: Easing.easeOutCubic,
           startValue: this.camera.distance,
           endValue: camera.distance,
-          time: 15,
+          time: 20,
         },
       ]);
     }
@@ -194,7 +198,7 @@ export class Scene2d {
           easing: Easing.easeOutCubic,
           startValue: this.camera.position.x,
           endValue: camera.x,
-          time: 15,
+          time: 20,
         },
       ]);
     }
@@ -204,7 +208,7 @@ export class Scene2d {
           easing: Easing.easeOutCubic,
           startValue: this.camera.position.y,
           endValue: camera.y,
-          time: 15,
+          time: 20,
         },
       ]);
     }
@@ -277,6 +281,9 @@ export class Scene2d {
       this.easingCameraX(
         (x) => {
           this.camera.lookAt({ x, y: this.camera.position.y });
+          if (this.follow) {
+            this.followOffset = { ...this.followOffset, x: x - this.follow.x };
+          }
           this.forceUpdate = true;
         },
         () => (this.easingCameraX = null)
@@ -287,6 +294,9 @@ export class Scene2d {
         (y) => {
           this.camera.lookAt({ x: this.camera.position.x, y });
           this.forceUpdate = true;
+          if (this.follow) {
+            this.followOffset = { ...this.followOffset, y: y - this.follow.y };
+          }
         },
         () => (this.easingCameraY = null)
       );

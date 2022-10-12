@@ -104,12 +104,15 @@ const HellipsePage: NextPage<HellipsePageProps> = ({
     });
   }
 
-  const onClickFRole = (fRoles: Role) => {
-    console.log("pass");
+  const onClickFRole = (foundedRole: Role) => {
     if (!instance) {
       return;
     }
-    instance.followRole(fRoles);
+    dispatchPageState({
+      type: PagesStatesActionsEnum.setSelectedRole,
+      role: foundedRole,
+    });
+    instance.followRole(foundedRole);
   };
 
   return (

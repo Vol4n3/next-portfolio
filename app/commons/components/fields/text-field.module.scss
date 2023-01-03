@@ -1,0 +1,10 @@
+.textField {
+  display: inline-block;
+  border-radius: var(--themeTextFieldBorderRadius);
+  border: var(--themeTextFieldBorder);
+  color: var(--themeTextFieldColor);
+  padding: var(--themeTextFieldPadding);
+  margin: var(--themeTextFieldMargin);
+  background: var(--themeTextFieldBackground);
+  width: 100%;
+}

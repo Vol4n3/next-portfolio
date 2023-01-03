@@ -1,0 +1,10 @@
+.card {
+  width: 100%;
+  position: relative;
+  background: var(--themeCardBackground);
+  color: var(--themeCardColor);
+  border: var(--themeCardBorder);
+  box-shadow: var(--themeCardBoxShadow);
+  border-radius: var(--themeCardBorderRadius);
+  padding: var(--themeCardPadding);
+}

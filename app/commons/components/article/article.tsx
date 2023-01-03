@@ -1,12 +1,5 @@
 import { PropsWithChildren } from "react";
-import styled from "styled-components";
-
-const StyledArticle = styled.article<{ isCentered?: boolean }>`
-  position: relative;
-  padding: max(5px, min(2vw, 40px));
-  width: 100%;
-  margin: 0 ${({ isCentered }) => (isCentered ? "auto" : "")};
-`;
+import styles from "./article.module.scss";
 
 interface ContainerProps {
   centered?: boolean;
@@ -19,11 +12,11 @@ export function Article({
   centered,
 }: PropsWithChildren<ContainerProps>) {
   return (
-    <StyledArticle
-      isCentered={centered}
-      style={maxWidth ? { maxWidth } : undefined}
+    <article
+      className={styles.article}
+      style={{ maxWidth, margin: `0 ${centered ? "auto" : ""}` }}
     >
       {children}
-    </StyledArticle>
+    </article>
   );
 }

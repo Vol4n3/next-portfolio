@@ -9,7 +9,17 @@ import { Flex } from "./commons/components/flex/flex";
 const IndexPage: NextPage = () => {
   return (
     <Article centered={true}>
-      <Flex width={["100%", "50%"]}>
+      <Flex width={["100%", "50%"]} wraps={"nowrap"}>
+        <Card>
+          <Button>Hello world</Button>
+          <TextField value={""} onChange={() => {}} />
+        </Card>
+        <Card>
+          <Button>Hello world</Button>
+          <TextField value={""} onChange={() => {}} />
+        </Card>
+      </Flex>
+      <Flex width={["100%", "30%"]}>
         <Card>
           <Button>Hello world</Button>
           <TextField value={""} onChange={() => {}} />

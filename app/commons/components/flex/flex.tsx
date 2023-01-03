@@ -1,4 +1,10 @@
-import { HTMLProps, PropsWithChildren, useEffect, useRef } from "react";
+import {
+  HTMLProps,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styles from "./flex.module.scss";
 import {
   AlignItemProps,
@@ -30,53 +36,56 @@ export function Flex({
   direction,
   columnGap,
   rowGap,
+  wraps,
   ...props
 }: PropsWithChildren<
   FlexProps & Omit<HTMLProps<HTMLDivElement>, "width" | "height">
 >) {
   const refDiv = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState<boolean>(false);
   const propsNames = [
-    { prop: width, name: "width" },
+    { prop: width, name: "width", defaultValue: "100%" },
     { prop: height, name: "height" },
     {
       prop: alignItems,
-      name: "alignItems",
+      name: "align-items",
     },
-    { prop: justifyContent, name: "justifyContent" },
+    { prop: justifyContent, name: "justify-content" },
     { prop: direction, name: "direction" },
     {
       prop: columnGap,
-      name: "columnGap",
+      name: "column-gap",
     },
-    { prop: rowGap, name: "rowGap" },
-    { prop: width, name: "width" },
+    { prop: rowGap, name: "row-gap" },
+    { prop: wraps, name: "flex-wrap", defaultValue: "wrap" },
   ];
   useEffect(() => {
     const div = refDiv.current;
     if (!div) {
       return;
     }
-    propsNames.forEach(({ prop, name }) => {
-      if (prop) {
-        if (typeof prop === "string") {
-          div.style.setProperty(`--flex_${name}_1`, prop);
-        }
-        if (typeof prop === "object") {
-          if (prop.length) {
-            prop.forEach((w, i) => {
-              if (w) {
-                div.style.setProperty(`--flex_${name}_${i + 1}`, w);
-              }
-            });
-          }
-        }
+    propsNames.forEach(({ prop, name, defaultValue }) => {
+      if (!prop) {
+        if (!defaultValue) return;
+        div.style.setProperty(`--flex_${name}_1`, defaultValue);
+        return;
       }
+      if (typeof prop === "string") {
+        div.style.setProperty(`--flex_${name}_1`, prop);
+      }
+      if (typeof prop !== "object" || !prop.length) return;
+      prop.forEach((w, i) => {
+        if (w) {
+          div.style.setProperty(`--flex_${name}_${i + 1}`, w);
+        }
+      });
     });
-  });
+    setReady(true);
+  }, [refDiv]);
 
   return (
     <div ref={refDiv} className={[styles.flex, className].join(" ")} {...props}>
-      {children}
+      {ready && children}
     </div>
   );
 }

@@ -2,11 +2,12 @@ $breakpoints: (0, 576px, 768px, 992px, 1280px);
 $flexProps: (
   width,
   height,
-  alignItems,
-  justifyContent,
+  align-items,
+  justify-content,
   direction,
-  columnGap,
-  rowGap
+  column-gap,
+  row-gap,
+  flex-wrap
 );
 @function recursive($prop, $index) {
   @if ($index == 1) {

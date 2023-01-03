@@ -1,8 +1,8 @@
 import { numberRange } from "../../commons/utils/number.utils";
 import {
   IPoint2,
-  OperationName,
   Operation2d,
+  OperationName,
 } from "../../commons/utils/point.utils";
 
 export class Point2 implements IPoint2 {

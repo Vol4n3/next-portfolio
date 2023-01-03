@@ -1,5 +1,6 @@
-import type { NextPage } from "next";
-import { BaseButton } from "../commons/components/base-button";
+"use client";
+import { NextPage } from "next";
+import { BaseButton } from "./commons/components/base-button";
 
 const IndexPage: NextPage = () => {
   return (
@@ -8,5 +9,4 @@ const IndexPage: NextPage = () => {
     </div>
   );
 };
-
 export default IndexPage;

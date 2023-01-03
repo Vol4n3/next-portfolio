@@ -1,4 +1,4 @@
-import { Theme } from "./features/theme/theme-types";
+import { Theme } from "./app/features/theme/theme-types";
 import type { CSSProp } from "styled-components";
 
 declare module "styled-components" {

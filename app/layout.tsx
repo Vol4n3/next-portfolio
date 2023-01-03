@@ -1,8 +1,9 @@
-import "../styles/globals.css";
-import type { AppProps } from "next/app";
-import { TemplateProvider } from "../features/template/template-provider";
-import { ThemeProvider } from "../features/theme/theme-provider";
+"use client";
 import { createGlobalStyle } from "styled-components";
+import { ThemeProvider } from "./features/theme/theme-provider";
+import { TemplateProvider } from "./features/template/template-provider";
+import "./app.style.css";
+import { PropsWithChildren } from "react";
 
 const GlobalStyle = createGlobalStyle`
   html,
@@ -27,15 +28,15 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-function MyApp({ Component, pageProps }: AppProps) {
+export default function MyAppLayout({ children }: PropsWithChildren) {
   return (
     <ThemeProvider>
-      <GlobalStyle />
-      <TemplateProvider>
-        <Component {...pageProps}></Component>
-      </TemplateProvider>
+      <html>
+        <body>
+          <GlobalStyle />
+          <TemplateProvider>{children}</TemplateProvider>
+        </body>
+      </html>
     </ThemeProvider>
   );
 }
-
-export default MyApp;

@@ -2,7 +2,6 @@ import * as React from "react";
 import { CSSProperties, PropsWithChildren, useEffect, useRef } from "react";
 import { KeyframesHelper } from "../../utils/keyframes.utils";
 
-type State = "in" | "start" | "shown" | "end" | "out";
 type AnimationConfig = {
   keyframes?: Keyframe[];
   options?: KeyframeAnimationOptions;
@@ -21,14 +20,14 @@ const execAnimation = (
     ...options,
     easing: options.easing || "cubic-bezier(0.8, 0, 0.2, 1)",
     duration: options.duration || 250,
-    delay: options.delay, // managed by component because animation event listener has not on begin event
+    delay: options.delay,
   };
   return element.animate(keyframes, option);
 };
 
 interface InOutProps {
   /**
-   * permet de scroll une fois que l'élement apparait
+   * permet de scroll une fois que l'élément apparait
    */
   autoScroll?: boolean | ScrollIntoViewOptions;
   /**
@@ -44,7 +43,7 @@ interface InOutProps {
    */
   show: boolean;
   /**
-   * style imposé au démarage de l'animation default : opacity : 0
+   * style imposé au démarrage de l'animation default : opacity : 0
    */
   startStyle?: CSSProperties;
   /**

@@ -6,5 +6,14 @@
   padding: var(--themeTextFieldPadding);
   margin: var(--themeTextFieldMargin);
   background: var(--themeTextFieldBackground);
+  outline: none;
   width: 100%;
+
+  &:hover {
+    border-bottom-color: var(--themeTextFieldColor);
+  }
+
+  &:focus {
+    border-bottom-color: var(--themeTextFieldColor);
+  }
 }

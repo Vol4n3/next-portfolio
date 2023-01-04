@@ -1,7 +1,5 @@
 "use client";
-import { NextPage } from "next";
 
-const IndexPage: NextPage = () => {
+export default function NotFound() {
   return <div>not found</div>;
-};
-export default IndexPage;
+}

@@ -1,8 +1,9 @@
+@import "./variables/colors";
 :root {
   --themeButtonBorderRadius: 5px;
   --themeButtonBorder: none;
   --themeButtonMargin: 0;
-  --themeButtonColor: var(--black);
+  --themeButtonColor: inherit;
   --themeButtonBackground: transparent;
   --themeButtonPadding: 10px;
   --themeButtonBoxShadow: 0 0 5px rgba(0, 0, 0, 0.2);

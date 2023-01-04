@@ -1,5 +1,5 @@
 .button {
-  border: none;
+  border: 2px transparent solid;
   background: transparent;
   padding: 0;
   margin: 0;
@@ -8,5 +8,15 @@
 
   &:not(:disabled) {
     cursor: pointer;
+  }
+
+  &:hover,
+  &:focus {
+    border-color: inherit;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+  }
+
+  &:active {
+    border-color: transparent;
   }
 }

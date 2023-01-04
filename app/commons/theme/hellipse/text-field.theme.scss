@@ -1,0 +1,10 @@
+@import "./variables/colors";
+:root {
+  --themeTextFieldBorderRadius: 0px;
+  --themeTextFieldBorder: 2px solid transparent;
+  --themeTextFieldMargin: 20px 0;
+  --themeTextFieldColor: #{$black};
+  --themeTextFieldBackground: #{$neutral50};
+  --themeTextFieldPadding: 10px;
+  --themeTextFieldBoxShadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}

@@ -1,7 +1,5 @@
 "use client";
-import { NextPage } from "next";
 
-const IndexPage: NextPage = () => {
+export default function Loading() {
   return <div>Loading</div>;
-};
-export default IndexPage;
+}

@@ -1,10 +1,4 @@
-import {
-  HTMLProps,
-  PropsWithChildren,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { HTMLProps, PropsWithChildren } from "react";
 import styles from "./flex.module.scss";
 import {
   AlignItemProps,
@@ -37,55 +31,56 @@ export function Flex({
   columnGap,
   rowGap,
   wraps,
+  style,
   ...props
 }: PropsWithChildren<
   FlexProps & Omit<HTMLProps<HTMLDivElement>, "width" | "height">
 >) {
-  const refDiv = useRef<HTMLDivElement>(null);
-  const [ready, setReady] = useState<boolean>(false);
   const propsNames = [
-    { prop: width, name: "width", defaultValue: "100%" },
-    { prop: height, name: "height" },
+    { propValue: width, name: "width", defaultValue: "100%" },
+    { propValue: height, name: "height" },
     {
-      prop: alignItems,
+      propValue: alignItems,
       name: "align-items",
     },
-    { prop: justifyContent, name: "justify-content" },
-    { prop: direction, name: "direction" },
+    { propValue: justifyContent, name: "justify-content" },
+    { propValue: direction, name: "direction" },
     {
-      prop: columnGap,
+      propValue: columnGap,
       name: "column-gap",
     },
-    { prop: rowGap, name: "row-gap" },
-    { prop: wraps, name: "flex-wrap", defaultValue: "wrap" },
-  ];
-  useEffect(() => {
-    const div = refDiv.current;
-    if (!div) {
-      return;
-    }
-    propsNames.forEach(({ prop, name, defaultValue }) => {
-      if (!prop) {
-        if (!defaultValue) return;
-        div.style.setProperty(`--flex_${name}_1`, defaultValue);
-        return;
+    { propValue: rowGap, name: "row-gap" },
+    { propValue: wraps, name: "flex-wrap", defaultValue: "wrap" },
+  ].filter((f) => !!f.propValue);
+  const appendStyle = propsNames.reduce(
+    (prev, { propValue, defaultValue, name }) => {
+      if (!propValue) {
+        if (!defaultValue) return prev;
+        return { ...prev, [`--flex_${name}_1`]: defaultValue };
       }
-      if (typeof prop === "string") {
-        div.style.setProperty(`--flex_${name}_1`, prop);
+      if (typeof propValue === "string") {
+        return { ...prev, [`--flex_${name}_1`]: propValue };
       }
-      if (typeof prop !== "object" || !prop.length) return;
-      prop.forEach((w, i) => {
-        if (w) {
-          div.style.setProperty(`--flex_${name}_${i + 1}`, w);
-        }
-      });
-    });
-    setReady(true);
-  }, [refDiv]);
+      if (!Array.isArray(propValue) || !propValue.length) return prev;
+      return {
+        ...prev,
+        ...(propValue as string[]).reduce((prevProp, currentProp, i) => {
+          return currentProp
+            ? { ...prevProp, [`--flex_${name}_${i + 1}`]: currentProp }
+            : prevProp;
+        }, {}),
+      };
+    },
+    {}
+  );
 
   return (
-    <div ref={refDiv} className={[styles.flex, className].join(" ")} {...props}>
-      {ready && children}
+    <div
+      className={[styles.flex, className].filter((f) => !!f).join(" ")}
+      style={{ ...appendStyle, ...style }}
+      {...props}
+    >
+      {children}
     </div>
   );
 }

@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@font-face {
+  font-family: "roc-grotesk";
+  src: url("/assets/font/roc-grostesk-regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@import "./variables/colors";
+:root {
+  --themeSmallEm: 0.8em;
+  --themeBigEm: 1.2em;
+
+  --themeH1FontFamily: "roc-grotesk", sans-serif;
+  --themeH1FontColor: #{$white};
+  --themeH1FontStyle: normal;
+  --themeH1FontSize: 57px;
+  --themeH1FontWeight: 400;
+  --themeH1FontLineHeight: inherit;
+  --themeH1FontLetterSpacing: inherit;
+
+  --themeBodyFontColor: #{$white};
+  --themeBodyFontFamily: "Raleway", sans serif;
+  --themeBodyFontStyle: normal;
+  --themeBodyFontSize: 20px;
+  --themeBodyFontWeight: 500;
+  --themeBodyFontLineHeight: 24px;
+  --themeBodyFontLetterSpacing: initial;
+}

@@ -1,0 +1,20 @@
+$texts: (H1, H2, H3, Body);
+@each $prop in $texts {
+  .#{$prop} {
+    margin: var(--theme#{$prop}Margin, 0);
+    font-family: var(--theme#{$prop}FontFamily, sans-serif);
+    color: var(--theme#{$prop}FontColor, black);
+    font-style: var(--theme#{$prop}FontStyle, normal);
+    font-size: var(--theme#{$prop}FontSize, initial);
+    line-height: var(--theme#{$prop}FontLineHeight, initial);
+    letter-spacing: var(--theme#{$prop}FontLetterSpacing, initial);
+
+    .bigger {
+      font-size: var(--themeBigEm);
+    }
+
+    .smaller {
+      font-size: var(--themeSmallEm);
+    }
+  }
+}

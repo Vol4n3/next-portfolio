@@ -1,5 +1,5 @@
 "use client";
-import { CenteredContainer } from "./commons/components/container/centeredContainer";
+import { CenteredContainer } from "./commons/components/container/centered-container";
 import { TextBlock } from "./commons/components/texts/text-block";
 import { TextInline } from "./commons/components/texts/text-inline";
 import { Hide } from "./commons/components/hide/hide";

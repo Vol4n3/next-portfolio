@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import styles from "./container.module.scss";
+import styles from "./centered-container.module.scss";
 
 interface ContainerProps {
   maxWidth?: string;
@@ -10,7 +10,7 @@ export function CenteredContainer({
   maxWidth,
 }: PropsWithChildren<ContainerProps>) {
   return (
-    <div className={styles.container} style={{ maxWidth }}>
+    <div className={styles.centeredContainer} style={{ maxWidth }}>
       {children}
     </div>
   );

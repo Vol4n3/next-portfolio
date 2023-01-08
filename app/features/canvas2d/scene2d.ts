@@ -1,17 +1,17 @@
-import { loadImage } from "../../commons/utils/load-image";
-import { CreateDebounce } from "../../commons/utils/commons-utils";
-import { RequireAtLeastOne } from "../../commons/types/utils-type";
 import {
   createEasing,
   Easing,
   EasingCallback,
 } from "../../commons/utils/easing.utils";
+import { CreateDebounce } from "../../commons/utils/commons-utils";
 import { Camera2 } from "./camera2";
-import { IPoint2 } from "../../commons/utils/point.utils";
+import { loadImage } from "../../commons/utils/load-image";
+import { RequireAtLeastOne } from "../../commons/types/utils-type";
+import { Position2 } from "./point2";
 
 type SceneCallBack = (scene: Scene2d, time: number) => void;
 
-export interface Item2Scene extends IPoint2 {
+export interface Item2Scene extends Position2 {
   isUpdated: boolean;
   onResize?: (canvasWidth: number, canvasHeight: number) => void;
   scenePriority: number;
@@ -46,6 +46,7 @@ export class Scene2d {
   height: number = 0;
   width: number = 0;
   public pauseAnimation: boolean = false;
+  follow: Item2Scene | null = null;
   private elapsed: number = 0;
   private forceUpdate: boolean = true;
   private loopTime: number = 0;
@@ -59,8 +60,8 @@ export class Scene2d {
   private easingCameraX: EasingCallback | null = null;
   private easingCameraY: EasingCallback | null = null;
   private updateListeners: SceneCallBack[] = [];
-  follow: Item2Scene | null = null;
-  private followOffset: IPoint2 = { x: 0, y: 0 };
+  private followOffset: Position2 = { position: [0, 0] };
+
   constructor(private container: HTMLDivElement, fps: number = 60) {
     this.fpsInterval = 1000 / fps;
     this.then = window.performance.now();
@@ -76,7 +77,8 @@ export class Scene2d {
     container.appendChild(this.canvas);
     this.resizeObs.observe(this.container);
     const rect = this.container.getBoundingClientRect();
-    this.camera = new Camera2({ x: rect.width, y: rect.height });
+    this.camera = new Camera2(rect.width, rect.height);
+    this.camera.setPosition([rect.width / 2, rect.height / 2]);
     this.resize();
     this.tickAnimation = requestAnimationFrame(this.animate.bind(this));
   }
@@ -131,10 +133,10 @@ export class Scene2d {
         !this.easingCameraX &&
         !this.easingCameraY
       )
-        this.camera.lookAt({
-          x: this.follow.x + this.followOffset.x,
-          y: this.follow.y + this.followOffset.y,
-        });
+        this.camera.setPosition([
+          this.follow.position[0] + this.followOffset.position[0],
+          this.follow.position[1] + this.followOffset.position[1],
+        ]);
       this.camera.apply(this.ctx);
 
       this._items.forEach((d) => {
@@ -196,7 +198,7 @@ export class Scene2d {
       this.easingCameraX = createEasing([
         {
           easing: Easing.easeOutCubic,
-          startValue: this.camera.position.x,
+          startValue: this.camera.x,
           endValue: camera.x,
           time: 20,
         },
@@ -206,7 +208,7 @@ export class Scene2d {
       this.easingCameraY = createEasing([
         {
           easing: Easing.easeOutCubic,
-          startValue: this.camera.position.y,
+          startValue: this.camera.y,
           endValue: camera.y,
           time: 20,
         },
@@ -243,7 +245,7 @@ export class Scene2d {
     if (config.lineWidth) this.ctx.lineWidth = config.lineWidth;
     this.ctx.font = config.font
       ? `${config.font.size}px ${config.font.type}`
-      : "26px Raleway";
+      : "26px sans-serif";
     if (
       config.maxWidth &&
       this.ctx.measureText(text).width > config.maxWidth * 2
@@ -280,9 +282,9 @@ export class Scene2d {
     if (this.easingCameraX) {
       this.easingCameraX(
         (x) => {
-          this.camera.lookAt({ x, y: this.camera.position.y });
+          this.camera.setPosition([x]);
           if (this.follow) {
-            this.followOffset = { ...this.followOffset, x: x - this.follow.x };
+            this.followOffset.position[0] = x - this.follow.position[0];
           }
           this.forceUpdate = true;
         },
@@ -292,10 +294,10 @@ export class Scene2d {
     if (this.easingCameraY) {
       this.easingCameraY(
         (y) => {
-          this.camera.lookAt({ x: this.camera.position.x, y });
+          this.camera.setPosition([undefined, y]);
           this.forceUpdate = true;
           if (this.follow) {
-            this.followOffset = { ...this.followOffset, y: y - this.follow.y };
+            this.followOffset.position[1] = y - this.follow.position[1];
           }
         },
         () => (this.easingCameraY = null)

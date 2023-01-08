@@ -1,190 +1,161 @@
-import {
-  AngleTo,
-  IPoint2,
-  OperationName,
-  PointDistance,
-} from "../../commons/utils/point.utils";
+import { Point2, PointAngleFrom, PointAngleTo, PointDistance } from "./point2";
 import { Circle2 } from "./circle2";
-import { Vector2 } from "./vector2";
-import { AngleKeepRange } from "../../commons/utils/number.utils";
-import { Point2 } from "./point2";
 
-export class Segment2 {
-  p1: Point2;
-  p2: Point2;
+export type Segment2 = [Point2, Point2];
 
-  constructor(p1: IPoint2 = { x: 0, y: 0 }, p2: IPoint2 = { x: 1, y: 0 }) {
-    this.p1 = new Point2(p1.x, p1.y);
-    this.p2 = new Point2(p2.x, p2.y);
+export function SegmentWedge([[p1x, p1y], [p2x, p2y]]: Segment2): number {
+  return p1x * p2y - p1y * p2x;
+}
+
+export function SegmentNormalized(segment: Segment2): Point2 {
+  const len = SegmentLength(segment);
+  if (len === 0) {
+    return [0, 0];
   }
+  const [x, y] = SegmentToVector(segment);
+  return [x / len, y / len];
+}
 
-  operation(type: OperationName, p: IPoint2): void {
-    this.p1.operation(type, p);
-    this.p2.operation(type, p);
+export function SegmentToVector([[p1x, p1y], [p2x, p2y]]: Segment2): Point2 {
+  return [p2x - p1x, p2y - p1y];
+}
+
+export function SegmentAddLength(
+  segment: Segment2,
+  backward?: boolean
+): Segment2 {
+  const angle = backward
+    ? SegmentBackwardAngle(segment)
+    : SegmentForwardAngle(segment);
+  const len = SegmentLength(segment);
+  const dx = Math.cos(angle) * len;
+  const dy = Math.sin(angle) * len;
+  const [p1, p2] = segment;
+  const [p1x, p1y] = p1;
+  const [p2x, p2y] = p2;
+  return [
+    backward ? p1 : [p1x + dx, p1y + dy],
+    backward ? [p2x + dx, p2y + dy] : p2,
+  ];
+}
+
+export function SegmentCenter([[p1x, p1y], [p2x, p2y]]: Segment2): Point2 {
+  return [(p1x + p2x) / 2, (p1y + p2y) / 2];
+}
+
+export function SegmentLength([p1, p2]: Segment2): number {
+  return PointDistance(p1, p2);
+}
+
+export function SegmentForwardAngle([p1, p2]: Segment2): number {
+  return PointAngleTo(p1, p2);
+}
+
+export function SegmentBackwardAngle([p1, p2]: Segment2): number {
+  return PointAngleFrom(p1, p2);
+}
+
+export function SegmentGetPointCollisionToCircle(
+  segment: Segment2,
+  [pCircle, radius]: Circle2
+): Point2 | null {
+  const [p1, p2] = segment;
+  const [p1x, p1y] = p1;
+  const [p2x, p2y] = p2;
+  const side1 = PointDistance(p1, pCircle);
+  const side2 = PointDistance(p2, pCircle);
+  if (radius > side1) {
+    return [p1x, p1y];
   }
-
-  get center(): IPoint2 {
-    return {
-      x: (this.p1.x + this.p2.x) / 2,
-      y: (this.p1.y + this.p2.y) / 2,
-    };
+  if (radius > side2) {
+    return [p2x, p2y];
   }
+  const lerp = SegmentLerpByPoint(segment, pCircle);
+  if (!segmentCollisionToPoint(segment, lerp)) return null;
+  const distance = PointDistance(lerp, pCircle);
 
-  get backwardAngle(): number {
-    return AngleTo(this.p1, this.p2);
+  return distance <= radius ? lerp : null;
+}
+
+export function SegmentLerpByPoint(
+  [sp1, sp2]: Segment2,
+  point: Point2
+): Point2 {
+  const len = PointDistance(sp1, sp2);
+  const [sP1x, sP1y] = sp1;
+  const [sP2x, sP2y] = sp2;
+  const [px, py] = point;
+
+  const dot =
+    ((px - sP1x) * (sP2x - sP1x) + (py - sP1y) * (sP2y - sP1y)) / (len * len);
+
+  return [sP1x + dot * (sP2x - sP1x), sP1y + dot * (sP2y - sP1y)];
+}
+
+export function segmentCollisionToPoint(
+  [p1, p2]: Segment2,
+  point: Point2
+): boolean {
+  const d1 = PointDistance(point, p1);
+  const d2 = PointDistance(point, p2);
+  const segmentLen = PointDistance(p1, p2);
+  const lineWidth = 0.1;
+  return d1 + d2 >= segmentLen - lineWidth && d1 + d2 <= segmentLen + lineWidth;
+}
+
+export function interpolation(
+  [[p1x, p1y], [p2x, p2y]]: Segment2,
+  t: number
+): Point2 {
+  return [t * p2x + (1 - t) * p1x, t * p2y + (1 - t) * p1y];
+}
+
+export function SegmentCollisionToSegment(
+  segmentA: Segment2,
+  segmentB: Segment2,
+  projection?: boolean
+): Point2 | null {
+  const [sAP1, sAP2] = segmentA;
+  const [sBP1, sBP2] = segmentB;
+  const collisionPoint = SegmentCollisionToLine(segmentA, segmentB);
+  if (collisionPoint === null) {
+    return null;
   }
-
-  get forwardAngle(): number {
-    return AngleTo(this.p2, this.p1);
+  if (projection) {
+    return collisionPoint;
   }
-
-  get length(): number {
-    const dx = this.p1.x - this.p2.x;
-    const dy = this.p1.y - this.p2.y;
-    return Math.sqrt(dx * dx + dy * dy);
+  const [sAP1x, sAP1y] = sAP1;
+  const [sAP2x, sAP2y] = sAP2;
+  const [sBP1x, sBP1y] = sBP1;
+  const [sBP2x, sBP2y] = sBP2;
+  const [ipx, ipy] = collisionPoint;
+  const rx0 = (ipx - sAP1x) / (sAP2x - sAP1x),
+    ry0 = (ipy - sAP1y) / (sAP2y - sAP1y),
+    rx1 = (ipx - sBP1x) / (sBP2x - sBP1x),
+    ry1 = (ipy - sBP1y) / (sBP2y - sBP1y);
+  if (
+    ((rx0 >= 0 && rx0 <= 1) || (ry0 >= 0 && ry0 <= 1)) &&
+    ((rx1 >= 0 && rx1 <= 1) || (ry1 >= 0 && ry1 <= 1))
+  ) {
+    return collisionPoint;
+  } else {
+    return null;
   }
+}
 
-  collideCircle(circle: Circle2): IPoint2 | null {
-    const side1 = PointDistance(this.p1, circle);
-    const side2 = PointDistance(this.p2, circle);
-    if (circle.radius > side1) {
-      return {
-        x: this.p1.x,
-        y: this.p1.y,
-      };
-    }
-    if (circle.radius > side2) {
-      return {
-        x: this.p2.x,
-        y: this.p2.y,
-      };
-    }
-    const lerp = this.perpendicularLinePoint(circle);
-    if (!this.collidePoint(lerp)) return null;
-    const distance = PointDistance(lerp, circle);
-
-    return distance <= circle.radius ? lerp : null;
+export function SegmentCollisionToLine(
+  [[sP1x, sP1y], [sP2x, sP2y]]: Segment2,
+  [[lP1x, lP1y], [lP2x, lP2y]]: Segment2
+): Point2 | null {
+  const A1 = sP2y - sP1y;
+  const B1 = sP1x - sP2x;
+  const C1 = A1 * sP1x + B1 * sP1y;
+  const A2 = lP2y - lP1y;
+  const B2 = lP1x - lP2x;
+  const C2 = A2 * lP1x + B2 * lP1y;
+  const denominator = A1 * B2 - A2 * B1;
+  if (denominator === 0) {
+    return null;
   }
-
-  interpolation(t: number): IPoint2 {
-    return {
-      x: t * this.p2.x + (1 - t) * this.p1.x,
-      y: t * this.p2.y + (1 - t) * this.p1.y,
-    };
-  }
-
-  interpolationLength(distance: number): IPoint2 {
-    const vectLength = new Vector2(this.p1.x - this.p2.x, this.p1.y - this.p2.y)
-      .length;
-    if (vectLength === 0) {
-      return { x: this.p1.x, y: this.p1.y };
-    }
-    return this.interpolation(distance / vectLength);
-  }
-
-  intersect(segment: Segment2, projection?: boolean): IPoint2 | null {
-    const ip = this.intersectLineTo(segment);
-    if (ip === null) {
-      return null;
-    }
-    if (projection) {
-      return ip;
-    }
-    const rx0 = (ip.x - this.p1.x) / (this.p2.x - this.p1.x),
-      ry0 = (ip.y - this.p1.y) / (this.p2.y - this.p1.y),
-      rx1 = (ip.x - segment.p1.x) / (segment.p2.x - segment.p1.x),
-      ry1 = (ip.y - segment.p1.y) / (segment.p2.y - segment.p1.y);
-    if (
-      ((rx0 >= 0 && rx0 <= 1) || (ry0 >= 0 && ry0 <= 1)) &&
-      ((rx1 >= 0 && rx1 <= 1) || (ry1 >= 0 && ry1 <= 1))
-    ) {
-      return ip;
-    } else {
-      return null;
-    }
-  }
-
-  intersectLineTo(segment: Segment2): IPoint2 | null {
-    const A1 = this.p2.y - this.p1.y,
-      B1 = this.p1.x - this.p2.x,
-      C1 = A1 * this.p1.x + B1 * this.p1.y,
-      A2 = segment.p2.y - segment.p1.y,
-      B2 = segment.p1.x - segment.p2.x,
-      C2 = A2 * segment.p1.x + B2 * segment.p1.y,
-      denominator = A1 * B2 - A2 * B1;
-    if (denominator === 0) {
-      return null;
-    }
-    return {
-      x: (B2 * C1 - B1 * C2) / denominator,
-      y: (A1 * C2 - A2 * C1) / denominator,
-    };
-  }
-
-  collidePoint(point: IPoint2): boolean {
-    const d1 = PointDistance(point, this.p1);
-    const d2 = PointDistance(point, this.p2);
-    const lineLen = this.length;
-    const buffer = 0.1;
-    return d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer;
-  }
-
-  perpendicularLinePoint(other: IPoint2): IPoint2 {
-    const len = this.length;
-    const dot =
-      ((other.x - this.p1.x) * (this.p2.x - this.p1.x) +
-        (other.y - this.p1.y) * (this.p2.y - this.p1.y)) /
-      (len * len);
-
-    return {
-      x: this.p1.x + dot * (this.p2.x - this.p1.x),
-      y: this.p1.y + dot * (this.p2.y - this.p1.y),
-    };
-  }
-
-  reflectionAngle(face: number): number {
-    return AngleKeepRange(this.backwardAngle + (face - this.forwardAngle) * 2);
-  }
-
-  reflectionToCircle(circle: Circle2, projection?: boolean): Segment2 | null {
-    if (!projection) {
-      if (!this.collideCircle(circle)) {
-        return null;
-      }
-    }
-    const perpPoint = this.perpendicularLinePoint(circle);
-    const h = PointDistance(perpPoint, circle);
-    const adjacent = Math.sqrt(circle.radius * circle.radius - h * h);
-    const vect = Vector2.createFromAngle(this.forwardAngle, adjacent);
-    const oposite = vect.toSegment(perpPoint);
-    const residu = PointDistance(oposite.p2, this.p2);
-    if (residu > this.length) {
-      return null;
-    }
-    const angle = this.reflectionAngle(
-      new Segment2(circle, oposite.p2).toVector().perp().angle
-    );
-    return Vector2.createFromAngle(angle, residu).toSegment(oposite.p2);
-  }
-
-  reflectionToSegment(other: Segment2, projection?: boolean): Segment2 | null {
-    const point = this.intersect(other, projection);
-    if (!point) {
-      return null;
-    }
-    const residu = PointDistance(point, this.p2);
-    if (residu > this.length) {
-      return null;
-    }
-    const angle = this.reflectionAngle(other.backwardAngle);
-    return Vector2.createFromAngle(angle, residu).toSegment(point);
-  }
-
-  toOppositeVector(): Vector2 {
-    return new Vector2(this.p1.x - this.p2.x, this.p1.y - this.p2.y);
-  }
-
-  toVector(): Vector2 {
-    return new Vector2(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
-  }
+  return [(B2 * C1 - B1 * C2) / denominator, (A1 * C2 - A2 * C1) / denominator];
 }

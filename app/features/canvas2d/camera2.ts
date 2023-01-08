@@ -1,4 +1,4 @@
-import { IPoint2 } from "../../commons/utils/point.utils";
+import { Point2 } from "./point2";
 
 export type CameraViewport = {
   left: number;
@@ -7,12 +7,10 @@ export type CameraViewport = {
   bottom: number;
   width: number;
   height: number;
-  scale: IPoint2;
+  scale: Point2;
 };
 
 export class Camera2 {
-  fieldOfView: number;
-  margin: LookAtMargins;
   viewport: CameraViewport = {
     left: 0,
     right: 0,
@@ -20,16 +18,17 @@ export class Camera2 {
     bottom: 0,
     width: 0,
     height: 0,
-    scale: { x: 1, y: 1 },
+    scale: [1, 1],
   };
+  fieldOfView: number;
+  margin: LookAtMargins;
+  private _position: Point2 = [0, 0];
   aspectRatio!: number;
   flipAspectRatio = false;
-  private canvasSize: IPoint2 = { x: 0, y: 0 };
-  private lazy: boolean | undefined;
 
   constructor(
-    canvasSize: IPoint2,
-    private _lookAtVector: IPoint2 = { x: 0, y: 0 },
+    private canvasWidth: number,
+    private canvasHeight: number,
     options: CameraSettings = {}
   ) {
     this.fieldOfView = options.fieldOfView || Math.PI / 4.0;
@@ -40,9 +39,7 @@ export class Camera2 {
       left: 0,
     };
     this.flipAspectRatio = !!options.flipAspectRatio;
-    this.lazy = options.lazy;
-    this.resize(canvasSize.x, canvasSize.y);
-    this.lookAt({ x: _lookAtVector.x / 2, y: _lookAtVector.y / 2 });
+    this.updateViewport();
   }
 
   private _distance = 5000;
@@ -62,44 +59,25 @@ export class Camera2 {
     this.updateViewport();
   }
 
-  get position(): IPoint2 {
-    return this._lookAtVector;
+  get x(): number {
+    return this._position[0];
   }
 
-  lookAt(point: Partial<IPoint2>, lazy = false) {
-    if (typeof point.x !== "undefined") {
-      this._lookAtVector.x = point.x;
-    }
-    if (typeof point.y !== "undefined") {
-      this._lookAtVector.y = point.y;
-    }
-    if (lazy) {
-      const pointScreenSpace = this.worldToScreen(this._lookAtVector);
-      const left = this.canvasSize.x * this.margin.left;
-      const right = this.canvasSize.x - this.canvasSize.x * this.margin.right;
-      const top = this.canvasSize.x * this.margin.top;
-      const bottom = this.canvasSize.x - this.canvasSize.x * this.margin.bottom;
-      if (typeof point.x !== "undefined") {
-        if (pointScreenSpace.x < left) {
-          this._lookAtVector.x =
-            point.x - this.viewport.width * (this.margin.left - 0.5);
-        } else if (pointScreenSpace.x > right) {
-          this._lookAtVector.x =
-            point.x - this.viewport.width * (0.5 - this.margin.right);
-        }
-      }
+  get y(): number {
+    return this._position[1];
+  }
 
-      if (typeof point.y !== "undefined") {
-        if (pointScreenSpace.y < top) {
-          this._lookAtVector.y =
-            point.y - this.viewport.height * (this.margin.top - 0.5);
-        } else if (pointScreenSpace.y > bottom) {
-          this._lookAtVector.y =
-            point.y - this.viewport.height * (0.5 - this.margin.bottom);
-        }
-      }
-    }
+  setPosition([x, y]: Partial<Point2>): void {
+    this._position = [
+      typeof x !== "undefined" ? x : this._position[0],
+      typeof y !== "undefined" ? y : this._position[1],
+    ];
+
     this.updateViewport();
+  }
+
+  getPosition(): Point2 {
+    return this._position;
   }
 
   apply(ctx: CanvasRenderingContext2D) {
@@ -107,25 +85,28 @@ export class Camera2 {
     this.applyTranslation(ctx);
   }
 
-  screenToWorld(point: IPoint2): IPoint2 {
-    const x = point.x / this.viewport.scale.x + this.viewport.left;
-    const y = point.y / this.viewport.scale.y + this.viewport.top;
-    return { x, y };
+  screenToWorld([px, py]: Point2): Point2 {
+    return [
+      px / this.viewport.scale[0] + this.viewport.left,
+      py / this.viewport.scale[1] + this.viewport.top,
+    ];
   }
 
-  worldToScreen(point: IPoint2): IPoint2 {
-    const x = (point.x - this.viewport.left) * this.viewport.scale.x;
-    const y = (point.y - this.viewport.top) * this.viewport.scale.y;
-    return { x, y };
+  worldToScreen([px, py]: Point2): Point2 {
+    return [
+      (px - this.viewport.left) * this.viewport.scale[0],
+      (py - this.viewport.top) * this.viewport.scale[1],
+    ];
   }
 
   resize(width: number, height: number) {
-    this.canvasSize.x = width;
-    this.canvasSize.y = height;
+    this.canvasWidth = width;
+    this.canvasHeight = height;
     this.updateViewport();
   }
+
   private applyScale(ctx: CanvasRenderingContext2D) {
-    ctx.scale(this.viewport.scale.x, this.viewport.scale.y);
+    ctx.scale(this.viewport.scale[0], this.viewport.scale[1]);
   }
 
   private applyTranslation(ctx: CanvasRenderingContext2D) {
@@ -134,20 +115,20 @@ export class Camera2 {
 
   private updateViewport() {
     if (this.flipAspectRatio) {
-      this.aspectRatio = this.canvasSize.y / this.canvasSize.x;
+      this.aspectRatio = this.canvasHeight / this.canvasWidth;
       this.viewport.height = this._distance * Math.tan(this.fieldOfView);
       this.viewport.width = this.viewport.height / this.aspectRatio;
     } else {
-      this.aspectRatio = this.canvasSize.x / this.canvasSize.y;
+      this.aspectRatio = this.canvasWidth / this.canvasHeight;
       this.viewport.width = this._distance * Math.tan(this.fieldOfView);
       this.viewport.height = this.viewport.width / this.aspectRatio;
     }
-    this.viewport.left = this._lookAtVector.x - this.viewport.width / 2;
-    this.viewport.top = this._lookAtVector.y - this.viewport.height / 2;
+    this.viewport.left = this._position[0] - this.viewport.width / 2;
+    this.viewport.top = this._position[1] - this.viewport.height / 2;
     this.viewport.right = this.viewport.left + this.viewport.width;
     this.viewport.bottom = this.viewport.top + this.viewport.height;
-    this.viewport.scale.x = this.canvasSize.x / this.viewport.width;
-    this.viewport.scale.y = this.canvasSize.y / this.viewport.height;
+    this.viewport.scale[0] = this.canvasWidth / this.viewport.width;
+    this.viewport.scale[1] = this.canvasHeight / this.viewport.height;
   }
 }
 
@@ -162,5 +143,4 @@ export type CameraSettings = {
   fieldOfView?: number;
   margin?: LookAtMargins;
   flipAspectRatio?: boolean;
-  lazy?: boolean;
 };

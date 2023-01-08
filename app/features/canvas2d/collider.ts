@@ -3,7 +3,7 @@
  * use All for few item
  * binaryTree and QuadraticTree are not wet implemented
  */
-import { IPoint2 } from "../../commons/utils/point.utils";
+import { Position2 } from "./point2";
 
 export type AlgorithmType = "sorted" | "all" | "binaryTree" | "quadraticTree";
 
@@ -11,18 +11,23 @@ interface isCollideResponse<T extends CanCollide> {
   a: T;
   b: T;
 }
-export interface CanCollide extends IPoint2 {
+
+export interface CanCollide extends Position2 {
   isCollide(item: CanCollide): boolean;
 }
+
 export class Collider<T extends CanCollide> {
   constructor(public algorithmType: AlgorithmType, public items: T[] = []) {}
+
   getCollisions(): isCollideResponse<T>[] {
     let collides: isCollideResponse<T>[] = [];
     switch (this.algorithmType) {
       case "sorted":
-        const copy = this.items.sort((a, b) => {
-          return a.x !== b.x ? a.x - b.x : a.y - b.y;
-        });
+        const copy = this.items.sort(
+          ({ position: [ax, ay] }, { position: [bx, by] }) => {
+            return ax !== bx ? ax - bx : ay - by;
+          }
+        );
         for (let i = 0; i < copy.length; i++) {
           const current = copy[i];
           const next = copy[i + 1];

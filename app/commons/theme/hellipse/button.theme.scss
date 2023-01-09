@@ -1,10 +1,16 @@
 @import "./variables/colors";
 :root {
-  --themeButtonBorderRadius: 5px;
-  --themeButtonBorder: none;
-  --themeButtonMargin: 0;
-  --themeButtonColor: inherit;
-  --themeButtonBackground: transparent;
-  --themeButtonPadding: 10px;
-  --themeButtonBoxShadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  --themeButtonBorderRadius: 0px;
+  --themeButtonPadding: 5px 10px;
+  --themeButtonBorderWidth: 2px;
+
+  --themeButtonPrimaryBorderColor: #{$white};
+  --themeButtonPrimaryColor: #{$black};
+  --themeButtonPrimaryBackground: #{$white};
+  --themeButtonPrimaryHoverColor: #{$neutral200};
+
+  --themeButtonSecondaryBorderColor: #{$black};
+  --themeButtonSecondaryColor: #{$white};
+  --themeButtonSecondaryBackground: #{$black};
+  --themeButtonSecondaryHoverColor: #{$neutral900};
 }

@@ -1,4 +1,4 @@
-import { numberClamp, numberRangeLoop } from "../../commons/utils/number.utils";
+import { NumberClamp, NumberRangeLoop } from "../../commons/utils/number.utils";
 
 export type Point2 = [number, number];
 
@@ -55,7 +55,7 @@ export function PointClamp(
   [xMin, yMin]: Point2,
   [xMax, yMax]: Point2
 ): Point2 {
-  return [numberClamp(xMin, x, xMax), numberClamp(yMin, y, yMax)];
+  return [NumberClamp(xMin, x, xMax), NumberClamp(yMin, y, yMax)];
 }
 
 export function PointBoundaryLoop(
@@ -63,7 +63,7 @@ export function PointBoundaryLoop(
   [xMin, yMin]: Point2,
   [xMax, yMax]: Point2
 ): Point2 {
-  return [numberRangeLoop(xMin, x, xMax), numberRangeLoop(yMin, y, yMax)];
+  return [NumberRangeLoop(xMin, x, xMax), NumberRangeLoop(yMin, y, yMax)];
 }
 
 export function PointsSum(points: Point2[]): Point2 {

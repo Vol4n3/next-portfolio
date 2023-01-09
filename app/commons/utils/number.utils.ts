@@ -26,14 +26,14 @@ export function CoordinateRatioToScreen(
 }
 
 export function AngleRangeLoop(angle: number): number {
-  return numberRangeLoop(-PI2, angle, PI2);
+  return NumberRangeLoop(-PI2, angle, PI2);
 }
 
-export function numberClamp(min: number, n: number, max: number): number {
+export function NumberClamp(min: number, n: number, max: number): number {
   return Math.min(Math.max(n, min), max);
 }
 
-export function numberRangeLoop(min: number, n: number, max: number): number {
+export function NumberRangeLoop(min: number, n: number, max: number): number {
   if (max < 0) {
     return n > max ? (max % n) + min : n < min ? (min - n + max) % max : n;
   }

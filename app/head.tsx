@@ -1,7 +1,7 @@
 export default function AppHead() {
   return (
     <>
-      <title>Jc Portefolio</title>
+      <title>Jc Portfolio</title>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link
         rel="apple-touch-icon"

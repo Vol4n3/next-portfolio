@@ -10,17 +10,9 @@
   transition: background-color ease-in-out 200ms, color ease-in-out 200ms,
     box-shadow ease-in-out 200ms, border-color ease-in-out 200ms;
 
-  &:not(:disabled) {
-    cursor: pointer;
-  }
-
-  &:hover,
-  &:focus {
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-  }
-
-  &:active {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  &:disabled,
+  &.active {
+    cursor: default;
   }
 }
 
@@ -29,6 +21,41 @@
   border-radius: var(--themeButtonBorderRadius);
   padding: var(--themeButtonPadding);
   border: var(--themeButtonBorderWidth) solid transparent;
+}
+
+.underline {
+  position: relative;
+  padding-bottom: var(--themeButtonBorderWidth);
+
+  &:after {
+    content: " ";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: block;
+    width: 0;
+    margin: 0 auto;
+    height: var(--themeButtonBorderWidth);
+    background-color: currentColor;
+  }
+
+  &:hover,
+  &:focus {
+    &:after {
+      transition: width ease-in-out 200ms;
+      width: 50%;
+    }
+  }
+
+  &:active,
+  &.active {
+    &:after {
+      width: 100%;
+    }
+  }
+}
+
+.shadow {
 }
 
 .primary {
@@ -49,7 +76,8 @@
       background: transparent;
     }
 
-    &:active {
+    &:active,
+    &.active {
       box-shadow: 0 0 8px var(--themeButtonPrimaryHoverColor);
     }
   }
@@ -61,7 +89,8 @@
     border-color: var(--themeButtonPrimaryHoverColor);
   }
 
-  &:active {
+  &:active,
+  &.active {
     box-shadow: 0 0 8px var(--themeButtonPrimaryHoverColor);
   }
 }
@@ -84,7 +113,8 @@
       color: var(--themeButtonSecondaryHoverColor);
     }
 
-    &:active {
+    &:active,
+    &.active {
       box-shadow: 0 0 8px var(--themeButtonSecondaryHoverColor);
     }
   }
@@ -96,7 +126,8 @@
     border-color: var(--themeButtonSecondaryHoverColor);
   }
 
-  &:active {
+  &:active,
+  &.active {
     box-shadow: 0 0 8px var(--themeButtonSecondaryHoverColor);
   }
 }

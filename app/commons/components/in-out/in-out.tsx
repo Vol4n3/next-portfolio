@@ -7,9 +7,16 @@ type AnimationConfig = {
   options?: KeyframeAnimationOptions;
 };
 const setVisible = (element: HTMLElement, value: boolean) => {
-  element.style.setProperty("visibility", value ? "visible" : "hidden");
-  element.style.setProperty("opacity", value ? "1" : "0");
-  element.style.setProperty("pointer-events", value ? "initial" : "none");
+  if (value) {
+    element.style.removeProperty("visibility");
+    element.style.removeProperty("opacity");
+    element.style.removeProperty("pointer-events");
+    return;
+  }
+
+  element.style.setProperty("visibility", "hidden");
+  element.style.setProperty("opacity", "0");
+  element.style.setProperty("pointer-events", "none");
 };
 const execAnimation = (
   element: HTMLDivElement,

@@ -1,13 +1,15 @@
 import {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
+  forwardRef,
   PropsWithChildren,
 } from "react";
 import styles from "./button.module.scss";
 
 interface ButtonThemeProps {
-  theme?: "primary" | "secondary";
+  theme?: "primary" | "secondary" | "shadow" | "underline";
   outlined?: boolean;
+  active?: boolean;
 }
 
 interface ButtonProps
@@ -19,6 +21,7 @@ export function Button({
   className,
   theme,
   outlined,
+  active,
   ...props
 }: PropsWithChildren<ButtonProps>) {
   return (
@@ -27,6 +30,7 @@ export function Button({
         styles.button,
         outlined && styles.outlined,
         theme && styles[theme],
+        active && styles.active,
         className,
       ]
         .filter((f) => !!f)
@@ -43,18 +47,15 @@ interface LinkButtonProps
   extends AnchorHTMLAttributes<HTMLAnchorElement>,
     ButtonThemeProps {}
 
-export function LinkButton({
-  children,
-  className,
-  theme,
-  outlined,
-  ...props
-}: PropsWithChildren<LinkButtonProps>) {
-  return (
+// eslint-disable-next-line react/display-name
+export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
+  ({ children, className, theme, outlined, active, ...props }, ref) => (
     <a
+      ref={ref}
       className={[
         styles.button,
         outlined && styles.outlined,
+        active && styles.active,
         theme && styles[theme],
         className,
       ]
@@ -64,5 +65,5 @@ export function LinkButton({
     >
       {children}
     </a>
-  );
-}
+  )
+);

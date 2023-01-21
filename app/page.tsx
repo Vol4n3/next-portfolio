@@ -10,8 +10,12 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <CenteredContainer maxWidth={"1280px"}>
-      <TextBlock type={"H1"} className={styles.overflowLimit}>
+    <header className={styles.header}>
+      <TextBlock
+        style={{ textAlign: "center" }}
+        type={"H1"}
+        className={styles.overflowLimit}
+      >
         <TextAnimationLoop
           textes={[
             "Julien Coeurvolan",
@@ -24,23 +28,24 @@ export default function HomePage() {
           ]}
         />
       </TextBlock>
-
-      <TopSticky>
-        <Flex columnGap={"10px"} rowGap={"10px"}>
-          <div>
-            <Link href={"/"} passHref legacyBehavior>
-              <LinkButton theme={"underline"} active={true}>
-                Accueil
-              </LinkButton>
-            </Link>
-          </div>
-          <div>
-            <Link href={"/blog"} passHref legacyBehavior>
-              <LinkButton theme={"underline"}>Blog</LinkButton>
-            </Link>
-          </div>
-        </Flex>
-      </TopSticky>
-    </CenteredContainer>
+      <CenteredContainer maxWidth={"1280px"}>
+        <TopSticky>
+          <Flex columnGap={"10px"} rowGap={"10px"}>
+            <div>
+              <Link href={"/"} passHref legacyBehavior>
+                <LinkButton theme={"underline"} active={true}>
+                  Accueil
+                </LinkButton>
+              </Link>
+            </div>
+            <div>
+              <Link href={"/blog"} passHref legacyBehavior>
+                <LinkButton theme={"underline"}>Blog</LinkButton>
+              </Link>
+            </div>
+          </Flex>
+        </TopSticky>
+      </CenteredContainer>
+    </header>
   );
 }

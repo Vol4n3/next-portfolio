@@ -66,6 +66,7 @@ export class Scene2d {
     this.fpsInterval = 1000 / fps;
     this.then = window.performance.now();
     this.startTime = this.then;
+    this.container.style.position = "relative";
     this.canvas = document.createElement("canvas");
     this.canvas.style.top = "0";
     this.canvas.style.left = "0";
@@ -103,7 +104,6 @@ export class Scene2d {
   }
 
   addItem(item: Item2Scene) {
-    this.follow = item;
     this.forceUpdate = true;
     this._items.push(item);
     this._items = this._items.sort((a, b) => a.scenePriority - b.scenePriority);

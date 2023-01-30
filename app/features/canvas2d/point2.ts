@@ -6,6 +6,14 @@ export interface Position2 {
   position: Point2;
 }
 
+export function PointSetX([_, y]: Point2, x: number): Point2 {
+  return [x, y];
+}
+
+export function PointSetY([x, _]: Point2, y: number): Point2 {
+  return [x, y];
+}
+
 export function PointDistance(
   [p1x, p1y]: Point2,
   [p2x, p2y]: Point2 = [0, 0]

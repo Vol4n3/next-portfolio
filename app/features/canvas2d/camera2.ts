@@ -32,6 +32,7 @@ export class Camera2 {
     options: CameraSettings = {}
   ) {
     this.fieldOfView = options.fieldOfView || Math.PI / 4.0;
+    this._distance = (canvasWidth + canvasHeight) / 2;
     this.margin = options.margin || {
       top: 0,
       right: 0,
@@ -49,7 +50,7 @@ export class Camera2 {
   }
 
   set distance(value: number) {
-    if (value < 100) {
+    if (value < 1) {
       return;
     }
     if (value > 10000) {

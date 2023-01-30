@@ -29,8 +29,8 @@ export const Header = () => {
       <CenteredContainer maxWidth={"1280px"}>
         <TopSticky>
           <Flex columnGap={"10px"} rowGap={"10px"}>
-            <NavLink href={"/"} label={"Accueil"} />
-            <NavLink href={"/blog"} label={"Blog"} />
+            <NavLink href={"/site"} label={"Accueil"} exact={true} />
+            <NavLink href={"/site/blog"} label={"Blog"} />
           </Flex>
         </TopSticky>
       </CenteredContainer>

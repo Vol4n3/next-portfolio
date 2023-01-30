@@ -6,18 +6,17 @@ import { usePathname } from "next/navigation";
 interface NavLinkProps {
   href: string;
   label: string;
+  exact?: boolean;
 }
 
-export const NavLink = ({ href, label }: NavLinkProps) => {
+export const NavLink = ({ href, label, exact }: NavLinkProps) => {
   const [isActive, setIsActive] = useState<boolean>(false);
   const pathname = usePathname();
   useEffect(() => {
     if (!pathname) {
       return;
     }
-    setIsActive(
-      href.length > 1 ? pathname.startsWith(href) : pathname === href
-    );
+    setIsActive(exact ? pathname === href : pathname.startsWith(href));
   }, [href, pathname]);
   return (
     <Link href={href} passHref legacyBehavior>

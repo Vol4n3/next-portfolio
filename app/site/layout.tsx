@@ -1,7 +1,7 @@
 "use client";
 import "./app.style.scss";
 import { PropsWithChildren } from "react";
-import { Header } from "./features/header/header";
+import { Header } from "../features/header/header";
 
 export default function MyAppLayout({ children }: PropsWithChildren) {
   return (

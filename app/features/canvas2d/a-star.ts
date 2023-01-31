@@ -9,7 +9,6 @@ class GridNode {
   constructor(public x: number, public y: number, public weight: number) {}
 
   getCost(fromNeighbor: GridNode) {
-    // Take diagonal weight into consideration.
     if (fromNeighbor && fromNeighbor.x != this.x && fromNeighbor.y != this.y) {
       return this.weight * 1.41421;
     }
@@ -27,7 +26,7 @@ type GridPosition = {
   height?: number;
 };
 
-function pathTo(node: GridNode) {
+function pathTo(node: GridNode): GridNode[] {
   let curr = node;
   const path = [];
   while (curr.parent) {
@@ -142,8 +141,7 @@ export function SearchAStar(
   } = {}
 ) {
   const graph = new Graph(grid, { diagonal: options.diagonal });
-  console.log(graph);
-  debugger;
+
   const heuristic = options.heuristic || heuristics.manhattan;
   const closest = options.closest || false;
 
@@ -153,7 +151,6 @@ export function SearchAStar(
   let closestNode = start;
 
   start.h = heuristic(start, end);
-  graph.markDirty(start);
 
   openHeap.push(start);
 
@@ -181,7 +178,6 @@ export function SearchAStar(
         neighbor.h = neighbor.h || heuristic(neighbor, end);
         neighbor.g = gScore;
         neighbor.f = neighbor.g + neighbor.h;
-        graph.markDirty(neighbor);
         if (closest) {
           if (
             neighbor.h < closestNode.h ||
@@ -206,7 +202,6 @@ export function SearchAStar(
   return [];
 }
 
-// See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 export const heuristics = {
   manhattan: function (pos0: GridNode, pos1: GridNode) {
     const d1 = Math.abs(pos1.x - pos0.x);
@@ -221,98 +216,40 @@ export const heuristics = {
     return D * (d1 + d2) + (D2 - 2 * D) * Math.min(d1, d2);
   },
 };
-const getPositionInGrid = <T extends GridPosition>(
-  x: number,
-  y: number,
-  grid: T[]
-): T | undefined => {
-  return grid.find((p) => p.x === x && p.y === y);
-};
 
 class Graph {
   public nodes: GridNode[] = [];
   public diagonal: boolean;
-  public grid: GridNode[][] = [];
-  public dirtyNodes: GridNode[] = [];
 
   constructor(gridIn: GridPosition[], options: { diagonal?: boolean } = {}) {
+    this.nodes = gridIn.map(
+      (pos) => new GridNode(pos.x, pos.y, pos.height || 1)
+    );
     this.diagonal = !!options.diagonal;
-    const maxX = Math.max(...gridIn.map((g) => g.x));
-    const maxY = Math.max(...gridIn.map((g) => g.y));
-    for (let x = 0; x < maxX; x++) {
-      this.grid[x] = [];
-      for (let y = 0; y < maxY; y++) {
-        const find = getPositionInGrid(x, y, gridIn);
-        const node = new GridNode(
-          x,
-          y,
-          typeof find?.height === "undefined" ? 0 : find.height
-        );
-        this.grid[x][y] = node;
-        this.nodes.push(node);
-      }
-    }
   }
 
   getNode(x: number, y: number): GridNode {
-    if (this.grid[x]) {
-      return this.grid[x][y] || new GridNode(x, y, 0);
-    }
-    return new GridNode(x, y, 0);
+    return (
+      this.nodes.find((f) => f.x === x && f.y === y) || new GridNode(x, y, 0)
+    );
   }
 
-  markDirty(node: GridNode) {
-    this.dirtyNodes.push(node);
-  }
-
-  neighbors(node: GridNode) {
-    const ret = [];
-    const x = node.x;
-    const y = node.y;
-    const grid = this.grid;
-
-    // West
-    if (grid[x - 1] && grid[x - 1][y]) {
-      ret.push(grid[x - 1][y]);
+  neighbors({ x, y }: GridNode) {
+    const directions = [
+      this.getNode(x - 1, y),
+      this.getNode(x + 1, y),
+      this.getNode(x, y - 1),
+      this.getNode(x, y + 1),
+    ];
+    if (!this.diagonal) {
+      return directions;
     }
-
-    // East
-    if (grid[x + 1] && grid[x + 1][y]) {
-      ret.push(grid[x + 1][y]);
-    }
-
-    // South
-    if (grid[x] && grid[x][y - 1]) {
-      ret.push(grid[x][y - 1]);
-    }
-
-    // North
-    if (grid[x] && grid[x][y + 1]) {
-      ret.push(grid[x][y + 1]);
-    }
-
-    if (this.diagonal) {
-      // Southwest
-      if (grid[x - 1] && grid[x - 1][y - 1]) {
-        ret.push(grid[x - 1][y - 1]);
-      }
-
-      // Southeast
-      if (grid[x + 1] && grid[x + 1][y - 1]) {
-        ret.push(grid[x + 1][y - 1]);
-      }
-
-      // Northwest
-      if (grid[x - 1] && grid[x - 1][y + 1]) {
-        ret.push(grid[x - 1][y + 1]);
-      }
-
-      // Northeast
-      if (grid[x + 1] && grid[x + 1][y + 1]) {
-        ret.push(grid[x + 1][y + 1]);
-      }
-    }
-
-    return ret;
+    const diagonals = [
+      this.getNode(x - 1, y - 1),
+      this.getNode(x + 1, y - 1),
+      this.getNode(x - 1, y + 1),
+      this.getNode(x + 1, y + 1),
+    ];
+    return [...directions, ...diagonals];
   }
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { CenteredContainer } from "../commons/components/container/centered-container";
+
 export default function HomePage() {
-  return <div></div>;
+  return <CenteredContainer maxWidth={"1280px"}></CenteredContainer>;
 }

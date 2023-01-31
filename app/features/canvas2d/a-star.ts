@@ -1,6 +1,15 @@
-class GridNode {
+type Pos2 = {
+  x: number;
+  y: number;
+};
+
+interface GridPosition extends Pos2 {
+  weight?: number;
+}
+
+class GridNode implements Pos2 {
   parent: GridNode | null = null;
-  f: number = 0;
+  score: number = 0;
   g: number = 0;
   h: number = 0;
   visited: boolean = false;
@@ -14,17 +23,7 @@ class GridNode {
     }
     return this.weight;
   }
-
-  isWall() {
-    return this.weight === 0;
-  }
 }
-
-type GridPosition = {
-  x: number;
-  y: number;
-  height?: number;
-};
 
 function pathTo(node: GridNode): GridNode[] {
   let curr = node;
@@ -36,16 +35,10 @@ function pathTo(node: GridNode): GridNode[] {
   return path;
 }
 
-function getHeap() {
-  return new BinaryHeap(function (node) {
-    return node.f;
-  });
-}
-
 class BinaryHeap {
   content: GridNode[] = [];
 
-  constructor(private scoreFunction: (node: GridNode) => number) {}
+  constructor() {}
 
   push(element: GridNode) {
     this.content.push(element);
@@ -77,7 +70,7 @@ class BinaryHeap {
     while (n > 0) {
       const parentN = ((n + 1) >> 1) - 1;
       const parent = this.content[parentN];
-      if (this.scoreFunction(element) < this.scoreFunction(parent)) {
+      if (element.score < parent.score) {
         this.content[parentN] = element;
         this.content[n] = parent;
         n = parentN;
@@ -90,7 +83,7 @@ class BinaryHeap {
   bubbleUp(n: number) {
     const length = this.content.length;
     const element = this.content[n];
-    const elemScore = this.scoreFunction(element);
+    const elemScore = element.score;
 
     while (true) {
       const child2N = (n + 1) << 1;
@@ -101,7 +94,7 @@ class BinaryHeap {
 
       if (child1N < length) {
         const child1 = this.content[child1N];
-        child1Score = this.scoreFunction(child1);
+        child1Score = child1.score;
 
         if (child1Score < elemScore) {
           swap = child1N;
@@ -110,7 +103,7 @@ class BinaryHeap {
 
       if (child2N < length) {
         const child2 = this.content[child2N];
-        const child2Score = this.scoreFunction(child2);
+        const child2Score = child2.score;
         if (
           child1Score &&
           child2Score < (swap === null ? elemScore : child1Score)
@@ -131,25 +124,24 @@ class BinaryHeap {
 }
 
 export function SearchAStar(
-  grid: GridPosition[],
+  gridIn: GridPosition[],
   from: GridPosition,
   dest: GridPosition,
   options: {
     closest?: boolean;
-    heuristic?: (a: GridNode, b: GridNode) => number;
     diagonal?: boolean;
   } = {}
 ) {
-  const graph = new Graph(grid, { diagonal: options.diagonal });
-
-  const heuristic = options.heuristic || heuristics.manhattan;
+  const grid = gridIn.map((pos) => new GridNode(pos.x, pos.y, pos.weight || 1));
+  const heuristic = options.diagonal
+    ? heuristics.diagonal
+    : heuristics.manhattan;
   const closest = options.closest || false;
-
-  const openHeap = getHeap();
-  const start: GridNode = graph.getNode(from.x, from.y);
-  const end: GridNode = graph.getNode(dest.x, dest.y);
+  const openHeap = new BinaryHeap();
+  const start = getNode(grid, from.x, from.y);
+  const end = getNode(grid, dest.x, dest.y);
+  if (!start || !end) throw new Error("Start or End not in grid");
   let closestNode = start;
-
   start.h = heuristic(start, end);
 
   openHeap.push(start);
@@ -159,14 +151,16 @@ export function SearchAStar(
     if (currentNode === end) {
       return pathTo(currentNode);
     }
-
     currentNode.closed = true;
-    const neighbors: GridNode[] = graph.neighbors(currentNode);
+    const neighbors: GridNode[] = getNeighbors(
+      grid,
+      currentNode,
+      options.diagonal
+    );
     const il = neighbors.length;
     for (let i = 0; i < il; ++i) {
       const neighbor = neighbors[i];
-
-      if (neighbor.closed || neighbor.isWall()) {
+      if (neighbor.closed || neighbor.weight === 0) {
         continue;
       }
       const gScore = currentNode.g + neighbor.getCost(currentNode);
@@ -177,7 +171,7 @@ export function SearchAStar(
         neighbor.parent = currentNode;
         neighbor.h = neighbor.h || heuristic(neighbor, end);
         neighbor.g = gScore;
-        neighbor.f = neighbor.g + neighbor.h;
+        neighbor.score = neighbor.g + neighbor.h;
         if (closest) {
           if (
             neighbor.h < closestNode.h ||
@@ -202,13 +196,13 @@ export function SearchAStar(
   return [];
 }
 
-export const heuristics = {
-  manhattan: function (pos0: GridNode, pos1: GridNode) {
+const heuristics = {
+  manhattan: function (pos0: Pos2, pos1: Pos2): number {
     const d1 = Math.abs(pos1.x - pos0.x);
     const d2 = Math.abs(pos1.y - pos0.y);
     return d1 + d2;
   },
-  diagonal: function (pos0: GridNode, pos1: GridNode) {
+  diagonal: function (pos0: Pos2, pos1: Pos2): number {
     const D = 1;
     const D2 = Math.sqrt(2);
     const d1 = Math.abs(pos1.x - pos0.x);
@@ -217,39 +211,33 @@ export const heuristics = {
   },
 };
 
-class Graph {
-  public nodes: GridNode[] = [];
-  public diagonal: boolean;
+function getNode<T extends Pos2>(
+  grid: T[],
+  x: number,
+  y: number
+): T | undefined {
+  return grid.find((f) => f.x === x && f.y === y);
+}
 
-  constructor(gridIn: GridPosition[], options: { diagonal?: boolean } = {}) {
-    this.nodes = gridIn.map(
-      (pos) => new GridNode(pos.x, pos.y, pos.height || 1)
-    );
-    this.diagonal = !!options.diagonal;
+function getNeighbors<T extends Pos2>(
+  nodes: T[],
+  { x, y }: T,
+  diagonal?: boolean
+): T[] {
+  const directions = [
+    getNode(nodes, x - 1, y),
+    getNode(nodes, x + 1, y),
+    getNode(nodes, x, y - 1),
+    getNode(nodes, x, y + 1),
+  ].filter((f) => !!f) as T[];
+  if (!diagonal) {
+    return directions;
   }
-
-  getNode(x: number, y: number): GridNode {
-    return (
-      this.nodes.find((f) => f.x === x && f.y === y) || new GridNode(x, y, 0)
-    );
-  }
-
-  neighbors({ x, y }: GridNode) {
-    const directions = [
-      this.getNode(x - 1, y),
-      this.getNode(x + 1, y),
-      this.getNode(x, y - 1),
-      this.getNode(x, y + 1),
-    ];
-    if (!this.diagonal) {
-      return directions;
-    }
-    const diagonals = [
-      this.getNode(x - 1, y - 1),
-      this.getNode(x + 1, y - 1),
-      this.getNode(x - 1, y + 1),
-      this.getNode(x + 1, y + 1),
-    ];
-    return [...directions, ...diagonals];
-  }
+  const diagonals = [
+    getNode(nodes, x - 1, y - 1),
+    getNode(nodes, x + 1, y - 1),
+    getNode(nodes, x - 1, y + 1),
+    getNode(nodes, x + 1, y + 1),
+  ].filter((f) => !!f) as T[];
+  return [...directions, ...diagonals];
 }

@@ -11,7 +11,12 @@ body {
   font-family: var(--themeBodyFontFamily);
   font-size: 16px;
   position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
 }
+
 
 a {
   color: inherit;

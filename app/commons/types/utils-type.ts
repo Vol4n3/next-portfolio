@@ -14,3 +14,7 @@ export type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<
     [K in Keys]-?: Required<Pick<T, K>> &
       Partial<Record<Exclude<Keys, K>, undefined>>;
   }[Keys];
+export type Labeled<T> = {
+  label: string;
+  value: T;
+};

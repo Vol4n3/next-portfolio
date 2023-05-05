@@ -18,7 +18,11 @@ export function Preview({ js, css, html }: PreviewProps) {
     const style = document.createElement("style");
     style.innerText = css;
     container.appendChild(style);
-    eval(js);
+    try {
+      eval(js);
+    } catch (e) {
+      console.error(e);
+    }
   }, [js, html, css, containerRef]);
   return <div className={styles.preview} ref={containerRef}></div>;
 }

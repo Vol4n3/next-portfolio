@@ -17,7 +17,7 @@ export const NavLink = ({ href, label, exact }: NavLinkProps) => {
       return;
     }
     setIsActive(exact ? pathname === href : pathname.startsWith(href));
-  }, [href, pathname]);
+  }, [exact, href, pathname]);
   return (
     <Link href={href} passHref legacyBehavior>
       <LinkButton theme={"underline"} active={isActive}>

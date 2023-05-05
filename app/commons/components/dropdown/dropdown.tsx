@@ -1,7 +1,7 @@
 import * as React from "react";
 import { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { InOut } from "../in-out/in-out";
-import { KeyframesHelper } from "../../utils/keyframes.utils";
+import { KeyframesUtils } from "jcv-ts-utils";
 
 interface DropdownProps {
   show: boolean;
@@ -118,7 +118,7 @@ export function Dropdown({
       <div style={{ pointerEvents: "initial" }}>
         <InOut
           show={show}
-          enter={{ keyframes: KeyframesHelper.slideInFromTop }}
+          enter={{ keyframes: KeyframesUtils.slideInFromTop }}
           exit={{ keyframes: [], options: { duration: 1 } }}
         >
           {children}

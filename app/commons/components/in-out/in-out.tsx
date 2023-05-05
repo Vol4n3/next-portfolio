@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CSSProperties, PropsWithChildren, useEffect, useRef } from "react";
-import { KeyframesHelper } from "../../utils/keyframes.utils";
+import { KeyframesUtils } from "jcv-ts-utils";
 
 type AnimationConfig = {
   keyframes?: Keyframe[];
@@ -85,7 +85,7 @@ export function InOut({
       previous.current = show;
       const anim = execAnimation(
         container,
-        enter?.keyframes || KeyframesHelper.fadeIn,
+        enter?.keyframes || KeyframesUtils.fadeIn,
         enter?.options || {}
       );
       container.style.removeProperty("visibility");
@@ -107,7 +107,7 @@ export function InOut({
       previous.current = show;
       const anim = execAnimation(
         container,
-        exit?.keyframes || KeyframesHelper.fadeOut,
+        exit?.keyframes || KeyframesUtils.fadeOut,
         exit?.options || {}
       );
 

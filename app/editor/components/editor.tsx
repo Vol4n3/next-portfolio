@@ -4,22 +4,14 @@ import { Flex } from "../../commons/components/flex/flex";
 import { Labeled } from "../../commons/types/utils-type";
 import MonacoWrapper from "./monaco-wrapper";
 import { Preview } from "./preview";
+import { Spinner } from "../../commons/components/spinner/spinner";
+import { InOut } from "../../commons/components/in-out/in-out";
 
 type Tab = "js" | "html" | "css";
 type EditorFile = { [key in Tab]: string };
 
 interface EditorProps {
   projectId?: string | null;
-}
-
-function Spinner() {
-  return (
-    <div className={styles.spinner}>
-      <svg viewBox="-3 -4 39 39" width={"100px"}>
-        <polygon strokeWidth="1" points="16,0 32,32 0,32"></polygon>
-      </svg>
-    </div>
-  );
 }
 
 export const Editor = ({ projectId }: EditorProps) => {
@@ -57,6 +49,9 @@ export const Editor = ({ projectId }: EditorProps) => {
           html,
         });
       })
+      .catch(() => {
+        console.warn("File not found");
+      })
       .finally(() => {
         setLoading(false);
       });
@@ -78,7 +73,7 @@ export const Editor = ({ projectId }: EditorProps) => {
       {loading ? (
         <Spinner />
       ) : (
-        <>
+        <InOut show={true} starting={true}>
           <Flex className={styles.editorBar}>
             {(
               [
@@ -126,7 +121,7 @@ export const Editor = ({ projectId }: EditorProps) => {
               />
             </div>
           </Flex>
-        </>
+        </InOut>
       )}
     </div>
   );

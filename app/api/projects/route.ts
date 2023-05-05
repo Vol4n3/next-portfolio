@@ -9,6 +9,7 @@ export async function GET(request: Request) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (e) {
+    console.error(e);
     return new Response("Not found", {
       status: 404,
     });

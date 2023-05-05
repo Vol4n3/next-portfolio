@@ -18,11 +18,14 @@ export const Header = () => {
           textes={[
             "Julien Coeurvolan",
             "Développeur web",
-            "Front End React",
-            "Grand Passionné",
+            "Front & back end",
+            "Expertise Typescript",
+            "Passionné converti",
             "Ninja du code",
-            "Responsive Design",
-            "Canvas 2D skills",
+            "PWA & Responsive design",
+            "Canvas2D | Webgl2",
+            "Css|Js Animation",
+            "Création de mini jeux",
           ]}
         />
       </TextBlock>

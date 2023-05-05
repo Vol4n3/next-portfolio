@@ -1,0 +1,23 @@
+.spinner {
+  text-align: center;
+  padding-top: 30px;
+  margin: 0 auto;
+  width: 100px;
+
+  svg {
+    transform-origin: 50% 65%;
+
+    polygon {
+      fill: transparent;
+      stroke: #C39000;
+      stroke-dasharray: 17;
+      animation: dash 2.5s cubic-bezier(0.35, 0.04, 0.63, 0.95) infinite;
+    }
+  }
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 136
+  }
+}

@@ -118,7 +118,7 @@ export function Dropdown({
       <div style={{ pointerEvents: "initial" }}>
         <InOut
           show={show}
-          enter={{ keyframes: KeyframesUtils.slideInFromTop }}
+          enter={{ keyframes: KeyframesUtils.slideInFrom("0", "-30px") }}
           exit={{ keyframes: [], options: { duration: 1 } }}
         >
           {children}

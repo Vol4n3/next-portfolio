@@ -1,15 +1,47 @@
 "use client";
-import "./app.style.scss";
+import "./site.style.scss";
 import { PropsWithChildren } from "react";
 import { Header } from "../features/header/header";
 import { IntersectionObserverProvider } from "../commons/components/intersection-observer/intersection-observer";
+import { Roboto } from "next/font/google";
 
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-roboto",
+});
 export default function MyAppLayout({ children }: PropsWithChildren) {
   return (
-    <html lang={"fr"}>
+    <html lang={"fr"} className={[roboto.className, roboto.variable].join(" ")}>
+      <head>
+        <title>Jc Portfolio</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/assets/favicon/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/assets/favicon/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/assets/favicon/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/assets/favicon/site.webmanifest" />
+      </head>
       <body>
-        <Header />
-        <IntersectionObserverProvider>{children}</IntersectionObserverProvider>
+        <IntersectionObserverProvider>
+          <Header />
+          {children}
+        </IntersectionObserverProvider>
       </body>
     </html>
   );

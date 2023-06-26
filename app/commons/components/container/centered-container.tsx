@@ -1,17 +1,26 @@
-import { PropsWithChildren } from "react";
+import { HTMLProps, PropsWithChildren } from "react";
 import styles from "./centered-container.module.scss";
 
-interface ContainerProps {
+interface ContainerProps extends HTMLProps<HTMLDivElement> {
   maxWidth?: string;
 }
 
 export function CenteredContainer({
   children,
   maxWidth,
+  style,
+  className,
+  ...props
 }: PropsWithChildren<ContainerProps>) {
   return (
-    <div className={styles.centeredContainer} style={{ maxWidth }}>
+    <section
+      {...props}
+      className={[styles.centeredContainer, "padding", className]
+        .filter((f) => !!f)
+        .join(" ")}
+      style={{ maxWidth, ...style }}
+    >
       {children}
-    </div>
+    </section>
   );
 }

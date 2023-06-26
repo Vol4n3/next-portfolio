@@ -3,6 +3,7 @@ import {
   ButtonHTMLAttributes,
   forwardRef,
   PropsWithChildren,
+  Ref,
 } from "react";
 import styles from "./button.module.scss";
 
@@ -47,23 +48,24 @@ interface LinkButtonProps
   extends AnchorHTMLAttributes<HTMLAnchorElement>,
     ButtonThemeProps {}
 
-// eslint-disable-next-line react/display-name
-export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
-  ({ children, className, theme, outlined, active, ...props }, ref) => (
-    <a
-      ref={ref}
-      className={[
-        styles.button,
-        outlined && styles.outlined,
-        active && styles.active,
-        theme && styles[theme],
-        className,
-      ]
-        .filter((f) => !!f)
-        .join(" ")}
-      {...props}
-    >
-      {children}
-    </a>
-  )
+const LinkButtonComponent = (
+  { children, className, theme, outlined, active, ...props }: LinkButtonProps,
+  ref: Ref<HTMLAnchorElement>
+) => (
+  <a
+    ref={ref}
+    className={[
+      styles.button,
+      outlined && styles.outlined,
+      active && styles.active,
+      theme && styles[theme],
+      className,
+    ]
+      .filter((f) => !!f)
+      .join(" ")}
+    {...props}
+  >
+    {children}
+  </a>
 );
+export const LinkButton = forwardRef(LinkButtonComponent);

@@ -14,7 +14,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-
 }
 
 
@@ -38,6 +37,18 @@ a {
     font-size: 13px;
   }
 }
+
 iframe {
   border: none;
+}
+
+.padding {
+  padding: 10px var(--themeResponsiveSpaceLarge);
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1;
 }

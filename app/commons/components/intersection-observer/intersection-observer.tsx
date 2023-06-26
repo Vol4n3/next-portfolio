@@ -59,7 +59,7 @@ export function IntersectionObserverProvider({
   );
   return (
     <IntersectionObserverContext.Provider value={addIntersectionObserver}>
-      <>{children}</>
+      {children}
     </IntersectionObserverContext.Provider>
   );
 }

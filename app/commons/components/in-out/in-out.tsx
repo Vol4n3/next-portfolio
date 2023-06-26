@@ -2,7 +2,7 @@ import * as React from "react";
 import { CSSProperties, PropsWithChildren, useEffect, useRef } from "react";
 import { KeyframesUtils } from "jcv-ts-utils";
 
-type AnimationConfig = {
+export type AnimationConfig = {
   keyframes?: Keyframe[];
   options?: KeyframeAnimationOptions;
 };
@@ -25,14 +25,14 @@ const execAnimation = (
 ): Animation => {
   const option = {
     ...options,
-    easing: options.easing || "cubic-bezier(0.8, 0, 0.2, 1)",
+    easing: options.easing || "ease-in-out",
     duration: options.duration || 250,
     delay: options.delay,
   };
   return element.animate(keyframes, option);
 };
 
-interface InOutProps {
+export interface InOutProps {
   /**
    * permet de scroll une fois que l'élément apparait
    */

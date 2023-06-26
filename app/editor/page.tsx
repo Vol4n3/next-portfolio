@@ -1,5 +1,5 @@
 "use client";
-import "./page.scss";
+
 import { useSearchParams } from "next/navigation";
 import { Editor } from "./components/editor";
 

@@ -21,7 +21,7 @@ export function Dropdown({
 }: PropsWithChildren<DropdownProps>) {
   const [wrapperHeight, setWrapperHeight] = useState<number>(0);
   const [verticalDirection, setVerticalDirection] = useState<"top" | "bottom">(
-    "top"
+    "top",
   );
   const wrapperRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -98,8 +98,6 @@ export function Dropdown({
     if (show) {
       window.addEventListener("click", autoClose);
       parent.addEventListener("keydown", keyPress, true);
-    } else {
-      cleanUp();
     }
 
     return () => {
@@ -115,15 +113,13 @@ export function Dropdown({
       }}
       ref={wrapperRef}
     >
-      <div style={{ pointerEvents: "initial" }}>
-        <InOut
-          show={show}
-          enter={{ keyframes: KeyframesUtils.slideInFrom("0", "-30px") }}
-          exit={{ keyframes: [], options: { duration: 1 } }}
-        >
-          {children}
-        </InOut>
-      </div>
+      <InOut
+        show={show}
+        enter={{ keyframes: KeyframesUtils.slideInFrom("0", "-30px") }}
+        exit={{ keyframes: [], options: { duration: 1 } }}
+      >
+        {children}
+      </InOut>
     </div>
   );
 }

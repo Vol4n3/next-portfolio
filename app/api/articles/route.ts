@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { badRequest } from "@features/server/server-errors";
+
+import { objectFilterByKeys } from "@commons/utils/utils";
+import { Article } from "@features/article/article";
 import {
   articleCollectionName,
   mongoConnection,
-  queryPagination,
-} from "../mongodb";
-import { Article } from "../../features";
-import { objectFilterByKeys } from "@commons/utils/utils";
+} from "@features/server/mongodb/mongo-connection";
+import { queryPagination } from "@features/server/mongodb/query-pagination";
 
 export async function POST(request: NextRequest) {
   let bodyRequest: {

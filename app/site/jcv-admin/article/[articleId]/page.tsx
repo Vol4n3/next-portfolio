@@ -1,7 +1,7 @@
 import { cache } from "react";
-import { Article } from "../../../../features";
 import { CenteredContainer } from "@components/container/centered-container";
-import { ArticleEditor } from "./article-editor";
+import { ArticleEdit } from "./article-edit";
+import { Article } from "@features/article/article";
 
 const getArticles = cache(async (id: string) => {
   const res = await fetch(`${process.env.URI}/api/articles/${id}`);
@@ -15,7 +15,7 @@ export default async function AdminArticleEditorPage({
   const article: Article = await getArticles(articleId);
   return (
     <CenteredContainer maxWidth={"1280px"}>
-      <ArticleEditor article={article} />
+      <ArticleEdit article={article} />
     </CenteredContainer>
   );
 }

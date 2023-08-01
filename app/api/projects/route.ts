@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+
+import { badRequest } from "@features/server/server-errors";
 import {
   mongoConnection,
   projectCollectionName,
-  queryPagination,
-} from "../mongodb";
-import { badRequest } from "@features/server/server-errors";
+} from "@features/server/mongodb/mongo-connection";
+import { queryPagination } from "@features/server/mongodb/query-pagination";
 
 export async function POST(request: NextRequest) {
   let bodyRequest: {

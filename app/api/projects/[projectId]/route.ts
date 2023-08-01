@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { mongoConnection, projectCollectionName } from "@api/mongodb";
 import { badRequest } from "@features/server/server-errors";
 import { ObjectId } from "bson";
+import {
+  mongoConnection,
+  projectCollectionName,
+} from "@features/server/mongodb/mongo-connection";
 type PartialProject = {
   js?: string;
   css?: string;

@@ -1,7 +1,7 @@
 import { ArticleList } from "@features/article/article-list";
 import { cache } from "react";
-import { Article } from "../../features";
 import { PaginatedResults } from "@commons/types/types";
+import { Article } from "@features/article/article";
 
 export const revalidate = 5;
 

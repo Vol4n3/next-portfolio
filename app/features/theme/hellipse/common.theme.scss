@@ -1,4 +1,8 @@
+@import "./variables/colors";
 :root {
   --themeResponsiveSpace: clamp(5px, 3vw, 20px);
   --themeResponsiveSpaceLarge: clamp(5px, 5vw, 40px);
+  --themeErrorColor: #{$red};
+  --themeSuccessColor: #{$green};
+  --themeWarningColor: #{$orange};
 }

@@ -31,6 +31,7 @@ export async function middleware(request: NextRequest) {
       statusText: `Too Many Requests`,
     });
   }
+  console.info("Check whitelist");
   if (
     (
       [
@@ -42,14 +43,17 @@ export async function middleware(request: NextRequest) {
         path: string;
         startWith?: boolean;
       }[]
-    ).some((item) =>
-      request.method === item.method && item.startWith
-        ? request.nextUrl.pathname.startsWith(item.path)
-        : request.nextUrl.pathname === item.path,
+    ).some(
+      (item) =>
+        request.method === item.method &&
+        (item.startWith
+          ? request.nextUrl.pathname.startsWith(item.path)
+          : request.nextUrl.pathname === item.path),
     )
   ) {
     return;
   }
+  console.info("Check Authorization");
   const authorization = request.headers.get("Authorization");
   if (!authorization) {
     return new Response("Forbidden", {

@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { articleCollectionName, mongoConnection } from "@api/mongodb";
 import { badRequest, notFound } from "@features/server/server-errors";
 import { objectFilterByKeys } from "@commons/utils/utils";
 import { Article } from "@features/article/article";
+import {
+  articleCollectionName,
+  mongoConnection,
+} from "@features/server/mongodb/mongo-connection";
 
 export async function DELETE(
   request: NextRequest,
@@ -45,12 +48,12 @@ export async function PATCH(
   try {
     return NextResponse.json(
       await mongoConnection(async (db) =>
-        db
-          .collection(articleCollectionName)
-          .findOneAndUpdate(
-            { id: articleId },
-            { ...data, updated: new Date() },
-          ),
+        db.collection(articleCollectionName).findOneAndUpdate(
+          { id: articleId },
+          {
+            $set: { ...data, updated: new Date() },
+          },
+        ),
       ),
     );
   } catch (e) {

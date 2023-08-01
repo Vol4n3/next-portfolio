@@ -31,25 +31,6 @@ export async function middleware(request: NextRequest) {
       statusText: `Too Many Requests`,
     });
   }
-
-  if (
-    (
-      [
-        { method: "POST", path: "/api/jwt" },
-        { method: "GET", path: "/api/articles" },
-        { method: "GET", path: "/api/projects" },
-      ] as {
-        method: string;
-        path: string;
-      }[]
-    ).some(
-      (item) =>
-        request.nextUrl.pathname === item.path &&
-        request.method === item.method,
-    )
-  ) {
-    return;
-  }
   if (
     (
       [

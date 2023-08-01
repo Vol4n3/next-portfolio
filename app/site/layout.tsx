@@ -1,8 +1,8 @@
 "use client";
 import "./site.style.scss";
 import { PropsWithChildren } from "react";
-import { Header } from "../features/header/header";
-import { IntersectionObserverProvider } from "../commons/components/intersection-observer/intersection-observer";
+import { Header } from "@features/header/header";
+import { IntersectionObserverProvider } from "@components/intersection-observer/intersection-observer";
 import { Roboto } from "next/font/google";
 
 const roboto = Roboto({

@@ -1,0 +1,39 @@
+$breakpointsMap: (
+  xs: (
+    mini: 0px,
+    maxi: 576px,
+  ),
+  sm: (
+    mini: 576px,
+    maxi: 768px,
+  ),
+  md: (
+    mini: 768px,
+    maxi: 992px,
+  ),
+  lg: (
+    mini: 992px,
+    maxi: 1280px,
+  ),
+  xl: (
+    mini: 1280px,
+  ),
+);
+@mixin cssHide($device) {
+  .hide-#{$device} {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+@each $device, $breakpoint in $breakpointsMap {
+  @if (map-has-key($breakpoint, mini) and map-has-key($breakpoint, maxi)) {
+    @media (min-width: map-get($breakpoint, mini)) and (max-width: map-get($breakpoint, maxi)) {
+      @include cssHide($device);
+    }
+  } @else {
+    @media (min-width: map-get($breakpoint, mini)) {
+      @include cssHide($device);
+    }
+  }
+}

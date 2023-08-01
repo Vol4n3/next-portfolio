@@ -1,18 +1,15 @@
-"use client";
+import { ArticleList } from "@features/article/article-list";
+import { cache } from "react";
+import { Article } from "../../features";
+import { PaginatedResults } from "@commons/types/types";
 
-import { CenteredContainer } from "../../commons/components/container/centered-container";
-import { InOut } from "../../commons/components/in-out/in-out";
+export const revalidate = 5;
 
-export default function HomePage() {
-  return (
-    <InOut show={true} starting={true}>
-      <header></header>
-      <CenteredContainer maxWidth={"1280px"}>
-        <iframe
-          style={{ width: "100%", height: "350px" }}
-          src={"/editor?projectId=webgl"}
-        ></iframe>
-      </CenteredContainer>
-    </InOut>
-  );
+const getArticles = cache(async () => {
+  const res = await fetch(`${process.env.URI}/api/articles`);
+  return res.json();
+});
+export default async function HomePage() {
+  const query: PaginatedResults<Article> = await getArticles();
+  return <ArticleList articles={query.results} />;
 }

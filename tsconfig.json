@@ -16,6 +16,12 @@
     "incremental": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "paths": {
+      "@features/*": ["./app/features/*"],
+      "@commons/*": ["./app/features/commons/*"],
+      "@components/*": ["./app/features/components/*"],
+      "@api/*": ["./app/api/*"]
+    },
     "plugins": [
       {
         "name": "next"

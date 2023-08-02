@@ -7,10 +7,12 @@ export const queryPagination = async <T extends Document = Document>(
   {
     search,
     sort,
+    where,
     skip = 0,
     limit = 10,
   }: {
     search?: string | null;
+    where?: Filter<T> | null;
     sort?: string | null;
     skip: number;
     limit: number;
@@ -20,7 +22,6 @@ export const queryPagination = async <T extends Document = Document>(
   if (search) {
     query.$text = {
       $search: search,
-
       $caseSensitive: false,
       $diacriticSensitive: false,
       $language: "fr",
@@ -37,6 +38,10 @@ export const queryPagination = async <T extends Document = Document>(
         sortObject[field] = 1;
       }
     }
+  }
+
+  if (where) {
+    Object.assign(query, where);
   }
   const total = await collection.countDocuments(query);
   const paginateResults = await collection

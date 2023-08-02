@@ -8,11 +8,7 @@ import {
 import { queryPagination } from "@features/server/mongodb/query-pagination";
 
 export async function POST(request: NextRequest) {
-  let bodyRequest: {
-    js?: string;
-    css?: string;
-    html?: string;
-  };
+  let bodyRequest: any;
   try {
     bodyRequest = await request.json();
   } catch (e) {

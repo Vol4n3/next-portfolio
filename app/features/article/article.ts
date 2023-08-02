@@ -7,4 +7,5 @@ export type Article = {
   imageUri: string;
   updated: Date;
   created: Date;
+  published: boolean;
 };

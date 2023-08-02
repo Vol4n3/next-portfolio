@@ -19,7 +19,6 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === "/") {
     return NextResponse.redirect(new URL("/site", request.url));
   }
-
   if (!request.nextUrl.pathname.startsWith("/api")) {
     return;
   }
@@ -72,7 +71,7 @@ export async function middleware(request: NextRequest) {
     await verifyJwt(token);
     // can use token data or not
   } catch (e) {
-    console.error("pass", e);
+    console.error(e);
     return new Response("Unauthorized", {
       status: 401,
       statusText: `Unauthorized`,

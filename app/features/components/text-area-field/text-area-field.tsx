@@ -16,7 +16,7 @@ export interface TextareaFieldProps
   value: string;
   label: string;
   onChange: (value: string, originalEvent: ChangeEvent) => void;
-  error?: boolean | string;
+  error?: string;
 }
 
 export const TextAreaField = ({
@@ -37,7 +37,7 @@ export const TextAreaField = ({
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = textarea.scrollHeight + "px";
-  }, [refTextArea]);
+  }, [refTextArea, noResize]);
   useEffect(() => {
     resize();
   }, [resize]);
@@ -76,7 +76,7 @@ export const TextAreaField = ({
           onKeyDown={(e) => handler("onKeyDown", e)}
         />
       </label>
-      <div className={styles.captionError}></div>
+      {error && <div className={styles.captionError}>{error}</div>}
     </>
   );
 };

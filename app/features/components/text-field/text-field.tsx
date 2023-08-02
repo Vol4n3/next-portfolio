@@ -14,6 +14,7 @@ export function TextField({
   onChange,
   className,
   label,
+  error,
   ...props
 }: TextFieldProps) {
   return (
@@ -27,7 +28,7 @@ export function TextField({
           onChange={(e) => onChange(e.target.value, e)}
         />
       </label>
-      <div className={styles.captionError}></div>
+      {error && <div className={styles.captionError}>{error}</div>}
     </>
   );
 }

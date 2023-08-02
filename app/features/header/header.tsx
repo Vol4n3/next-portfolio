@@ -28,7 +28,7 @@ export const Header = () => {
       </Hide>
 
       <header className={[styles.header, "sticky"].join(" ")}>
-        <CenteredContainer maxWidth={"1280px"}>
+        <CenteredContainer maxWidth={"1600px"}>
           <div className={styles.headerNavBar}>
             <NavLink href={"/site"} label={"Accueil"} exact={true} />
             <NavLink href={"/site/blog"} label={"Blog"} />

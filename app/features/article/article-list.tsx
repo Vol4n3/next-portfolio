@@ -4,17 +4,27 @@ import { CenteredContainer } from "@components/container/centered-container";
 import { Card } from "@components/card/card";
 import { Responsive } from "@components/responsive/responsive";
 import { Article } from "@features/article/article";
+import { Button } from "@components/button/button";
+import { useRouter } from "next/navigation";
 
 interface ArticleListProps {
   articles: Article[];
-  onClick?: (article: Article) => void;
+  isAdmin?: boolean;
 }
 
-export const ArticleList = ({ articles, onClick }: ArticleListProps) => {
+export const ArticleList = ({ articles, isAdmin }: ArticleListProps) => {
+  const router = useRouter();
   return (
     <InOut show={true} starting={true}>
-      <header></header>
-      <CenteredContainer maxWidth={"1280px"}>
+      {isAdmin && (
+        <Button
+          theme={"primary"}
+          onClick={() => router.push(`/site/jcv-admin/article/create`)}
+        >
+          Créer un article
+        </Button>
+      )}
+      <CenteredContainer maxWidth={"1600px"}>
         <Responsive
           rules={[
             {
@@ -30,9 +40,31 @@ export const ArticleList = ({ articles, onClick }: ArticleListProps) => {
           ]}
         >
           {articles.map((article) => (
-            <Card key={article.id} onClick={() => onClick && onClick(article)}>
-              <div>{article.title}</div>
-              <div>{article.description}</div>
+            <Card
+              key={article.id}
+              onClick={() =>
+                router.push(
+                  `${isAdmin ? "/site/jcv-admin/article/edit" : "/site/blog"}/${
+                    article.id
+                  }`,
+                )
+              }
+            >
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <h3>{article.title}</h3>
+                <p>{isAdmin && article.published && "Publié"}</p>
+              </div>
+              <p>{article.description}</p>
+
+              {article.imageUri && (
+                <img
+                  src={article.imageUri}
+                  alt={`Image d'article de ${article.title}`}
+                  width={50}
+                  height={50}
+                  style={{ width: "100%", height: "auto" }}
+                />
+              )}
             </Card>
           ))}
         </Responsive>

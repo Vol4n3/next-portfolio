@@ -44,7 +44,9 @@ export async function PATCH(
     "title",
     "imageUri",
     "id",
+    "published",
   ]);
+
   try {
     return NextResponse.json(
       await mongoConnection(async (db) =>
@@ -69,9 +71,7 @@ export async function GET(
   if (!articleId) return badRequest("missing path args: articleId");
   try {
     const document = await mongoConnection(async (db) =>
-      db
-        .collection(articleCollectionName)
-        .findOne({ id: encodeURI(articleId.replace(" ", "-")) }),
+      db.collection(articleCollectionName).findOne({ id: articleId }),
     );
     if (document) {
       return NextResponse.json(document);

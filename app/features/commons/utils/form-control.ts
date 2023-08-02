@@ -6,7 +6,7 @@ type ActionUpdateFormValues<T> = {
   payload: Partial<T>;
 };
 
-export type ErrorFields<T> = { [key in keyof T]?: boolean | string };
+export type ErrorFields<T> = { [key in keyof T]?: string };
 export const ADD_ERROR = "ADD_ERROR";
 
 type ActionAddError<T> = {
@@ -35,11 +35,11 @@ const formErrorDispatch = <T>(
 function formHasError<T>(
   errorsFields: ErrorFields<T>,
   key?: keyof T,
-): string | boolean | undefined {
+): string | undefined {
   if (key) {
     return errorsFields[key];
   }
-  return !!Object.keys(errorsFields).length;
+  return Object.keys(errorsFields).join(",");
 }
 
 export const RESET_FORM = "RESET_FORM";
@@ -103,7 +103,7 @@ export function useFormControl<T>(
     setErrors({ type: CLEAR_ERRORS });
     return !formHasError(getErrors());
   }
-  function getFieldError(key?: keyof T) {
+  function getFieldError(key?: keyof T): string | undefined {
     return formHasError(
       {
         ...errors,

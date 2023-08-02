@@ -6,7 +6,11 @@ import { Article } from "@features/article/article";
 export const revalidate = 5;
 
 const getArticles = cache(async () => {
-  const res = await fetch(`${process.env.URI}/api/articles`);
+  const uri = new URL(`${process.env.URI}/api/articles`);
+  uri.searchParams.append("published", "true");
+  console.log(uri.href);
+  const res = await fetch(uri);
+
   return res.json();
 });
 export default async function HomePage() {

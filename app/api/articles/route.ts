@@ -9,14 +9,10 @@ import {
   mongoConnection,
 } from "@features/server/mongodb/mongo-connection";
 import { queryPagination } from "@features/server/mongodb/query-pagination";
+import { Filter } from "mongodb";
 
 export async function POST(request: NextRequest) {
-  let bodyRequest: {
-    title?: string;
-    content?: string;
-    creator?: string;
-    id?: string;
-  };
+  let bodyRequest: any;
   try {
     bodyRequest = await request.json();
   } catch (e) {
@@ -37,6 +33,7 @@ export async function POST(request: NextRequest) {
       "title",
       "imageUri",
       "id",
+      "published",
     ]);
     return NextResponse.json(
       await mongoConnection(async (db) =>
@@ -58,12 +55,16 @@ export async function GET(request: NextRequest) {
   const skip = Number(searchParams.get("skip")) || 0;
   const limit = Number(searchParams.get("limit")) || 10;
   const search = searchParams.get("search");
-  const sort = searchParams.get("sort") || "updated";
+  const sort = searchParams.get("sort") || "-updated";
+  const published: Filter<Article> | null = searchParams.get("published")
+    ? { published: true }
+    : null;
   try {
     return NextResponse.json(
       await mongoConnection((db) =>
-        queryPagination(db.collection(articleCollectionName), {
+        queryPagination<Article>(db.collection(articleCollectionName), {
           search,
+          where: published,
           sort,
           limit,
           skip,

@@ -5,7 +5,7 @@ import { Article } from "@features/article/article";
 import { Routes } from "@features/routes/routes";
 
 export const revalidate = 5;
-
+export const dynamic = "force-dynamic";
 const getArticles = cache(async () => {
   const uri = new URL(`${process.env.URI}${Routes.apiArticles}`);
   uri.searchParams.append("published", "true");

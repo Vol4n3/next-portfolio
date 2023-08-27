@@ -4,6 +4,7 @@ import { Article } from "@features/article/article";
 import { ArticleList } from "@features/article/article-list";
 import { Routes } from "@features/routes/routes";
 
+export const dynamic = "force-dynamic";
 const getArticles = async () => {
   const res = await fetch(`${process.env.URI}${Routes.apiArticles}`, {
     cache: "no-cache",

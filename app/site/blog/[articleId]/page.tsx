@@ -6,7 +6,7 @@ import { Routes } from "@features/routes/routes";
 import { Metadata } from "next";
 
 export const revalidate = 5;
-
+export const dynamic = "force-dynamic";
 const getArticles = cache(async (id: string): Promise<Article> => {
   const uri = new URL(`${process.env.URI}${Routes.apiArticles}/${id}`);
   const res = await fetch(uri.href);

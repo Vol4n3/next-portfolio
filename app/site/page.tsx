@@ -14,6 +14,7 @@ export default function HomePage() {
           height={1200}
           style={{ width: "100%", height: "auto" }}
           placeholder={"empty"}
+          priority={false}
         />
       </ScrollInOut>
       <IframeEditor

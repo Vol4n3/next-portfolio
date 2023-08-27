@@ -1,10 +1,10 @@
-export const badRequest = (message: string) => {
-  return new Response(message, {
-    status: 400,
-  });
-};
-export const notFound = () => {
-  return new Response("Not found", {
-    status: 404,
-  });
+import { NextResponse } from "next/server";
+
+export const serverError = (reason: string, code: number) => {
+  return NextResponse.json(
+    { reason },
+    {
+      status: code,
+    },
+  );
 };

@@ -3,17 +3,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { EditorValues } from "@commons/types/types";
 import { Spinner } from "@components/spinner/spinner";
 
-interface IframeEditorProps {
+interface CodeEditorProps {
   defaultValue?: EditorValues;
   projectId?: string;
   onChange?: (v: EditorValues) => void;
 }
 
-export const IframeEditor = ({
+export const CodeEditor = ({
   projectId,
   defaultValue,
   onChange,
-}: IframeEditorProps) => {
+}: CodeEditorProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState<boolean>(!!projectId);
   const sendMessage = useCallback(

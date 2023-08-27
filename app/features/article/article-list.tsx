@@ -6,6 +6,8 @@ import { Responsive } from "@components/responsive/responsive";
 import { Article } from "@features/article/article";
 import { Button } from "@components/button/button";
 import { useRouter } from "next/navigation";
+import { Routes } from "@features/routes/routes";
+import Image from "next/image";
 
 interface ArticleListProps {
   articles: Article[];
@@ -19,7 +21,7 @@ export const ArticleList = ({ articles, isAdmin }: ArticleListProps) => {
       {isAdmin && (
         <Button
           theme={"primary"}
-          onClick={() => router.push(`/site/jcv-admin/article/create`)}
+          onClick={() => router.push(Routes.adminArticlesCreate)}
         >
           Créer un article
         </Button>
@@ -44,7 +46,7 @@ export const ArticleList = ({ articles, isAdmin }: ArticleListProps) => {
               key={article.id}
               onClick={() =>
                 router.push(
-                  `${isAdmin ? "/site/jcv-admin/article/edit" : "/site/blog"}/${
+                  `${isAdmin ? Routes.adminArticlesEdit : Routes.blog}/${
                     article.id
                   }`,
                 )
@@ -57,12 +59,14 @@ export const ArticleList = ({ articles, isAdmin }: ArticleListProps) => {
               <p>{article.description}</p>
 
               {article.imageUri && (
-                <img
+                <Image
                   src={article.imageUri}
                   alt={`Image d'article de ${article.title}`}
                   width={50}
                   height={50}
                   style={{ width: "100%", height: "auto" }}
+                  placeholder={"empty"}
+                  priority={false}
                 />
               )}
             </Card>

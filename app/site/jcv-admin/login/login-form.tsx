@@ -21,7 +21,7 @@ export const LoginForm = () => {
       .then((data) => {
         window.sessionStorage.setItem("token", data.token);
         window.sessionStorage.setItem("token_expire", data.expire);
-        router.push(Routes.adminArticle);
+        router.push(Routes.adminArticles);
       })
       .catch(() => {
         console.log("invalid");

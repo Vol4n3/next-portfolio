@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { badRequest, notFound } from "@features/server/server-errors";
+import { serverError } from "@features/server/server-errors";
 import { getJwt } from "./jwt";
 
 export async function POST(request: NextRequest) {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     bodyRequest = await request.json();
   } catch (e) {
-    return badRequest("missing body");
+    return serverError("missing body", 400);
   }
   if (
     bodyRequest.client === process.env.ADMIN_CLIENT &&
@@ -18,6 +18,6 @@ export async function POST(request: NextRequest) {
   ) {
     return NextResponse.json(await getJwt());
   } else {
-    return notFound();
+    return serverError("not found", 404);
   }
 }

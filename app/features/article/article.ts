@@ -4,8 +4,9 @@ export type Article = {
   content: string;
   creator: string;
   description: string;
+  keywords: string[];
   imageUri: string;
-  updated: Date;
-  created: Date;
+  updated: string;
+  created: string;
   published: boolean;
 };

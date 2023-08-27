@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { badRequest } from "@features/server/server-errors";
+import { serverError } from "@features/server/server-errors";
 import {
   mongoConnection,
   projectCollectionName,
@@ -12,11 +12,11 @@ export async function POST(request: NextRequest) {
   try {
     bodyRequest = await request.json();
   } catch (e) {
-    return badRequest("missing body");
+    return serverError("missing body", 400);
   }
   const { js, html, css } = bodyRequest;
   if (!js || !css || !html)
-    return badRequest("missing body args: js | css | html");
+    return serverError("missing body args: js | css | html", 400);
   try {
     return NextResponse.json(
       await mongoConnection(async (db) =>
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (e) {
     console.error(e);
-    return badRequest(`Error with bdd  : ${e}`);
+    return serverError(`Error with bdd  : ${e}`, 500);
   }
 }
 
@@ -49,6 +49,6 @@ export async function GET(request: NextRequest) {
     );
   } catch (e) {
     console.error(e);
-    return badRequest(`Error with bdd  : ${e}`);
+    return serverError(`Error with bdd  : ${e}`, 500);
   }
 }

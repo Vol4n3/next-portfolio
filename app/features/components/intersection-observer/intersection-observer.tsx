@@ -1,3 +1,4 @@
+"use client";
 import {
   createContext,
   PropsWithChildren,
@@ -13,7 +14,7 @@ export type IntersectionObserverProps = {
   callback: IntersectionObserverCallback;
 };
 type IntersectionObserverContextProps = (
-  options: IntersectionObserverProps
+  options: IntersectionObserverProps,
 ) => () => void;
 
 const IntersectionObserverContext =
@@ -43,7 +44,7 @@ export function IntersectionObserverProvider({
 
     const observable = new IntersectionObserver(callBack, init);
     listeners.forEach((options: IntersectionObserverProps) =>
-      observable.observe(options.element)
+      observable.observe(options.element),
     );
     return () => {
       observable.disconnect();
@@ -55,7 +56,7 @@ export function IntersectionObserverProvider({
       return () =>
         setListeners((prevState) => prevState.filter((f) => f !== options));
     },
-    []
+    [],
   );
   return (
     <IntersectionObserverContext.Provider value={addIntersectionObserver}>

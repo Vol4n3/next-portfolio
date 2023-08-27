@@ -7,6 +7,7 @@ import {
   useRef,
 } from "react";
 import styles from "./text-area-field.module.scss";
+import { InputWrapper } from "@components/input-wrapper/input-wrapper";
 
 type eventNames = "onChange" | "onCut" | "onPaste" | "onDrop" | "onKeyDown";
 
@@ -27,6 +28,7 @@ export const TextAreaField = ({
   value,
   noResize,
   className,
+  caption,
   ...rest
 }: TextareaFieldProps) => {
   const refTextArea = useRef<HTMLTextAreaElement>(null);
@@ -62,22 +64,20 @@ export const TextAreaField = ({
     }
   };
   return (
-    <>
-      <label>
-        <div className={styles.label}>{label}</div>
-        <textarea
-          {...rest}
-          value={value}
-          className={[styles.textAreaField, className].join(" ")}
-          ref={refTextArea}
-          onChange={(e) => handler("onChange", e)}
-          onCut={(e) => handler("onCut", e)}
-          onPaste={(e) => handler("onPaste", e)}
-          onDrop={(e) => handler("onDrop", e)}
-          onKeyDown={(e) => handler("onKeyDown", e)}
-        />
-      </label>
-      {error && <div className={styles.captionError}>{error}</div>}
-    </>
+    <InputWrapper label={label} error={error} caption={caption}>
+      <textarea
+        {...rest}
+        value={value}
+        className={[styles.textAreaField, className, error && "error"].join(
+          " ",
+        )}
+        ref={refTextArea}
+        onChange={(e) => handler("onChange", e)}
+        onCut={(e) => handler("onCut", e)}
+        onPaste={(e) => handler("onPaste", e)}
+        onDrop={(e) => handler("onDrop", e)}
+        onKeyDown={(e) => handler("onKeyDown", e)}
+      />
+    </InputWrapper>
   );
 };

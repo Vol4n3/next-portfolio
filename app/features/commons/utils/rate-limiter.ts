@@ -1,7 +1,7 @@
 const rateData: Map<string, { requestCount: number; startTime: number }> =
   new Map();
 export const rateLimiter = (id: string): boolean => {
-  const WINDOW_DURATION = 60 * 1000;
+  const WINDOW_DURATION = 10 * 1000;
   const MAX_REQUESTS = 10;
 
   let requestInfo = rateData.get(id);

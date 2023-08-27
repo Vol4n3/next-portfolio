@@ -9,12 +9,15 @@
   background: var(--themeTextFieldBackground);
   outline: none;
   width: 100%;
-
+  transition: border ease-in-out 200ms;
   &:hover {
     border-color: var(--themeTextFieldColor);
   }
 
   &:focus {
     border-color: var(--themeTextFieldColor);
+  }
+  &:global(.error){
+    border-color: var(--themeErrorColor);
   }
 }

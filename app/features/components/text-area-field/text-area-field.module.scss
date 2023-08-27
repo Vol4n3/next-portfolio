@@ -1,4 +1,5 @@
 .textAreaField{
+  composes: textField from "../text-field/text-field.module.scss";
   height: initial;
   resize: none;
   overflow: hidden;
@@ -6,4 +7,5 @@
   min-height: 90px;
   line-height: 1.25rem;
   padding: 12px 8px;
+
 }

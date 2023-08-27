@@ -41,6 +41,9 @@ export function useFormControl<T extends {}>(
   const [values, setFormValues] = useState<T>(defaultFormValues);
   const [errors, setFormErrors] = useState<ErrorFields<T>>({});
 
+  /**
+   * Validate the form and check errors
+   */
   function validateForm() {
     setDirty(true);
     setFormErrors({});

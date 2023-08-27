@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { badRequest } from "@features/server/server-errors";
+import { serverError } from "@features/server/server-errors";
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -11,17 +11,17 @@ export async function POST(request: NextRequest) {
   try {
     bodyRequest = await request.formData();
   } catch (e) {
-    return badRequest("bad format will be formdata");
+    return serverError("bad format will be formdata", 400);
   }
   const file = bodyRequest.get("file") as File;
   if (!file) {
-    return badRequest("missing form file arguments");
+    return serverError("missing form file arguments", 400);
   }
   if (!file.type) {
-    return badRequest("file need mime type");
+    return serverError("file need mime type", 400);
   }
   if (!accepts.includes(file.type)) {
-    return badRequest("mime type not allowed");
+    return serverError("mime type not allowed", 400);
   }
   try {
     const buffer = await file.arrayBuffer();
@@ -35,6 +35,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (e) {
     console.error(e);
-    return badRequest("error with file");
+    return serverError("error with file", 500);
   }
 }

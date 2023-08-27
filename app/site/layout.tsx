@@ -1,9 +1,9 @@
-"use client";
 import "./site.style.scss";
 import { PropsWithChildren } from "react";
 import { Header } from "@features/header/header";
 import { IntersectionObserverProvider } from "@components/intersection-observer/intersection-observer";
 import { Roboto } from "next/font/google";
+import { Metadata } from "next";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -12,11 +12,17 @@ const roboto = Roboto({
   display: "swap",
   variable: "--font-roboto",
 });
+export const metadata: Metadata = {
+  title: {
+    template: "%s | Blog Julien Coeurvolan",
+    default: "Blog Julien Coeurvolan",
+  },
+  colorScheme: "dark",
+};
 export default function MyAppLayout({ children }: PropsWithChildren) {
   return (
     <html lang={"fr"} className={[roboto.className, roboto.variable].join(" ")}>
       <head>
-        <title>Jc Portfolio</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
           rel="apple-touch-icon"

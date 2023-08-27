@@ -1,7 +1,7 @@
 @import "./variables/colors";
 :root {
-  --themeTextFieldBorderRadius: 0px;
-  --themeTextFieldBorder: 2px solid transparent;
+  --themeTextFieldBorderRadius: 4px;
+  --themeTextFieldBorder: 4px solid #{$dark};
   --themeTextFieldColor: #{$black};
   --themeTextFieldBackground: #{$neutral50};
   --themeTextFieldPadding: 10px;

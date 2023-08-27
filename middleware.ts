@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyJwt } from "@api/jwt/jwt";
 import { rateLimiter } from "@commons/utils/rate-limiter";
 import { Routes } from "@features/routes/routes";
+import { serverError } from "@features/server/server-errors";
 
 export const config = {
   matcher: ["/", `${Routes.api}/:path*`],
@@ -26,10 +27,7 @@ export async function middleware(request: NextRequest) {
   const ip = getIP(request);
   if (rateLimiter(ip)) {
     console.info(`Too many requests by ${ip}`);
-    return new Response("Too Many Requests", {
-      status: 429,
-      statusText: `Too Many Requests`,
-    });
+    return serverError("Too Many Requests", 429);
   }
   console.info("Check whitelist");
   if (
@@ -56,10 +54,7 @@ export async function middleware(request: NextRequest) {
   console.info("Check Authorization");
   const authorization = request.headers.get("Authorization");
   if (!authorization) {
-    return new Response("Forbidden", {
-      status: 403,
-      statusText: `Forbidden`,
-    });
+    return serverError("Forbidden", 403);
   }
   const [authScheme, token] = authorization.split(" ");
   if (authScheme !== "Bearer") {
@@ -73,9 +68,6 @@ export async function middleware(request: NextRequest) {
     // can use token data or not
   } catch (e) {
     console.error(e);
-    return new Response("Unauthorized", {
-      status: 401,
-      statusText: `Unauthorized`,
-    });
+    return serverError("Unauthorized", 401);
   }
 }

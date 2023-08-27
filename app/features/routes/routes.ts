@@ -6,5 +6,7 @@ export class Routes {
   static apiJwt = `${this.api}/jwt`;
   static apiArticles = `${this.api}/articles`;
   static apiProjects = `${this.api}/projects`;
-  static adminArticle = `${this.admin}/articles`;
+  static adminArticles = `${this.admin}/articles`;
+  static adminArticlesEdit = `${this.admin}/articles/edit`;
+  static adminArticlesCreate = `${this.admin}/articles/create`;
 }

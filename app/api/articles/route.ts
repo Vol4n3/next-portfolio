@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { badRequest } from "@features/server/server-errors";
+import { serverError } from "@features/server/server-errors";
 
 import { objectFilterByKeys } from "@commons/utils/utils";
 import { Article } from "@features/article/article";
@@ -17,14 +17,14 @@ export async function POST(request: NextRequest) {
     bodyRequest = await request.json();
   } catch (e) {
     console.error(e);
-    return badRequest("missing body");
+    return serverError("missing body", 400);
   }
   if (!bodyRequest) {
-    return badRequest("missing body");
+    return serverError("missing body", 400);
   }
   const { title, content, creator, id } = bodyRequest;
   if (!title || !content || !creator || !id)
-    return badRequest("miss on body : title | content | creator | id");
+    return serverError("miss on body : title | content | creator | id", 400);
   try {
     const data = objectFilterByKeys<Article>(bodyRequest, [
       "creator",
@@ -32,21 +32,26 @@ export async function POST(request: NextRequest) {
       "description",
       "title",
       "imageUri",
+      "keywords",
       "id",
       "published",
     ]);
+
     return NextResponse.json(
-      await mongoConnection(async (db) =>
-        db.collection(articleCollectionName).insertOne({
+      await mongoConnection(async (db) => {
+        const result = await db.collection(articleCollectionName).insertOne({
           ...data,
           updated: new Date(),
           created: new Date(),
-        }),
-      ),
+        });
+        return db
+          .collection(articleCollectionName)
+          .findOne({ _id: result.insertedId });
+      }),
     );
   } catch (e) {
     console.error(e);
-    return badRequest(`Error with bdd : ${e}`);
+    return serverError(`Error with bdd : ${e}`, 500);
   }
 }
 
@@ -73,6 +78,6 @@ export async function GET(request: NextRequest) {
     );
   } catch (e) {
     console.error(e);
-    return badRequest(`Error with bdd : ${e}`);
+    return serverError(`Error with bdd : ${e}`, 500);
   }
 }

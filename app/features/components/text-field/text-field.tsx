@@ -23,7 +23,9 @@ export function TextField({
   return (
     <InputWrapper label={label} error={error} caption={caption}>
       <input
-        className={[styles.textField, className].filter((f) => !!f).join(" ")}
+        className={[styles.textField, className, error && "error"]
+          .filter((f) => !!f)
+          .join(" ")}
         {...props}
         value={value}
         onChange={(e) => onChange(e.target.value, e)}

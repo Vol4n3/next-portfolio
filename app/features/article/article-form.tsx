@@ -7,25 +7,34 @@ import { useFormControl } from "@commons/utils/form-control";
 import { TextField } from "@components/text-field/text-field";
 import { TextAreaField } from "@components/text-area-field/text-area-field";
 import { Responsive } from "@components/responsive/responsive";
-
+import { Routes } from "@features/routes/routes";
+const defaultArticle: Omit<Article, "updated" | "created"> = {
+  content: "",
+  creator: "Vol4n3",
+  description: "",
+  id: "",
+  imageUri: "",
+  keywords: [],
+  published: false,
+  title: "",
+};
 export const ArticleForm = ({ article }: { article?: Article }) => {
   const requiredMessage = "Champ requis";
   const router = useRouter();
-  const { values, setValues, errors, validateForm } = useFormControl<
-    Partial<Article>
-  >(article || {}, {
-    title: ({ title }) => (title ? null : requiredMessage),
-    id: ({ id }) => (id ? null : requiredMessage),
-  });
+  const { values, setValues, errors, validateForm } = useFormControl(
+    article || defaultArticle,
+    {
+      title: ({ title }) => (title ? null : requiredMessage),
+      id: ({ id }) => (id ? null : requiredMessage),
+      content: ({ content }) => (content ? null : requiredMessage),
+    },
+  );
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    await fetch(`/api/articles${article ? "/" + article.id : ""}`, {
-      body: JSON.stringify({
-        ...values,
-        creator: "Vol4N3",
-      }),
+    await fetch(`${Routes.apiArticles}${article ? "/" + article.id : ""}`, {
+      body: JSON.stringify(values),
       method: article ? "PATCH" : "POST",
       headers: new Headers({
         Authorization: `Bearer ${window.sessionStorage.getItem("token")}`,
@@ -33,8 +42,8 @@ export const ArticleForm = ({ article }: { article?: Article }) => {
     })
       .then<Article>((blob) => blob.json())
       .then((value) => {
-        window.open(`/site/blog/${value.id}`);
-        router.push(`/jcv-admin/article/edit/${value.id}`);
+        window.open(`${Routes.blog}/${value.id}`);
+        router.push(`${Routes.adminArticlesEdit}/${value.id}`);
       })
       .catch((reason) => {
         console.error(reason);
@@ -45,23 +54,23 @@ export const ArticleForm = ({ article }: { article?: Article }) => {
       <Button onClick={() => router.back()}>Back</Button>
       <form onSubmit={submit}>
         <TextField
-          label={"Id"}
-          value={values.id || ""}
-          caption={errors.id}
-          error={!!errors.id}
-          onChange={(id) => setValues({ id })}
-        />
-        <TextField
-          label={"Title"}
+          label={"Titre de l’article"}
           value={values.title || ""}
           caption={errors.title}
           error={!!errors.title}
           onChange={(title) =>
             setValues({
               title,
-              id: title.toLowerCase().replace(/\s/g, "-") || "",
+              id: title.toLowerCase().replace(/[\s'’.,]/g, "-") || "",
             })
           }
+        />
+        <TextField
+          label={"Id"}
+          value={values.id || ""}
+          caption={errors.id}
+          error={!!errors.id}
+          onChange={(id) => setValues({ id })}
         />
         <Responsive rules={[{ display: "flex" }]}>
           <input value={""} onChange={() => {}} type={"file"} />
@@ -101,7 +110,7 @@ export const ArticleForm = ({ article }: { article?: Article }) => {
         </div>
 
         <Button theme={"primary"} type={"submit"}>
-          Valid
+          {article ? "Modifier" : "Créer"}
         </Button>
       </form>
     </>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { badRequest } from "@features/server/server-errors";
+import { serverError } from "@features/server/server-errors";
 import { ObjectId } from "bson";
 import {
   mongoConnection,
@@ -14,7 +14,7 @@ export async function DELETE(
   request: NextRequest,
   { params: { projectId } }: { params: { projectId: string } },
 ) {
-  if (!projectId) return badRequest("missing path args: projectId");
+  if (!projectId) return serverError("missing path args: projectId", 400);
   try {
     return NextResponse.json(
       await mongoConnection(async (db) =>
@@ -25,7 +25,7 @@ export async function DELETE(
     );
   } catch (e) {
     console.error(e);
-    return badRequest(`Error with bdd  : ${e}`);
+    return serverError(`Error with bdd  : ${e}`, 500);
   }
 }
 
@@ -33,12 +33,12 @@ export async function PATCH(
   request: NextRequest,
   { params: { projectId } }: { params: { projectId: string } },
 ) {
-  if (!projectId) return badRequest("missing path args: projectId");
+  if (!projectId) return serverError("missing path args: projectId", 400);
   let bodyRequest: PartialProject;
   try {
     bodyRequest = await request.json();
   } catch (e) {
-    return badRequest("missing body");
+    return serverError("missing body", 400);
   }
   const data: PartialProject = {};
   if (bodyRequest.js) data.js = bodyRequest.js;
@@ -54,7 +54,7 @@ export async function PATCH(
     );
   } catch (e) {
     console.error(e);
-    return badRequest(`Error with bdd  : ${e}`);
+    return serverError(`Error with bdd  : ${e}`, 500);
   }
 }
 
@@ -62,7 +62,7 @@ export async function GET(
   request: NextRequest,
   { params: { projectId } }: { params: { projectId: string } },
 ) {
-  if (!projectId) return badRequest("missing path args: projectId");
+  if (!projectId) return serverError("missing path args: projectId", 400);
   try {
     return NextResponse.json(
       await mongoConnection(async (db) =>
@@ -73,6 +73,6 @@ export async function GET(
     );
   } catch (e) {
     console.error(e);
-    return badRequest(`Error with bdd  : ${e}`);
+    return serverError(`Error with bdd  : ${e}`, 500);
   }
 }

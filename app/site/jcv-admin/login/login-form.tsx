@@ -1,6 +1,7 @@
 "use client";
 import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Routes } from "@features/routes/routes";
 export const LoginForm = () => {
   const router = useRouter();
   const submitForm = (e: FormEvent) => {
@@ -9,7 +10,7 @@ export const LoginForm = () => {
       client: HTMLInputElement;
       secret: HTMLInputElement;
     };
-    fetch("/api/jwt", {
+    fetch(Routes.apiJwt, {
       method: "POST",
       body: JSON.stringify({
         client: target.client.value,
@@ -20,7 +21,7 @@ export const LoginForm = () => {
       .then((data) => {
         window.sessionStorage.setItem("token", data.token);
         window.sessionStorage.setItem("token_expire", data.expire);
-        router.push("/site/jcv-admin/article");
+        router.push(Routes.adminArticle);
       })
       .catch(() => {
         console.log("invalid");

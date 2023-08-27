@@ -7,4 +7,10 @@
   box-shadow: var(--themeCardBoxShadow, 0 0 4px rgba(0, 0, 0, 0.1));
   border-radius: var(--themeCardBorderRadius, 8px);
   padding: var(--themeCardPadding, clamp(5px, 3vw, 20px));
+  &.clickable{
+    transition: box-shadow ease-in-out 200ms;
+    &:hover{
+      box-shadow: var(--themeCardBoxShadow, 0 0 4px rgba(0, 0, 0, 0.1));
+    }
+  }
 }

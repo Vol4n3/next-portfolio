@@ -6,14 +6,17 @@ import { Article } from "@features/article/article";
 import { useFormControl } from "@commons/utils/form-control";
 import { TextField } from "@components/text-field/text-field";
 import { TextAreaField } from "@components/text-area-field/text-area-field";
+import { Responsive } from "@components/responsive/responsive";
 
 export const ArticleForm = ({ article }: { article?: Article }) => {
   const requiredMessage = "Champ requis";
   const router = useRouter();
-  const { values, setValues, isDirty, getFieldError, validateForm } =
-    useFormControl<Partial<Article>>(article || {}, {
-      title: ({ title }) => !title && requiredMessage,
-    });
+  const { values, setValues, errors, validateForm } = useFormControl<
+    Partial<Article>
+  >(article || {}, {
+    title: ({ title }) => (title ? null : requiredMessage),
+    id: ({ id }) => (id ? null : requiredMessage),
+  });
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -22,16 +25,19 @@ export const ArticleForm = ({ article }: { article?: Article }) => {
       body: JSON.stringify({
         ...values,
         creator: "Vol4N3",
-        id: values.id?.replace(" ", "-") || "",
       }),
       method: article ? "PATCH" : "POST",
       headers: new Headers({
         Authorization: `Bearer ${window.sessionStorage.getItem("token")}`,
       }),
     })
-      .then((blob) => blob.json())
-      .then(() => {
-        router.back();
+      .then<Article>((blob) => blob.json())
+      .then((value) => {
+        window.open(`/site/blog/${value.id}`);
+        router.push(`/jcv-admin/article/edit/${value.id}`);
+      })
+      .catch((reason) => {
+        console.error(reason);
       });
   };
   return (
@@ -41,32 +47,46 @@ export const ArticleForm = ({ article }: { article?: Article }) => {
         <TextField
           label={"Id"}
           value={values.id || ""}
-          error={isDirty ? getFieldError("id") : ""}
+          caption={errors.id}
+          error={!!errors.id}
           onChange={(id) => setValues({ id })}
         />
         <TextField
           label={"Title"}
           value={values.title || ""}
-          error={isDirty ? getFieldError("title") : ""}
-          onChange={(title) => setValues({ title })}
+          caption={errors.title}
+          error={!!errors.title}
+          onChange={(title) =>
+            setValues({
+              title,
+              id: title.toLowerCase().replace(/\s/g, "-") || "",
+            })
+          }
         />
-        <TextField
-          label={"Image Uri"}
-          type={"url"}
-          value={values.imageUri || ""}
-          error={isDirty ? getFieldError("imageUri") : ""}
-          onChange={(imageUri) => setValues({ imageUri })}
-        />
+        <Responsive rules={[{ display: "flex" }]}>
+          <input value={""} onChange={() => {}} type={"file"} />
+          <TextField
+            label={"Image Uri"}
+            type={"url"}
+            value={values.imageUri || ""}
+            caption={errors.imageUri}
+            error={!!errors.imageUri}
+            onChange={(imageUri) => setValues({ imageUri })}
+          />
+        </Responsive>
+
         <TextField
           label={"Description"}
           value={values.description || ""}
-          error={isDirty ? getFieldError("description") : ""}
+          caption={errors.description}
+          error={!!errors.description}
           onChange={(description) => setValues({ description })}
         />
         <TextAreaField
           label={"Content"}
           value={values.content || ""}
-          error={isDirty ? getFieldError("content") : ""}
+          caption={errors.content}
+          error={!!errors.content}
           onChange={(content) => setValues({ content })}
         />
         <div>

@@ -1,12 +1,14 @@
 import { ChangeEvent, HTMLProps } from "react";
 import styles from "./text-field.module.scss";
+import { InputWrapper } from "@components/input-wrapper/input-wrapper";
 
 export interface TextFieldProps
   extends Omit<HTMLProps<HTMLInputElement>, "value" | "onChange"> {
   value: string;
   label: string;
   onChange: (value: string, originalEvent: ChangeEvent) => void;
-  error?: boolean | string;
+  error?: boolean;
+  caption?: string;
 }
 
 export function TextField({
@@ -15,20 +17,17 @@ export function TextField({
   className,
   label,
   error,
+  caption,
   ...props
 }: TextFieldProps) {
   return (
-    <>
-      <label>
-        <div className={styles.label}>{label}</div>
-        <input
-          className={[styles.textField, className].join(" ")}
-          {...props}
-          value={value}
-          onChange={(e) => onChange(e.target.value, e)}
-        />
-      </label>
-      {error && <div className={styles.captionError}>{error}</div>}
-    </>
+    <InputWrapper label={label} error={error} caption={caption}>
+      <input
+        className={[styles.textField, className].filter((f) => !!f).join(" ")}
+        {...props}
+        value={value}
+        onChange={(e) => onChange(e.target.value, e)}
+      />
+    </InputWrapper>
   );
 }

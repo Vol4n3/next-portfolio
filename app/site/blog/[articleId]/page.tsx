@@ -2,11 +2,12 @@ import { cache } from "react";
 import { CenteredContainer } from "@components/container/centered-container";
 import { Article } from "@features/article/article";
 import { ServerMdxRemote } from "@features/mdx/server-mdx-remote";
+import { Routes } from "@features/routes/routes";
 
 export const revalidate = 5;
 
 const getArticles = cache(async (id: string) => {
-  const uri = new URL(`${process.env.URI}/api/articles/${id}`);
+  const uri = new URL(`${process.env.URI}${Routes.apiArticles}/${id}`);
   const res = await fetch(uri.href);
   return res.json();
 });

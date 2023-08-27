@@ -1,38 +1,8 @@
-import { useEffect, useReducer, useState } from "react";
-
-export const UPDATE_VALUE = "UPDATE_VALUE";
-type ActionUpdateFormValues<T> = {
-  type: typeof UPDATE_VALUE;
-  payload: Partial<T>;
-};
+import { useEffect, useState } from "react";
 
 export type ErrorFields<T> = { [key in keyof T]?: string };
-export const ADD_ERROR = "ADD_ERROR";
 
-type ActionAddError<T> = {
-  type: typeof ADD_ERROR;
-  fieldName: keyof T;
-  message?: boolean | string;
-};
-export const CLEAR_ERRORS = "CLEAR_ERRORS";
-
-type ActionResetError = {
-  type: typeof CLEAR_ERRORS;
-};
-type FormErrorActions<T> = ActionAddError<T> | ActionResetError;
-const formErrorDispatch = <T>(
-  previous: ErrorFields<T>,
-  action: FormErrorActions<T>,
-): ErrorFields<T> => {
-  switch (action.type) {
-    case CLEAR_ERRORS:
-      return {};
-    case ADD_ERROR:
-      return { ...previous, [action.fieldName]: action.message ?? true };
-  }
-};
-
-function formHasError<T>(
+function hasErrorField<T>(
   errorsFields: ErrorFields<T>,
   key?: keyof T,
 ): string | undefined {
@@ -42,99 +12,62 @@ function formHasError<T>(
   return Object.keys(errorsFields).join(",");
 }
 
-export const RESET_FORM = "RESET_FORM";
-type ResetAction = {
-  type: typeof RESET_FORM;
-};
-type FormRegisterActions<T> = ActionUpdateFormValues<T> | ResetAction;
 export type ControlField<T> = {
-  [K in keyof T]?: (values: T) => boolean | string;
+  [K in keyof T]?: (values: T) => string | null | undefined;
 };
 
-export function useFormControl<T>(
-  defaultFormValues: T,
-  invalidControls: ControlField<T> = {},
-) {
-  const formValuesDispatch = (
-    previous: T,
-    action: FormRegisterActions<T>,
-  ): T => {
-    switch (action.type) {
-      case RESET_FORM:
-        return defaultFormValues;
-      case UPDATE_VALUE:
-        return { ...previous, ...action.payload };
-    }
-  };
-  const [isDirty, setDirty] = useState<boolean>(false);
-  const [values, setFormValues] = useReducer(
-    formValuesDispatch,
-    defaultFormValues,
-  );
-  const [errors, setErrors] = useReducer<typeof formErrorDispatch<T>>(
-    formErrorDispatch,
-    {},
-  );
-
-  function addFormError(errors: ErrorFields<T>) {
-    Object.keys(errors).forEach((errorKey) => {
-      setErrors({
-        type: ADD_ERROR,
-        message: errors[errorKey as keyof T],
-        fieldName: errorKey as keyof T,
-      });
-    });
-  }
-  function getErrors(): ErrorFields<T> {
-    let temp: ErrorFields<T> = {};
-    Object.keys(invalidControls).forEach((controlKey) => {
-      const callBack = invalidControls[controlKey as keyof T];
-      if (callBack) {
-        const invalid = callBack(values);
-        if (invalid) {
-          temp = { ...temp, [controlKey]: invalid };
-        }
+function applyControls<T>(
+  controls: ControlField<T> = {},
+  values: T,
+): ErrorFields<T> {
+  let temp: ErrorFields<T> = {};
+  Object.keys(controls).forEach((controlKey) => {
+    const callBack = controls[controlKey as keyof T];
+    if (callBack) {
+      const reason = callBack(values);
+      if (reason) {
+        temp = { ...temp, [controlKey]: reason };
       }
-    });
-    return temp;
-  }
+    }
+  });
+  return temp;
+}
+
+export function useFormControl<T extends {}>(
+  defaultFormValues: T,
+  controls: ControlField<T> = {},
+) {
+  const [isDirty, setDirty] = useState<boolean>(false);
+  const [values, setFormValues] = useState<T>(defaultFormValues);
+  const [errors, setFormErrors] = useState<ErrorFields<T>>({});
+
   function validateForm() {
     setDirty(true);
-    setErrors({ type: CLEAR_ERRORS });
-    return !formHasError(getErrors());
-  }
-  function getFieldError(key?: keyof T): string | undefined {
-    return formHasError(
-      {
-        ...errors,
-        ...getErrors(),
-      },
-      key,
-    );
+    setFormErrors({});
+    const errors = applyControls<T>(controls, values);
+    setFormErrors((prev) => ({ ...prev, ...errors }));
+    return !hasErrorField(errors);
   }
 
   useEffect(() => {
     setDirty(false);
   }, [values]);
+
   const setValues = (values: Partial<T>) => {
-    setFormValues({
-      type: UPDATE_VALUE,
-      payload: values,
-    });
+    setFormValues((prev) => ({
+      ...prev,
+      ...values,
+    }));
   };
   const resetValues = () => {
-    setFormValues({
-      type: RESET_FORM,
-    });
+    setFormValues(defaultFormValues);
   };
   return {
     values,
     setValues,
     resetValues,
-    getFieldError,
-    addFormError,
     validateForm,
     isDirty,
-    getErrors,
+    errors,
   };
 }

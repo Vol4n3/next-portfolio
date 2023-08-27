@@ -5,21 +5,12 @@ import { useEffect, useState } from "react";
 import { EditorValues } from "@commons/types/types";
 
 export default function EditorPage() {
-  const [values, setValues] = useState<EditorValues>({
-    js: "",
-    css: "",
-    html: "",
-  });
-  const [preview, setPreview] = useState<EditorValues>({
-    js: "",
-    css: "",
-    html: "",
-  });
-  useEffect(() => {
-    const { js, html, css } = values;
+  const [values, setValues] = useState<EditorValues>();
+  const emitChange = (val: EditorValues) => {
+    const { js, html, css } = val;
     window.parent.postMessage(
       {
-        source: "editor",
+        source: "editorChange",
         payload: {
           js,
           css,
@@ -28,35 +19,30 @@ export default function EditorPage() {
       },
       window.location.origin,
     );
-  }, [values]);
+    setValues(val);
+  };
+
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       if (event.origin !== window.location.origin) {
         return;
       }
+
       if (
         !event.data.source ||
         !event.data.payload ||
-        event.data.source !== "editor"
+        event.data.source !== "editorSetValue"
       ) {
         return;
       }
       const { js = "", css = "", html = "" } = event.data.payload;
       setValues({ css, js, html });
-      setPreview({ css, js, html });
     }
 
     window.addEventListener("message", handleMessage, false);
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  });
-  return (
-    <Editor
-      preview={preview}
-      value={values}
-      onChange={setValues}
-      onPreviewChange={setPreview}
-    />
-  );
+  }, []);
+  return <Editor value={values} onChange={emitChange} />;
 }

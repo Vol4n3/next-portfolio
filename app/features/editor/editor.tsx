@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from "react";
 import styles from "./editor.module.scss";
 import MonacoWrapper from "./monaco-wrapper";
@@ -13,51 +12,62 @@ type StateShow = "both" | "code" | "preview";
 const StatesShow: StateShow[] = ["both", "code", "preview"];
 
 interface EditorProps {
-  value: EditorValues;
+  value?: EditorValues;
   onChange: (v: EditorValues) => void;
-  preview: EditorValues;
-  onPreviewChange: (v: EditorValues) => void;
 }
 
-export const Editor = ({
-  value: { css, js, html },
-  preview,
-  onPreviewChange,
-  onChange,
-}: EditorProps) => {
+export const Editor = ({ value, onChange }: EditorProps) => {
   const [tab, setTab] = useState<Tab>("js");
   const [show, setShow] = useState<StateShow>("preview");
+  const [preview, setPreview] = useState<EditorValues>();
+  const { css = "", js = "", html = "" } = value || {};
   useEffect(() => {
+    if (preview || !value) {
+      return;
+    }
+
+    setPreview(value);
+  }, [preview, value]);
+  useEffect(() => {
+    if (!value) return;
     const onKeyPress = (e: KeyboardEvent) => {
       if (e.key === "s" && e.ctrlKey) {
         e.preventDefault();
-        onPreviewChange({ css, js, html });
+        setPreview(value);
       }
     };
     window.addEventListener("keydown", onKeyPress);
     return () => {
       window.removeEventListener("keydown", onKeyPress);
     };
-  }, [css, js, html, onPreviewChange]);
+  }, [value]);
   return (
     <div className={styles.editorGlobal}>
       <InOut show={true} starting={true}>
         <div className={styles.editorBar}>
-          {(
-            [
-              { label: "JS", value: "js" },
-              { label: "HTML", value: "html" },
-              { label: "CSS", value: "css" },
-            ] as Labeled<Tab>[]
-          ).map((item) => (
-            <button
-              key={item.value}
-              onClick={() => setTab(item.value)}
-              className={item.value === tab ? styles.active : undefined}
-            >
-              {item.label}
-            </button>
-          ))}
+          {(show === "code" || show === "both") && (
+            <>
+              {(
+                [
+                  { label: "JS", value: "js" },
+                  { label: "HTML", value: "html" },
+                  { label: "CSS", value: "css" },
+                ] as Labeled<Tab>[]
+              ).map((item) => (
+                <button
+                  key={item.value}
+                  onClick={() => setTab(item.value)}
+                  className={item.value === tab ? styles.active : undefined}
+                >
+                  {item.label}
+                </button>
+              ))}
+              <button title={"ctrl + s"} onClick={() => setPreview(value)}>
+                Run 👉
+              </button>
+            </>
+          )}
+
           <div>
             <button
               onClick={() =>
@@ -68,12 +78,6 @@ export const Editor = ({
               }
             >
               {show}
-            </button>
-            <button
-              title={"ctrl + s"}
-              onClick={() => onPreviewChange({ css, js, html })}
-            >
-              Run 👉
             </button>
           </div>
         </div>
@@ -110,7 +114,7 @@ export const Editor = ({
             </>
           )}
 
-          {(show === "preview" || show === "both") && (
+          {preview && (show === "preview" || show === "both") && (
             <div className={styles.previewPanel}>
               <Preview css={preview.css} html={preview.html} js={preview.js} />
             </div>

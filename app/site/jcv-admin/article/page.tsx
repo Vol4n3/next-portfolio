@@ -2,9 +2,10 @@ import { CenteredContainer } from "@components/container/centered-container";
 import { PaginatedResults } from "@commons/types/types";
 import { Article } from "@features/article/article";
 import { ArticleList } from "@features/article/article-list";
+import { Routes } from "@features/routes/routes";
 
 const getArticles = async () => {
-  const res = await fetch(`${process.env.URI}/api/articles`, {
+  const res = await fetch(`${process.env.URI}${Routes.apiArticles}`, {
     cache: "no-cache",
   });
   return res.json();

@@ -2,9 +2,10 @@ import { cache } from "react";
 import { CenteredContainer } from "@components/container/centered-container";
 import { ArticleForm } from "@features/article/article-form";
 import { Article } from "@features/article/article";
+import { Routes } from "@features/routes/routes";
 
 const getArticles = cache(async (id: string) => {
-  const res = await fetch(`${process.env.URI}/api/articles/${id}`, {
+  const res = await fetch(`${process.env.URI}${Routes.apiArticles}/${id}`, {
     cache: "no-cache",
   });
   return res.json();

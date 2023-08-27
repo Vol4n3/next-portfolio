@@ -6,7 +6,7 @@ import {
   useEffect,
   useRef,
 } from "react";
-import styles from "@components/text-field/text-field.module.scss";
+import styles from "./text-area-field.module.scss";
 
 type eventNames = "onChange" | "onCut" | "onPaste" | "onDrop" | "onKeyDown";
 
@@ -16,7 +16,8 @@ export interface TextareaFieldProps
   value: string;
   label: string;
   onChange: (value: string, originalEvent: ChangeEvent) => void;
-  error?: string;
+  error?: boolean;
+  caption?: string;
 }
 
 export const TextAreaField = ({
@@ -67,7 +68,7 @@ export const TextAreaField = ({
         <textarea
           {...rest}
           value={value}
-          className={[styles.textField, className].join(" ")}
+          className={[styles.textAreaField, className].join(" ")}
           ref={refTextArea}
           onChange={(e) => handler("onChange", e)}
           onCut={(e) => handler("onCut", e)}

@@ -4,6 +4,7 @@ import { CenteredContainer } from "@components/container/centered-container";
 import { NavLink } from "./nav-link/nav-link";
 import { Hide } from "@components/hide/hide";
 import { TextAnimationLoop } from "@components/text-animation/text-animation-loop";
+import { Routes } from "@features/routes/routes";
 
 export const Header = () => {
   return (
@@ -30,8 +31,8 @@ export const Header = () => {
       <header className={[styles.header, "sticky"].join(" ")}>
         <CenteredContainer maxWidth={"1600px"}>
           <div className={styles.headerNavBar}>
-            <NavLink href={"/site"} label={"Accueil"} exact={true} />
-            <NavLink href={"/site/blog"} label={"Blog"} />
+            <NavLink href={Routes.site} label={"Accueil"} exact={true} />
+            <NavLink href={Routes.blog} label={"Blog"} />
           </div>
         </CenteredContainer>
       </header>

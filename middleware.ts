@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyJwt } from "@api/jwt/jwt";
 import { rateLimiter } from "@commons/utils/rate-limiter";
+import { Routes } from "@features/routes/routes";
 
 export const config = {
-  matcher: ["/", "/api/:path*"],
+  matcher: ["/", `${Routes.api}/:path*`],
 };
 const getIP = (request: NextRequest): string => {
   return (
@@ -17,9 +18,9 @@ const getIP = (request: NextRequest): string => {
 
 export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL("/site", request.url));
+    return NextResponse.redirect(new URL(Routes.site, request.url));
   }
-  if (!request.nextUrl.pathname.startsWith("/api")) {
+  if (!request.nextUrl.pathname.startsWith(Routes.api)) {
     return;
   }
   const ip = getIP(request);
@@ -34,9 +35,9 @@ export async function middleware(request: NextRequest) {
   if (
     (
       [
-        { method: "POST", path: "/api/jwt" },
-        { method: "GET", path: "/api/articles", startWith: true },
-        { method: "GET", path: "/api/projects" },
+        { method: "POST", path: Routes.apiJwt },
+        { method: "GET", path: Routes.apiArticles, startWith: true },
+        { method: "GET", path: Routes.apiProjects },
       ] as {
         method: string;
         path: string;

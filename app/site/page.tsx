@@ -1,6 +1,7 @@
 import { CenteredContainer } from "@components/container/centered-container";
 import { ScrollInOut } from "@components/scroll-in-out/scroll-in-out";
 import Image from "next/image";
+import { IframeEditor } from "@features/editor/iframe-editor";
 
 export default function HomePage() {
   return (
@@ -15,6 +16,9 @@ export default function HomePage() {
           placeholder={"empty"}
         />
       </ScrollInOut>
+      <IframeEditor
+        defaultValue={{ html: "<h2>testons</h2>", js: "", css: "" }}
+      ></IframeEditor>
     </CenteredContainer>
   );
 }

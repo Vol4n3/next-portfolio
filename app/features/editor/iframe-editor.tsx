@@ -1,66 +1,69 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { EditorValues } from "@commons/types/types";
 import { Spinner } from "@components/spinner/spinner";
 
 interface IframeEditorProps {
-  value?: EditorValues;
+  defaultValue?: EditorValues;
   projectId?: string;
   onChange?: (v: EditorValues) => void;
 }
 
 export const IframeEditor = ({
   projectId,
-  value,
+  defaultValue,
   onChange,
 }: IframeEditorProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState<boolean>(!!projectId);
-  const [localValue, setLocalValue] = useState<EditorValues>(
-    value || { js: "", css: "", html: "" },
-  );
+  const sendMessage = useCallback(
+    (val: EditorValues) => {
+      const iframe = iframeRef.current;
+      if (!iframe) return;
 
+      setTimeout(() => {
+        iframe.contentWindow?.postMessage(
+          {
+            source: "editorSetValue",
+            payload: val,
+          },
+          window.location.origin,
+        );
+      }, 250);
+    },
+    [iframeRef],
+  );
   useEffect(() => {
     if (!projectId) return;
     fetch(`/api/project/${projectId}`)
       .then<EditorValues>((blob) => blob.json())
       .then((data) => {
-        setLocalValue(data);
+        sendMessage(data);
       })
       .finally(() => setLoading(false));
-  }, [projectId]);
+  }, [projectId, sendMessage]);
 
   useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-    const { html, js, css } = value || localValue;
-    iframe.contentWindow?.postMessage(
-      {
-        source: "editor",
-        payload: {
-          js,
-          css,
-          html,
-        },
-      },
-      window.location.origin,
-    );
-  }, [iframeRef, value, localValue]);
+    if (!defaultValue) {
+      return;
+    }
+    sendMessage(defaultValue);
+  }, [defaultValue, sendMessage]);
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       if (event.origin !== window.location.origin) {
         return;
       }
+
       if (
         !event.data.source ||
         !event.data.payload ||
-        event.data.source !== "editor"
+        event.data.source !== "editorChange"
       ) {
         return;
       }
-      const { js = "", css = "", html = "" } = event.data.payload;
-      onChange && onChange({ js, css, html });
+      onChange && onChange(event.data.payload);
     }
 
     window.addEventListener("message", handleMessage, false);

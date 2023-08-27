@@ -1,25 +1,20 @@
+
 .textField {
   display: inline-block;
   border-radius: var(--themeTextFieldBorderRadius);
   border: var(--themeTextFieldBorder);
   color: var(--themeTextFieldColor);
   padding: var(--themeTextFieldPadding);
-  margin: var(--themeTextFieldMargin);
+  margin: 0;
   background: var(--themeTextFieldBackground);
   outline: none;
   width: 100%;
 
   &:hover {
-    border-bottom-color: var(--themeTextFieldColor);
+    border-color: var(--themeTextFieldColor);
   }
 
   &:focus {
-    border-bottom-color: var(--themeTextFieldColor);
+    border-color: var(--themeTextFieldColor);
   }
-}
-.captionError{
-  color: var(--themeErrorColor);
-}
-.label{
-
 }

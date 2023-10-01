@@ -1,13 +1,16 @@
 import {
   ChangeEvent,
+  forwardRef,
   HTMLProps,
   SyntheticEvent,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useRef,
 } from "react";
 import styles from "./text-area-field.module.scss";
 import { InputWrapper } from "@components/input-wrapper/input-wrapper";
+import { ArrayToClassName } from "@commons/utils/utils";
 
 type eventNames = "onChange" | "onCut" | "onPaste" | "onDrop" | "onKeyDown";
 
@@ -21,24 +24,21 @@ export interface TextareaFieldProps
   caption?: string;
 }
 
-export const TextAreaField = ({
-  error,
-  label,
-  onChange,
-  value,
-  noResize,
-  className,
-  caption,
-  ...rest
-}: TextareaFieldProps) => {
+export const TextAreaField = forwardRef<
+  HTMLTextAreaElement,
+  TextareaFieldProps
+>(function TextAreaField(
+  { error, label, onChange, value, noResize, className, caption, ...rest },
+  ref,
+) {
   const refTextArea = useRef<HTMLTextAreaElement>(null);
+  useImperativeHandle(ref, () => refTextArea.current!, [refTextArea]);
   const resize = useCallback((): void => {
     if (noResize) {
       return;
     }
-    const textarea = refTextArea.current as HTMLTextAreaElement;
+    const textarea = refTextArea.current;
     if (!textarea) return;
-    textarea.style.height = "auto";
     textarea.style.height = textarea.scrollHeight + "px";
   }, [refTextArea, noResize]);
   useEffect(() => {
@@ -68,9 +68,11 @@ export const TextAreaField = ({
       <textarea
         {...rest}
         value={value}
-        className={[styles.textAreaField, className, error && "error"].join(
-          " ",
-        )}
+        className={ArrayToClassName([
+          styles.textAreaField,
+          className,
+          error && "error",
+        ])}
         ref={refTextArea}
         onChange={(e) => handler("onChange", e)}
         onCut={(e) => handler("onCut", e)}
@@ -80,4 +82,4 @@ export const TextAreaField = ({
       />
     </InputWrapper>
   );
-};
+});

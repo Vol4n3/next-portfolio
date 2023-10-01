@@ -6,8 +6,9 @@ import { Article } from "@features/article/article";
 import { useFormControl } from "@commons/utils/form-control";
 import { TextField } from "@components/text-field/text-field";
 import { TextAreaField } from "@components/text-area-field/text-area-field";
-import { Responsive } from "@components/responsive/responsive";
 import { Routes } from "@features/routes/routes";
+import { fetchJson } from "@features/fetch/fetch";
+
 const defaultArticle: Omit<Article, "updated" | "created"> = {
   content: "",
   creator: "Vol4n3",
@@ -33,14 +34,16 @@ export const ArticleForm = ({ article }: { article?: Article }) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    await fetch(`${Routes.apiArticles}${article ? "/" + article.id : ""}`, {
-      body: JSON.stringify(values),
-      method: article ? "PATCH" : "POST",
-      headers: new Headers({
-        Authorization: `Bearer ${window.sessionStorage.getItem("token")}`,
-      }),
-    })
-      .then<Article>((blob) => blob.json())
+    await fetchJson<Article>(
+      `${Routes.apiArticles}${article ? "/" + article.id : ""}`,
+      {
+        body: JSON.stringify(values),
+        method: article ? "PATCH" : "POST",
+        headers: new Headers({
+          Authorization: `Bearer ${window.sessionStorage.getItem("token")}`,
+        }),
+      },
+    )
       .then((value) => {
         window.open(`${Routes.blog}/${value.id}`);
         router.push(`${Routes.adminArticlesEdit}/${value.id}`);
@@ -72,7 +75,7 @@ export const ArticleForm = ({ article }: { article?: Article }) => {
           error={!!errors.id}
           onChange={(id) => setValues({ id })}
         />
-        <Responsive rules={[{ display: "flex" }]}>
+        <div style={{ display: "flex" }}>
           <input value={""} onChange={() => {}} type={"file"} />
           <TextField
             label={"Image Uri"}
@@ -82,7 +85,7 @@ export const ArticleForm = ({ article }: { article?: Article }) => {
             error={!!errors.imageUri}
             onChange={(imageUri) => setValues({ imageUri })}
           />
-        </Responsive>
+        </div>
 
         <TextField
           label={"Description"}

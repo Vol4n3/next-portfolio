@@ -1,3 +1,5 @@
+import { fetchJson } from "@features/fetch/fetch";
+
 type OvhToken = {
   consumerKey: string;
   validationUrl: string;
@@ -15,7 +17,7 @@ export async function getOvhToken() {
       { method: "DELETE", path: "/*" },
     ],
   };
-  const response = await fetch(url, {
+  return fetchJson(url, {
     headers: {
       accept: "application/json",
       "x-ovh-application": appKey,
@@ -24,5 +26,4 @@ export async function getOvhToken() {
     body: JSON.stringify(body),
     method: "POST",
   });
-  return response.json();
 }

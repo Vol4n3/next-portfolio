@@ -5,9 +5,11 @@ import {
   PropsWithChildren,
   useCallback,
   useEffect,
-  useRef,
+  useState,
 } from "react";
 import styles from "./responsive.module.scss";
+import { ArrayToClassName } from "@commons/utils/utils";
+
 interface ResponsiveProps extends HTMLProps<HTMLDivElement> {
   rules: CSSProperties[];
   breakpoints?: { min?: number; max?: number }[];
@@ -40,17 +42,15 @@ export const Responsive = ({
   className,
   ...props
 }: PropsWithChildren<ResponsiveProps>) => {
-  const divRef = useRef<HTMLDivElement>(null);
-  const mergedRules = progressiveMerge(rules);
+  const [currentStyle, setCurrentStyle] = useState<CSSProperties>({});
   const applyStyle = useCallback(
     (index: number) => {
-      const div = divRef.current;
-      if (!div) return;
+      const mergedRules = progressiveMerge(rules);
       const indexRules =
         index > mergedRules?.length - 1 ? mergedRules?.length - 1 : index;
-      Object.assign(div.style, mergedRules?.at(indexRules));
+      setCurrentStyle(mergedRules?.at(indexRules) || {});
     },
-    [mergedRules],
+    [rules],
   );
 
   useEffect(() => {
@@ -85,8 +85,8 @@ export const Responsive = ({
   return (
     <div
       {...props}
-      className={[styles.responsive, className].filter((f) => !!f).join(" ")}
-      ref={divRef}
+      className={ArrayToClassName([styles.responsive, className])}
+      style={currentStyle}
     >
       {children}
     </div>

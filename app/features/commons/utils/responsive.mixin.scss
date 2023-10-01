@@ -1,0 +1,49 @@
+$breakpointsMap: (
+        xs: (
+                maxi: 576px,
+        ),
+        sm: (
+                mini: 576px,
+                maxi: 768px,
+        ),
+        md: (
+                mini: 768px,
+                maxi: 992px,
+        ),
+        lg: (
+                mini: 992px,
+                maxi: 1280px,
+        ),
+        xl: (
+                mini: 1280px,
+        ),
+);
+
+@mixin responsive($stylesMap) {
+  @each $breakpoint, $styles in $stylesMap {
+    $range: map-get($breakpointsMap, $breakpoint);
+
+    $min-width: map-get($range, mini);
+    $max-width: map-get($range, maxi);
+
+    @if $min-width and $max-width {
+      @media (min-width: $min-width) and (max-width: $max-width) {
+        @each $property, $value in $styles {
+          #{$property}: $value;
+        }
+      }
+    } @else if $min-width {
+      @media (min-width: $min-width) {
+        @each $property, $value in $styles {
+          #{$property}: $value;
+        }
+      }
+    } @else if $max-width {
+      @media (max-width: $max-width) {
+        @each $property, $value in $styles {
+          #{$property}: $value;
+        }
+      }
+    }
+  }
+}

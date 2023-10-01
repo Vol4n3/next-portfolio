@@ -1,5 +1,6 @@
 import { HTMLProps } from "react";
 import styles from "./text.module.scss";
+import { ArrayToClassName } from "@commons/utils/utils";
 
 type HeadingProps = Omit<
   HTMLProps<HTMLParagraphElement | HTMLHeadingElement>,
@@ -17,7 +18,7 @@ export function TextBlock({
   ...rest
 }: HeadingProps) {
   const props = {
-    className: [styles[type], className].filter((f) => !!f).join(" "),
+    className: ArrayToClassName([styles[type], className]),
     children: modifSize ? (
       <span className={styles[modifSize]}>{children}</span>
     ) : (

@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { LinkButton } from "@components/button/button";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -20,10 +19,8 @@ export const NavLink = ({ href, label, exact }: NavLinkProps) => {
     setIsActive(exact ? pathname === href : pathname.startsWith(href));
   }, [exact, href, pathname]);
   return (
-    <Link href={href} passHref legacyBehavior>
-      <LinkButton theme={"underline"} active={isActive}>
-        {label}
-      </LinkButton>
-    </Link>
+    <LinkButton theme={"underline"} active={isActive} href={href}>
+      {label}
+    </LinkButton>
   );
 };

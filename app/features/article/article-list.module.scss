@@ -1,0 +1,13 @@
+@import "../../features/commons/utils/responsive.mixin";
+
+.grid {
+  margin: 20px 0;
+  display: grid;
+  @include responsive((
+          xs: (gap: 10px, grid-template-columns: repeat(1, 1fr)),
+          sm: (gap: 20px, grid-template-columns: repeat(2, 1fr)),
+          md: (gap: 30px, grid-template-columns: repeat(3, 1fr)),
+          lg: (gap: 40px, grid-template-columns: repeat(4, 1fr)),
+          xl: (gap: 40px, grid-template-columns: repeat(6, 1fr))
+  ))
+}

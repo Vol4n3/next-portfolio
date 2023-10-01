@@ -4,13 +4,14 @@ import { Article } from "@features/article/article";
 import { ServerMdxRemote } from "@features/mdx/server-mdx-remote";
 import { Routes } from "@features/routes/routes";
 import { Metadata } from "next";
+import { fetchJson } from "@features/fetch/fetch";
+import { notFound } from "next/navigation";
 
 export const revalidate = 5;
 export const dynamic = "force-dynamic";
 const getArticles = cache(async (id: string): Promise<Article> => {
   const uri = new URL(`${process.env.URI}${Routes.apiArticles}/${id}`);
-  const res = await fetch(uri.href);
-  return res.json();
+  return fetchJson(uri.href);
 });
 type params = {
   params: { articleId: string };
@@ -33,7 +34,9 @@ export default async function BlogArticlePage({
 }: {
   params: { articleId: string };
 }) {
-  const article: Article = await getArticles(articleId);
+  const article: Article = await getArticles(articleId).catch(() => {
+    notFound();
+  });
   return (
     <CenteredContainer maxWidth={"1600px"}>
       <h2>{article.title}</h2>

@@ -1,11 +1,7 @@
-import {
-  AnchorHTMLAttributes,
-  ButtonHTMLAttributes,
-  forwardRef,
-  PropsWithChildren,
-  Ref,
-} from "react";
+import { ButtonHTMLAttributes, ComponentProps, PropsWithChildren } from "react";
 import styles from "./button.module.scss";
+import { ArrayToClassName } from "@commons/utils/utils";
+import Link from "next/link";
 
 interface ButtonThemeProps {
   theme?: "primary" | "secondary" | "shadow" | "underline";
@@ -44,28 +40,28 @@ export function Button({
   );
 }
 
-interface LinkButtonProps
-  extends AnchorHTMLAttributes<HTMLAnchorElement>,
-    ButtonThemeProps {}
+type LinkButtonProps = ComponentProps<typeof Link> & ButtonThemeProps;
 
-const LinkButtonComponent = (
-  { children, className, theme, outlined, active, ...props }: LinkButtonProps,
-  ref: Ref<HTMLAnchorElement>
-) => (
-  <a
-    ref={ref}
-    className={[
-      styles.button,
-      outlined && styles.outlined,
-      active && styles.active,
-      theme && styles[theme],
-      className,
-    ]
-      .filter((f) => !!f)
-      .join(" ")}
-    {...props}
-  >
-    {children}
-  </a>
-);
-export const LinkButton = forwardRef(LinkButtonComponent);
+export function LinkButton({
+  children,
+  className,
+  theme,
+  outlined,
+  active,
+  ...props
+}: LinkButtonProps) {
+  return (
+    <Link
+      {...props}
+      className={ArrayToClassName([
+        styles.button,
+        outlined && styles.outlined,
+        active && styles.active,
+        theme && styles[theme],
+        className,
+      ])}
+    >
+      {children}
+    </Link>
+  );
+}

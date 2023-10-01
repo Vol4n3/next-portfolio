@@ -1,5 +1,7 @@
 import * as crypto from "crypto";
 import { exec } from "child_process";
+import { fetchJson } from "@features/fetch/fetch";
+
 export const subDomainRecord = async ({
   domainName = "volan.fr",
   subDomain,
@@ -30,7 +32,7 @@ export const subDomainRecord = async ({
     .digest("hex");
 
   // Requête
-  await fetch(url, {
+  await fetchJson(url, {
     method: method,
     body: body,
     headers: {
@@ -40,7 +42,7 @@ export const subDomainRecord = async ({
       "X-Ovh-Signature": `$1$${signature}`,
       "X-Ovh-Timestamp": now,
     },
-  }).then((response) => response.json());
+  });
 
   const certbotCommand = `sudo certbot --nginx --non-interactive --agree-tos --email ${email} -d ${subDomain}.${domainName} -d www.${subDomain}.${domainName}`;
   exec(certbotCommand, (error, stdout, stderr) => {

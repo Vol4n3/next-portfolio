@@ -4,6 +4,7 @@ import { Header } from "@features/header/header";
 import { IntersectionObserverProvider } from "@components/intersection-observer/intersection-observer";
 import { Roboto } from "next/font/google";
 import { Metadata } from "next";
+import { ArrayToClassName } from "@commons/utils/utils";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -21,7 +22,10 @@ export const metadata: Metadata = {
 };
 export default function MyAppLayout({ children }: PropsWithChildren) {
   return (
-    <html lang={"fr"} className={[roboto.className, roboto.variable].join(" ")}>
+    <html
+      lang={"fr"}
+      className={ArrayToClassName([roboto.className, roboto.variable])}
+    >
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link

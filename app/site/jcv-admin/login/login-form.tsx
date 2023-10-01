@@ -2,6 +2,8 @@
 import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Routes } from "@features/routes/routes";
+import { fetchJson } from "@features/fetch/fetch";
+
 export const LoginForm = () => {
   const router = useRouter();
   const submitForm = (e: FormEvent) => {
@@ -10,17 +12,16 @@ export const LoginForm = () => {
       client: HTMLInputElement;
       secret: HTMLInputElement;
     };
-    fetch(Routes.apiJwt, {
+    fetchJson<{ token: string; expire: number }>(Routes.apiJwt, {
       method: "POST",
       body: JSON.stringify({
         client: target.client.value,
         secret: target.secret.value,
       }),
     })
-      .then((blob) => blob.json())
       .then((data) => {
         window.sessionStorage.setItem("token", data.token);
-        window.sessionStorage.setItem("token_expire", data.expire);
+        window.sessionStorage.setItem("token_expire", data.expire.toString(10));
         router.push(Routes.adminArticles);
       })
       .catch(() => {

@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { EditorValues } from "@commons/types/types";
 import { Spinner } from "@components/spinner/spinner";
+import { fetchJson } from "@features/fetch/fetch";
 
 interface CodeEditorProps {
   defaultValue?: EditorValues;
@@ -35,8 +36,7 @@ export const CodeEditor = ({
   );
   useEffect(() => {
     if (!projectId) return;
-    fetch(`/api/project/${projectId}`)
-      .then<EditorValues>((blob) => blob.json())
+    fetchJson<EditorValues>(`/api/project/${projectId}`)
       .then((data) => {
         sendMessage(data);
       })

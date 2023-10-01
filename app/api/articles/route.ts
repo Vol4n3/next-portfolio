@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { serverError } from "@features/server/server-errors";
 
-import { objectFilterByKeys } from "@commons/utils/utils";
+import { ObjectFilterByKeys } from "@commons/utils/utils";
 import { Article } from "@features/article/article";
 import {
   articleCollectionName,
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   if (!title || !content || !creator || !id)
     return serverError("miss on body : title | content | creator | id", 400);
   try {
-    const data = objectFilterByKeys<Article>(bodyRequest, [
+    const data = ObjectFilterByKeys<Article>(bodyRequest, [
       "creator",
       "content",
       "description",

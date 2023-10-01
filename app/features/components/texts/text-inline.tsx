@@ -1,5 +1,6 @@
 import { HTMLProps } from "react";
 import styles from "./text.module.scss";
+import { ArrayToClassName } from "@commons/utils/utils";
 
 type HeadingProps = Omit<HTMLProps<HTMLSpanElement>, "type"> & {
   modifSize?: "bigger" | "smaller";
@@ -11,16 +12,15 @@ export function TextInline({
   className,
   modifSize,
   type,
-  ...rest
+  ...props
 }: HeadingProps) {
-  const props = {
-    className: [styles[type], className].filter((f) => !!f).join(" "),
-    children: modifSize ? (
-      <span className={styles[modifSize]}>{children}</span>
-    ) : (
-      children
-    ),
-    ...rest,
-  };
-  return <span {...props} />;
+  return (
+    <span {...props} className={ArrayToClassName([styles[type], className])}>
+      {modifSize ? (
+        <span className={styles[modifSize]}>{children}</span>
+      ) : (
+        children
+      )}
+    </span>
+  );
 }

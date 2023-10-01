@@ -1,6 +1,7 @@
-import { ChangeEvent, HTMLProps } from "react";
+import { ChangeEvent, forwardRef, HTMLProps } from "react";
 import styles from "./text-field.module.scss";
 import { InputWrapper } from "@components/input-wrapper/input-wrapper";
+import { ArrayToClassName } from "@commons/utils/utils";
 
 export interface TextFieldProps
   extends Omit<HTMLProps<HTMLInputElement>, "value" | "onChange"> {
@@ -11,25 +12,25 @@ export interface TextFieldProps
   caption?: string;
 }
 
-export function TextField({
-  value,
-  onChange,
-  className,
-  label,
-  error,
-  caption,
-  ...props
-}: TextFieldProps) {
-  return (
-    <InputWrapper label={label} error={error} caption={caption}>
-      <input
-        className={[styles.textField, className, error && "error"]
-          .filter((f) => !!f)
-          .join(" ")}
-        {...props}
-        value={value}
-        onChange={(e) => onChange(e.target.value, e)}
-      />
-    </InputWrapper>
-  );
-}
+export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
+  function TextField(
+    { value, onChange, className, label, error, caption, ...props },
+    ref,
+  ) {
+    return (
+      <InputWrapper label={label} error={error} caption={caption}>
+        <input
+          {...props}
+          ref={ref}
+          className={ArrayToClassName([
+            styles.textField,
+            className,
+            error && "error",
+          ])}
+          value={value}
+          onChange={(e) => onChange(e.target.value, e)}
+        />
+      </InputWrapper>
+    );
+  },
+);

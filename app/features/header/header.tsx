@@ -5,6 +5,7 @@ import { NavLink } from "./nav-link/nav-link";
 import { Hide } from "@components/hide/hide";
 import { TextAnimationLoop } from "@components/text-animation/text-animation-loop";
 import { Routes } from "@features/routes/routes";
+import { ArrayToClassName } from "@commons/utils/utils";
 
 export const Header = () => {
   return (
@@ -28,7 +29,7 @@ export const Header = () => {
         </TextBlock>
       </Hide>
 
-      <header className={[styles.header, "sticky"].join(" ")}>
+      <header className={ArrayToClassName([styles.header, "sticky"])}>
         <CenteredContainer maxWidth={"1600px"}>
           <div className={styles.headerNavBar}>
             <NavLink href={Routes.site} label={"Accueil"} exact={true} />

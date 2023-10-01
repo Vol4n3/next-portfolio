@@ -5,7 +5,7 @@ import { Routes } from "@features/routes/routes";
 import { serverError } from "@features/server/server-errors";
 
 export const config = {
-  matcher: ["/", `${Routes.api}/:path*`],
+  matcher: ["/", `/api/:path*`],
 };
 const getIP = (request: NextRequest): string => {
   return (
